@@ -1,63 +1,260 @@
+<html><head><base href="." /><meta charset="UTF-8" /><title>Adnan Bouaouda Arafa - Portfolio</title>
+<style>
+:root {
+  --primary: #0A66C2;
+  --secondary: #4C4C4C;
+  --bg: #f5f5f5;
+  --text: #2b2b2b;
+}
 
-<!DOCTYPE html>
-<html>
-  <head>
-    <meta charset="utf-8">
-    <meta name="description" content="Página de ejemplo del MOOC de LINUX - UPM.">
-    <!--Sustituir por los datos del alumno-->
-    <meta name="author" content="Adnan Bouaouda Arafa">
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: 'Segoe UI', sans-serif;
+}
 
-    <!--Sustituir por los datos del alumno-->
-    <title>Adnan Bouaouda Arafa</title>
+body {
+  background: var(--bg);
+  color: var(--text);
+  line-height: 1.6;
+}
 
-    <link href="css/bootstrap.min.css" rel="stylesheet">
-    <link href="css/style.css" rel="stylesheet">
-  </head>
+.header {
+  background: linear-gradient(135deg, var(--primary), #084c8e);
+  color: white;
+  padding: 2rem;
+  text-align: center;
+}
 
-  <body>
-    <div class="container header-bar">
-      <!--Sustituir por los datos del alumno-->
-      <h3>Adnan Bouaouda Arafa<span><img style="width: 214px; height: 164px;" class='img-circle' alt="Adnan Bouaouda Arafa" src="img/adnan.png" align="right"></span></h3>
-      <p>
-        <!--Sustituir por los datos del alumno-->
-        Posición<br>
-        Departamento<br>
-        Organización
-      </p>
-      <address>
-        <!--Sustituir por los datos del alumno-->
-        <span class='glyphicon glyphicon-pencil'></span> bouaouda@gmail.com <br>
-      </address>
+.profile-pic {
+  width: 150px;
+  height: 150px;
+  border-radius: 50%;
+  margin: 1rem auto;
+  background: #fff;
+  padding: 5px;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+}
 
-      <!--Sustituir por los datos del alumno-->
-      <p><a href="http://twitter.com/AdnanBououda" target="blank"><img src="img/twitter-icon.jpg" width=25></a>
-      <!--Sustituir por los datos del alumno-->
-      <a href="http://github.com/AbuAwn" target="blank"><img src="img/github-icon.png" width=25></a>
-      <!--Sustituir por los datos del alumno-->
-      <a href="https://es.linkedin.com/in/adnan-bouaouda-arafa-02468450" target="blank"><img src="img/linkedin-icon.png" width=25></a>
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 2rem;
+}
+
+.section {
+  background: white;
+  border-radius: 10px;
+  padding: 2rem;
+  margin: 2rem 0;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+}
+
+.skill-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin: 1rem 0;
+}
+
+.skill-tag {
+  background: var(--primary);
+  color: white;
+  padding: 0.5rem 1rem;
+  border-radius: 20px;
+  font-size: 0.9rem;
+}
+
+.experience-item {
+  margin-bottom: 2rem;
+  padding-left: 1rem;
+  border-left: 3px solid var(--primary);
+}
+
+.nav {
+  background: white;
+  padding: 1rem;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+}
+
+.nav ul {
+  display: flex;
+  justify-content: center;
+  list-style: none;
+  gap: 2rem;
+}
+
+.nav a {
+  color: var(--text);
+  text-decoration: none;
+  font-weight: 500;
+  transition: color 0.3s;
+}
+
+.nav a:hover {
+  color: var(--primary);
+}
+
+.social-links {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+  margin-top: 1rem;
+}
+
+.social-links a {
+  color: white;
+  text-decoration: none;
+  padding: 0.5rem 1rem;
+  border-radius: 5px;
+  transition: opacity 0.3s;
+}
+
+.social-links a:hover {
+  opacity: 0.8;
+}
+
+.about-text {
+  margin: 1rem 0;
+  text-align: justify;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.fade-in {
+  animation: fadeIn 1s ease-out;
+}
+</style>
+</head>
+<body>
+
+<header class="header fade-in">
+  <svg class="profile-pic" viewBox="0 0 100 100">
+    <circle cx="50" cy="50" r="45" fill="#0A66C2"/>
+    <circle cx="50" cy="40" r="15" fill="#fff"/>
+    <path d="M50 60 Q50 85 80 85 A45 45 0 0 1 20 85 Q50 85 50 60" fill="#fff"/>
+  </svg>
+  <h1>Adnan Bouaouda Arafa</h1>
+  <p>After-Sales Manager at KOOLNOVA</p>
+  <div class="social-links">
+    <a href="https://www.linkedin.com/in/adnan-bouaouda-arafa-02468450/" target="_blank" rel="noopener noreferrer" style="background: #0A66C2;">LinkedIn Profile</a>
+    <a href="https://scholar.google.com/citations?user=YOUR_ID" target="_blank" rel="noopener noreferrer" style="background: #4285f4;">Google Scholar</a>
+    <a href="https://www.researchgate.net/profile/YOUR_PROFILE" target="_blank" rel="noopener noreferrer" style="background: #00ccbb;">ResearchGate</a>
+  </div>
+</header>
+
+<nav class="nav">
+  <ul>
+    <li><a href="#about">About</a></li>
+    <li><a href="#experience">Experience</a></li>
+    <li><a href="#skills">Skills</a></li>
+    <li><a href="#contact">Contact</a></li>
+  </ul>
+</nav>
+
+<div class="container">
+  <section id="about" class="section fade-in">
+    <h2>About Me</h2>
+    <div class="about-text">
+      <p>Passionate about International After-Sales Support | Bridging Technical Expertise and Commercial Insight</p>
+      <br>
+      <p>Managing international after-sales support has been an incredible learning journey. Our goal is to ensure that customers maintain the same excitement and trust they felt on the first day they chose our ever-evolving products—products that present real challenges and opportunities every single day.</p>
+      <br>
+      <p>Being at the intersection of technical development and manufacturing on one side, and customer-facing commercial operations across various countries on the other, has given me a unique perspective. This role enables me to understand how the entire system functions and, more importantly, what products are needed in each market.</p>
+      <br>
+      <p>Mathematics is more than a discipline for me; it's a way of life that shapes my rational understanding of the world around me. I've been fortunate to work alongside remarkable people who have guided me along the way. While engineering once appealed to me as a way to satisfy my practical curiosity, I've always considered myself, or at least strived to be, a mathematician at heart.</p>
     </div>
+  </section>
 
-    <div class="container">
-      <div class='row'>
-        <div class='col-sm-8'>
-          <br>
-          <p>Este párrafo contiene una descripción breve del alumno. Se trata de un texto que permite conocer su ocupación actual y sus principales títulos académicos y/o profesionales.  </p>
-
-          <p>En este segundo párrafo nos centraremos en las capacidades de desarrollo del alumno, de forma que se pueda conocer si sabe programar, en qué lenguajes, qué sistemas operativos conoce y domina, etc. También se pueden mencionar los proyectos que se han desarrollado en GitHub, o cualquier otra información que se considere relevante.</p>
-
-          <h3>Cursos</h3>
-          <table class='table table-striped'>
-            <tr><td><a href="https://www.miriadax.net" target="blank">Introducción a Linux como entorno de desarrollo de sistemas software</a>.</td></tr>
-            <tr><td>Otros...</td></tr>
-          </table>
-        </div>
-      </div>
-
-      <footer class="footer">
-        <!--Sustituir por los datos del alumno-->
-        <p>&copy; Adnan Bouaouda Arafa - 2018</p>
-      </footer>
-
+  <section id="experience" class="section fade-in">
+    <h2>Professional Experience</h2>
+    <div class="experience-item">
+      <h3>After-Sales Manager - KOOLNOVA Smart Buildings</h3>
+      <p>Oct 2021 - Present · Málaga, Spain</p>
+      <ul>
+        <li>Technical support and customer service management</li>
+        <li>Training coordination and development</li>
+        <li>After-sales service optimization</li>
+      </ul>
     </div>
-  </body>
-</html>
+    <div class="experience-item">
+      <h3>Testing Engineer - DEKRA Testing and Certification</h3>
+      <p>Aug 2019 - Oct 2021 · Málaga, Spain</p>
+      <ul>
+        <li>Product testing and certification</li>
+        <li>Technical documentation and reporting</li>
+        <li>Travel management</li>
+      </ul>
+    </div>
+    <div class="experience-item">
+      <h3>Head of Technical Service Airzone France - Altra Corporation</h3>
+      <p>Feb 2011 - Feb 2018 · Málaga, Spain</p>
+      <ul>
+        <li>Technical support for international markets</li>
+        <li>On-site assistance and incident resolution</li>
+        <li>Technical training coordination</li>
+        <li>Warranty management and quality control</li>
+      </ul>
+    </div>
+    <div class="experience-item">
+      <h3>International After-Sales Coordinator - Airzone España</h3>
+      <p>Feb 2004 - Feb 2011</p>
+      <ul>
+        <li>International after-sales service coordination</li>
+        <li>Technical support and training</li>
+      </ul>
+    </div>
+  </section>
+
+  <section id="skills" class="section fade-in">
+    <h2>Technical Skills</h2>
+    <div class="skill-tags">
+      <span class="skill-tag">Technical Support</span>
+      <span class="skill-tag">Customer Service</span>
+      <span class="skill-tag">Training</span>
+      <span class="skill-tag">After-Sales Management</span>
+      <span class="skill-tag">Quality Control</span>
+      <span class="skill-tag">Technical Documentation</span>
+      <span class="skill-tag">Project Management</span>
+      <span class="skill-tag">International Markets</span>
+    </div>
+  </section>
+
+  <section id="contact" class="section fade-in">
+    <h2>Contact</h2>
+    <p>Connect with me on <a href="https://www.linkedin.com/in/adnan-bouaouda-arafa-02468450/" target="_blank" rel="noopener noreferrer">LinkedIn</a></p>
+  </section>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const sections = document.querySelectorAll('.fade-in');
+    
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.style.opacity = 1;
+                entry.target.style.transform = 'translateY(0)';
+            }
+        });
+    }, {
+        threshold: 0.1
+    });
+
+    sections.forEach(section => {
+        section.style.opacity = 0;
+        section.style.transform = 'translateY(20px)';
+        section.style.transition = 'opacity 0.6s ease-out, transform 0.6s ease-out';
+        observer.observe(section);
+    });
+});
+</script>
+
+</body></html>
