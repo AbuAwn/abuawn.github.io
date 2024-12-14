@@ -1,8 +1,4 @@
-<html>
-<head>
-<base href="." />
-<meta charset="UTF-8" />
-<title>Adnan Bouaouda Arafa - Portfolio</title>
+<html><head><base href="." /><meta charset="UTF-8" /><title>Adnan Bouaouda Arafa - Portfolio</title>
 <style>
 :root {
   --primary: #0A66C2;
@@ -27,63 +23,132 @@ body {
 .header {
   background: linear-gradient(135deg, var(--primary), #084c8e);
   color: white;
-  padding: 2rem;
+  padding: 4rem 2rem;
   text-align: center;
+  position: relative;
+  overflow: hidden;
+}
+
+.header::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: radial-gradient(circle at center, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0) 70%);
 }
 
 .profile-pic {
-  width: 150px;
-  height: 150px;
+  width: 180px;
+  height: 180px;
   border-radius: 50%;
   margin: 1rem auto;
+  object-fit: cover;
   background: #fff;
   padding: 5px;
-  box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-  object-fit: cover;
+  box-shadow: 0 4px 25px rgba(0,0,0,0.2);
+  transition: transform 0.3s ease;
+}
+
+.profile-pic:hover {
+  transform: scale(1.05);
 }
 
 .container {
-  max-width: 1200px;
+  max-width: 1000px;
   margin: 0 auto;
   padding: 2rem;
 }
 
 .section {
   background: white;
-  border-radius: 10px;
-  padding: 2rem;
+  border-radius: 15px;
+  padding: 2.5rem;
   margin: 2rem 0;
-  box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+  box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+  transition: transform 0.3s ease;
+}
+
+.section:hover {
+  transform: translateY(-5px);
+}
+
+.read-more-content {
+  max-height: 100px;
+  overflow: hidden;
+  transition: max-height 0.3s ease-out;
+  position: relative;
+}
+
+.read-more-content.expanded {
+  max-height: 1000px;
+}
+
+.read-more-trigger {
+  background: none;
+  border: none;
+  color: var(--primary);
+  cursor: pointer;
+  font-weight: 500;
+  margin-top: 1rem;
+  padding: 0.5rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.read-more-trigger:hover {
+  text-decoration: underline;
 }
 
 .skill-tags {
   display: flex;
   flex-wrap: wrap;
-  gap: 0.5rem;
+  gap: 0.8rem;
   margin: 1rem 0;
 }
 
 .skill-tag {
-  background: var(--primary);
+  background: linear-gradient(135deg, var(--primary), #084c8e);
   color: white;
-  padding: 0.5rem 1rem;
-  border-radius: 20px;
+  padding: 0.6rem 1.2rem;
+  border-radius: 25px;
   font-size: 0.9rem;
+  box-shadow: 0 2px 8px rgba(10, 102, 194, 0.2);
+  transition: transform 0.2s ease;
+}
+
+.skill-tag:hover {
+  transform: translateY(-2px);
 }
 
 .experience-item {
-  margin-bottom: 2rem;
-  padding-left: 1rem;
+  margin-bottom: 2.5rem;
+  padding-left: 1.5rem;
   border-left: 3px solid var(--primary);
+  position: relative;
+}
+
+.experience-item::before {
+  content: '';
+  position: absolute;
+  left: -8px;
+  top: 0;
+  width: 13px;
+  height: 13px;
+  background: var(--primary);
+  border-radius: 50%;
 }
 
 .nav {
-  background: white;
+  background: rgba(255, 255, 255, 0.95);
   padding: 1rem;
   position: sticky;
   top: 0;
   z-index: 100;
-  box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+  box-shadow: 0 2px 15px rgba(0,0,0,0.08);
+  backdrop-filter: blur(10px);
 }
 
 .nav ul {
@@ -97,35 +162,77 @@ body {
   color: var(--text);
   text-decoration: none;
   font-weight: 500;
-  transition: color 0.3s;
+  transition: all 0.3s;
+  padding: 0.5rem 1rem;
+  border-radius: 20px;
 }
 
 .nav a:hover {
   color: var(--primary);
+  background: rgba(10, 102, 194, 0.1);
+}
+
+.header-links {
+  display: flex;
+  gap: 1.5rem; /* Increased gap between buttons */
+  justify-content: center;
+  margin-top: 2rem;
+}
+
+.header-links a {
+  color: white;
+  text-decoration: none;
+  padding: 0.8rem 1.8rem; /* Slightly wider padding */
+  border-radius: 25px; /* More rounded corners */
+  transition: all 0.3s;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+  display: flex;
+  align-items: center;
+  gap: 0.8rem; /* Increased gap between icon and text */
+  font-size: 1.1rem; /* Slightly larger font */
+  font-weight: 500;
+  letter-spacing: 0.5px;
+}
+
+.header-links svg {
+  width: 22px; /* Consistent icon size */
+  height: 22px;
+}
+
+.header-links a:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 6px 20px rgba(0,0,0,0.25);
 }
 
 .social-links {
   display: flex;
   gap: 1rem;
   justify-content: center;
-  margin-top: 1rem;
+  margin-top: 2rem;
+  flex-wrap: wrap;
 }
 
 .social-links a {
-  color: white;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: var(--text);
   text-decoration: none;
-  padding: 0.5rem 1rem;
-  border-radius: 5px;
-  transition: opacity 0.3s;
+  padding: 0.8rem 1.5rem;
+  border-radius: 8px;
+  transition: all 0.3s;
+  background: white;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.1);
 }
 
 .social-links a:hover {
-  opacity: 0.8;
+  transform: translateY(-3px);
+  box-shadow: 0 6px 20px rgba(0,0,0,0.15);
 }
 
-.about-text {
-  margin: 1rem 0;
-  text-align: justify;
+.social-links svg {
+  width: 24px;
+  height: 24px;
 }
 
 @keyframes fadeIn {
@@ -136,18 +243,32 @@ body {
 .fade-in {
   animation: fadeIn 1s ease-out;
 }
+
+.experience-content {
+  max-height: 100px;
+  overflow: hidden;
+  transition: max-height 0.3s ease-out;
+}
+
+.experience-content.expanded {
+  max-height: 1000px;
+}
 </style>
 </head>
 <body>
 
 <header class="header fade-in">
-  <img src="img/adnan.png" alt="Adnan Bouaouda Arafa" class="profile-pic" />
+  <img src="img/adnan.png" alt="Adnan Bouaouda Arafa" class="profile-pic">
   <h1>Adnan Bouaouda Arafa</h1>
-  <div class="social-links">
-    <a href="https://www.linkedin.com/in/adnan-bouaouda-arafa-02468450/" target="_blank" rel="noopener noreferrer" style="background: #0A66C2;">LinkedIn Profile</a>
-    <a href="https://scholar.google.com/citations?user=YOUR_ID" target="_blank" rel="noopener noreferrer" style="background: #4285f4;">Google Scholar</a>
-    <a href="https://www.researchgate.net/profile/YOUR_PROFILE" target="_blank" rel="noopener noreferrer" style="background: #00ccbb;">ResearchGate</a>
-    <a href="https://x.com/AdnanBououda" target="_blank" rel="noopener noreferrer" style="background: #1DA1F2;">X Profile</a>
+  <div class="header-links">
+    <a href="/mathematics" style="background: #9C27B0;">
+      <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2L2 7v10l10 5 10-5V7L12 2zm0 2.7L19.5 8 12 11.3 4.5 8 12 4.7zM4 9.8l7 3.1v6.3l-7-3.1V9.8zm9 9.4v-6.3l7-3.1v6.3l-7 3.1z"/></svg>
+      Mathematics
+    </a>
+    <a href="/programming" style="background: #2196F3;">
+      <svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 16L2 12l6-4v3h8V8l6 4-6 4v-3H8v3zm14-4l-1.41-1.41L16 15.17V14h-2v3.17l4.59-4.58L20 14zm-1.41 1.41L16 15.17V14h-2v3.17l4.59-4.58L18.59 13.41z"/></svg>
+      Programming
+    </a>
   </div>
 </header>
 
@@ -157,8 +278,6 @@ body {
     <li><a href="#experience">Experience</a></li>
     <li><a href="#skills">Skills</a></li>
     <li><a href="#contact">Contact</a></li>
-    <li><a href="#mathematics">Mathematics</a></li>
-    <li><a href="#programming">Programming</a></li>
   </ul>
 </nav>
 
@@ -166,54 +285,64 @@ body {
   <section id="about" class="section fade-in">
     <h2>About Me</h2>
     <div class="about-text">
-      <p>Passionate about International After-Sales Support | Bridging Technical Expertise and Commercial Insight</p>
-      <br>
-      <p>Managing international after-sales support has been an incredible learning journey. Our goal is to ensure that customers maintain the same excitement and trust they felt on the first day they chose our ever-evolving products—products that present real challenges and opportunities every single day.</p>
-      <br>
-      <p>Being at the intersection of technical development and manufacturing on one side, and customer-facing commercial operations across various countries on the other, has given me a unique perspective. This role enables me to understand how the entire system functions and, more importantly, what products are needed in each market.</p>
-      <br>
-      <p>Mathematics is more than a discipline for me; it's a way of life that shapes my rational understanding of the world around me. I've been fortunate to work alongside remarkable people who have guided me along the way. While engineering once appealed to me as a way to satisfy my practical curiosity, I've always considered myself, or at least strived to be, a mathematician at heart.</p>
+      <div class="read-more-content">
+        <p>Passionate about International After-Sales Support | Bridging Technical Expertise and Commercial Insight</p>
+        <br>
+        <p>Managing international after-sales support has been an incredible learning journey. Our goal is to ensure that customers maintain the same excitement and trust they felt on the first day they chose our ever-evolving products—products that present real challenges and opportunities every single day.</p>
+        <br>
+        <p>Being at the intersection of technical development and manufacturing on one side, and customer-facing commercial operations across various countries on the other, has given me a unique perspective...</p>
+      </div>
+      <button class="read-more-trigger">
+        Read More
+        <svg width="12" height="12" viewBox="0 0 12 12"><path d="M6 9L12 3L10.6 1.6L6 6.2L1.4 1.6L0 3L6 9Z" fill="currentColor"/></svg>
+      </button>
     </div>
   </section>
 
   <section id="experience" class="section fade-in">
     <h2>Professional Experience</h2>
-    <div class="experience-item">
-      <h3>After-Sales Manager - KOOLNOVA Smart Buildings</h3>
-      <p>Oct 2021 - Present · Málaga, Spain</p>
-      <ul>
-        <li>Technical support and customer service management</li>
-        <li>Training coordination and development</li>
-        <li>After-sales service optimization</li>
-      </ul>
+    <div class="experience-content">
+      <div class="experience-item">
+        <h3>After-Sales Manager - KOOLNOVA Smart Buildings</h3>
+        <p>Oct 2021 - Present · Málaga, Spain</p>
+        <ul>
+          <li>Technical support and customer service management</li>
+          <li>Training coordination and development</li>
+          <li>After-sales service optimization</li>
+        </ul>
+      </div>
+      <div class="experience-item">
+        <h3>Testing Engineer - DEKRA Testing and Certification</h3>
+        <p>Aug 2019 - Oct 2021 · Málaga, Spain</p>
+        <ul>
+          <li>Product testing and certification</li>
+          <li>Technical documentation and reporting</li>
+          <li>Travel management</li>
+        </ul>
+      </div>
+      <div class="experience-item">
+        <h3>Head of Technical Service Airzone France - Altra Corporation</h3>
+        <p>Feb 2011 - Feb 2018 · Málaga, Spain</p>
+        <ul>
+          <li>Technical support for international markets</li>
+          <li>On-site assistance and incident resolution</li>
+          <li>Technical training coordination</li>
+          <li>Warranty management and quality control</li>
+        </ul>
+      </div>
+      <div class="experience-item">
+        <h3>International After-Sales Coordinator - Airzone España</h3>
+        <p>Feb 2004 - Feb 2011</p>
+        <ul>
+          <li>International after-sales service coordination</li>
+          <li>Technical support and training</li>
+        </ul>
+      </div>
     </div>
-    <div class="experience-item">
-      <h3>Testing Engineer - DEKRA Testing and Certification</h3>
-      <p>Aug 2019 - Oct 2021 · Málaga, Spain</p>
-      <ul>
-        <li>Product testing and certification</li>
-        <li>Technical documentation and reporting</li>
-        <li>Travel management</li>
-      </ul>
-    </div>
-    <div class="experience-item">
-      <h3>Head of Technical Service Airzone France - Altra Corporation</h3>
-      <p>Feb 2011 - Feb 2018 · Málaga, Spain</p>
-      <ul>
-        <li>Technical support for international markets</li>
-        <li>On-site assistance and incident resolution</li>
-        <li>Technical training coordination</li>
-        <li>Warranty management and quality control</li>
-      </ul>
-    </div>
-    <div class="experience-item">
-      <h3>International After-Sales Coordinator - Airzone España</h3>
-      <p>Feb 2004 - Feb 2011</p>
-      <ul>
-        <li>International after-sales service coordination</li>
-        <li>Technical support and training</li>
-      </ul>
-    </div>
+    <button class="read-more-trigger">
+      Show More Experience
+      <svg width="12" height="12" viewBox="0 0 12 12"><path d="M6 9L12 3L10.6 1.6L6 6.2L1.4 1.6L0 3L6 9Z" fill="currentColor"/></svg>
+    </button>
   </section>
 
   <section id="skills" class="section fade-in">
@@ -232,24 +361,26 @@ body {
 
   <section id="contact" class="section fade-in">
     <h2>Contact</h2>
-    <p>Connect with me on <a href="https://www.linkedin.com/in/adnan-bouaouda-arafa-02468450/" target="_blank" rel="noopener noreferrer">LinkedIn</a></p>
-  </section>
-
-  <section id="mathematics" class="section fade-in">
-    <h2>Mathematics</h2>
-    <p>Explore my work and content related to mathematics <a href="mathematics.html" target="_blank">here</a>.</p>
-  </section>
-
-  <section id="programming" class="section fade-in">
-    <h2>Programming</h2>
-    <p>Discover my activities in functional programming <a href="programming.html" target="_blank">here</a>.</p>
+    <div class="social-links">
+      <a href="https://www.linkedin.com/in/adnan-bouaouda-arafa-02468450/" target="_blank" rel="noopener noreferrer">
+        <svg viewBox="0 0 24 24" fill="#0A66C2"><path d="M19 3a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h14m-.5 15.5v-5.3a3.26 3.26 0 0 0-3.26-3.26c-.85 0-1.84.52-2.32 1.3v-1.11h-2.79v8.37h2.79v-4.93c0-.77.62-1.4 1.39-1.4a1.4 1.4 0 0 1 1.4 1.4v4.93h2.79M6.88 8.56a1.68 1.68 0 0 0 1.68-1.68c0-.93-.75-1.69-1.68-1.69a1.69 1.69 0 0 0-1.69 1.69c0 .93.76 1.68 1.69 1.68m1.39 9.94v-8.37H5.5v8.37h2.77z"/></svg>
+        LinkedIn
+      </a>
+      <a href="https://x.com/AdnanBououda" target="_blank" rel="noopener noreferrer">
+        <svg viewBox="0 0 24 24" fill="#000000"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+        Twitter
+      </a>
+      <a href="https://www.researchgate.net/profile/Adnan-Bouaouda-Arafa" target="_blank" rel="noopener noreferrer">
+        <svg viewBox="0 0 24 24" fill="#00CCBB"><path d="M19.586 0c-.818 0-1.508.19-2.073.565-.563.377-.97.936-1.213 1.68a3.193 3.193 0 0 0-.112.437 8.365 8.365 0 0 0-.078.53 9 9 0 0 0-.05.727c-.01.282-.013.621-.013 1.016a31.121 31.121 0 0 0 .014 1.017 9 9 0 0 0 .05.727 7.946 7.946 0 0 0 .077.53h-.005a3.334 3.334 0 0 0 .113.438c.245.743.65 1.303 1.214 1.68.565.376 1.256.564 2.075.564.8 0 1.536-.213 2.105-.603.57-.39.94-.916 1.175-1.65.076-.235.135-.558.177-.93a10.9 10.9 0 0 0 .043-1.207v-.82c0-.095-.047-.142-.14-.142h-3.064c-.094 0-.14.047-.14.141v.956c0 .094.046.14.14.14h1.666c.056 0 .084.03.084.086 0 .36 0 .62-.036.865-.038.244-.1.447-.147.606-.108.385-.348.664-.638.876-.29.212-.738.35-1.227.35-.545 0-.901-.15-1.21-.323-.306-.174-.517-.4-.67-.645-.154-.247-.277-.573-.353-.876-.074-.302-.155-.574-.165-.836-.011-.261-.016-.498-.016-.707 0-.471.022-.846.087-1.087.065-.24.145-.527.234-.872.088-.345.244-.623.519-.833.273-.21.672-.32 1.19-.32.629 0 1.105.124 1.432.331.328.207.578.515.75.912.024.061.063.092.117.092.037 0 .068-.01.092-.028l1.139-.83c.031-.021.05-.058.056-.1.006-.042-.003-.078-.028-.11-.385-.65-.905-1.116-1.565-1.392-.66-.275-1.407-.413-2.24-.413z M5.484 5.527c-.186 0-.36.002-.532.008a8.284 8.284 0 0 0-.522.033 4.855 4.855 0 0 0-.51.072c-.329.063-.597.144-.803.245-.207.102-.378.234-.517.4a1.626 1.626 0 0 0-.307.577 2.307 2.307 0 0 0-.1.778c0 .438.074.792.222 1.063.15.27.335.473.56.611s.466.223.722.223c.298 0 .55-.078.756-.231a1.542 1.542 0 0 0 .503-.635c.13-.27.195-.564.195-.885 0-.18-.033-.351-.096-.512a1.098 1.098 0 0 0-.278-.403 1.174 1.174 0 0 0-.431-.26 1.612 1.612 0 0 0-.552-.089c-.075 0-.14.003-.193.007a1.26 1.26 0 0 0-.183.022c.183-.216.395-.377.635-.483.24-.105.485-.157.736-.157.17 0 .34.019.51.055.17.037.337.091.502.165.33.148.517.393.517.916v5.167h2.334V7.524c0-.913-.354-1.558-1.062-1.935-.709-.377-1.617-.565-2.724-.565z M1.524 14.884l3.193-7.578H7.79l3.194 7.578h-2.33L7.79 13.01H4.717l-.864 1.874z M6.254 7.306c.098 0 .187.011.27.033.08.022.151.057.212.103a.483.483 0 0 1 .157.181.61.61 0 0 1 .042.232.78.78 0 0 1-.09.37.642.642 0 0 1-.263.27.813.813 0 0 1-.398.098.81.81 0 0 1-.397-.097.642.642 0 0 1-.262-.27.78.78 0 0 1-.09-.37.61.61 0 0 1 .042-.232.481.481 0 0 1 .156-.18.683.683 0 0 1 .212-.104.837.837 0 0 1 .27-.033zM5.607 11.886h2.294l-.837-1.872h-.62z"/></svg>
+        ResearchGate
+      </a>
+    </div>
   </section>
 </div>
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
     const sections = document.querySelectorAll('.fade-in');
-    
     const observer = new IntersectionObserver((entries) => {
         entries.forEach(entry => {
             if (entry.isIntersecting) {
@@ -267,8 +398,30 @@ document.addEventListener('DOMContentLoaded', function() {
         section.style.transition = 'opacity 0.6s ease-out, transform 0.6s ease-out';
         observer.observe(section);
     });
+
+    const readMoreTriggers = document.querySelectorAll('.read-more-trigger');
+    
+    readMoreTriggers.forEach(trigger => {
+        trigger.addEventListener('click', function() {
+            const content = this.previousElementSibling;
+            content.classList.toggle('expanded');
+            this.textContent = content.classList.contains('expanded') ? 'Read Less' : 'Read More';
+            
+            const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+            svg.setAttribute("width", "12");
+            svg.setAttribute("height", "12");
+            svg.setAttribute("viewBox", "0 0 12 12");
+            const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
+            path.setAttribute("d", content.classList.contains('expanded') 
+                ? "M6 3L12 9L10.6 10.4L6 5.8L1.4 10.4L0 9L6 3Z"  // Up arrow
+                : "M6 9L12 3L10.6 1.6L6 6.2L1.4 1.6L0 3L6 9Z"    // Down arrow
+            );
+            path.setAttribute("fill", "currentColor");
+            svg.appendChild(path);
+            this.appendChild(svg);
+        });
+    });
 });
 </script>
 
-</body>
-</html>
+</body></html>
