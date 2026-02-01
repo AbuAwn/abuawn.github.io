@@ -12,13 +12,12 @@
     rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 
-  <!-- We keep the CV specific styles but also import main.css for navbar -->
-  <link rel="stylesheet" href="css/main.css"> <!-- For navbar consistency -->
+  <!-- Import main.css for navbar -->
+  <link rel="stylesheet" href="css/main.css">
 
   <style>
     /* CV Specific Overrides */
     :root {
-      /* Ensure variables from main.css don't conflict or are reused */
       --bg-cv: #f1f5f9;
     }
 
@@ -26,7 +25,6 @@
       background-color: var(--bg-cv);
     }
 
-    /* ... existing CV styles ... */
     .cv-page {
       background: var(--white);
       max-width: 1000px;
@@ -51,8 +49,6 @@
       z-index: 2;
     }
 
-    /* ... (Keep original CV styles) ... */
-    /* Re-pasting relevant styles for print and layout from previous version to ensure no regression */
     .header::after {
       content: "";
       position: absolute;
@@ -71,6 +67,12 @@
       font-weight: 700;
       letter-spacing: 1px;
     }
+
+    body.ar .header-text h1 {
+      font-family: 'Cairo', sans-serif;
+    }
+
+    /* Arabic Font override */
 
     .header-text .subtitle {
       font-size: 16px;
@@ -108,6 +110,15 @@
       flex-grow: 1;
     }
 
+    /* RTL support for grid */
+    body.ar .main-container {
+      direction: rtl;
+    }
+
+    body.ar .header {
+      direction: rtl;
+    }
+
     h2.section-title {
       font-family: 'Poppins', sans-serif;
       font-size: 18px;
@@ -119,6 +130,10 @@
       display: flex;
       align-items: center;
       gap: 10px;
+    }
+
+    body.ar h2.section-title {
+      font-family: 'Cairo', sans-serif;
     }
 
     h2.section-title:first-child {
@@ -169,6 +184,11 @@
 
     ul.skills-list li {
       margin-bottom: 3px;
+    }
+
+    body.ar ul.skills-list {
+      margin-right: 15px;
+      margin-left: 0;
     }
 
     .sidebar {
@@ -236,8 +256,7 @@
         display: none !important;
       }
 
-      /* Hide navbar when printing */
-      .lang-msg {
+      .lang-selector {
         display: none !important;
       }
 
@@ -314,6 +333,10 @@
 </head>
 
 <body class="es">
+  <!-- Dynamic Titles -->
+  <span id="title-es" style="display:none">CV Adnan Bouaouda Arafa | Ingeniero de Telecomunicación</span>
+  <span id="title-en" style="display:none">CV Adnan Bouaouda Arafa | Telecommunications Engineer</span>
+  <span id="title-ar" style="display:none">سيرة ذاتية عدنان بوعودة عرفة | مهندس اتصالات</span>
 
   <nav class="navbar">
     <a href="index.html" class="nav-brand">AbuAwn</a>
@@ -344,20 +367,19 @@
     </div>
   </nav>
 
-  <!-- Language Fallback Message for EN/AR -->
-  <div class="container lang-msg" style="text-align: center; margin-top: 50px;">
-    <span class="lang-en">The full CV is currently available in Spanish. <br><button onclick="setLanguage('es')"
-        style="margin-top:10px; padding:5px 10px; cursor:pointer;">Switch to Spanish to view</button></span>
-    <span class="lang-ar">السيرة الذاتية الكاملة متاحة حاليًا باللغة الإسبانية.<br><button onclick="setLanguage('es')"
-        style="margin-top:10px; padding:5px 10px; cursor:pointer;">التبديل إلى الإسبانية للعرض</button></span>
-  </div>
-
-  <!-- CV Content - Wrapped in lang-es to strictly show only in Spanish mode -->
-  <div class="cv-page lang-es">
+  <div class="cv-page">
     <header class="header">
       <div class="header-text">
-        <h1>ADNAN BOUAOUDA ARAFA</h1>
-        <div class="subtitle">Ingeniero de Test y Validación</div>
+        <h1>
+          <span class="lang-es">ADNAN BOUAOUDA ARAFA</span>
+          <span class="lang-en">ADNAN BOUAOUDA ARAFA</span>
+          <span class="lang-ar">عدنان بوعودة عرفة</span>
+        </h1>
+        <div class="subtitle">
+          <span class="lang-es">Ingeniero de Test y Validación</span>
+          <span class="lang-en">Test and Validation Engineer</span>
+          <span class="lang-ar">مهندس اختبار وتحقق</span>
+        </div>
       </div>
       <div class="profile-photo">
         <img src="img/perfil_linkedin_pro.png" alt="Foto Profesional"
@@ -368,138 +390,281 @@
     <div class="main-container">
       <!-- Columna Principal -->
       <div class="content">
-        <h2 class="section-title"><i class="fa-solid fa-user"></i> Perfil Profesional</h2>
+        <h2 class="section-title">
+          <i class="fa-solid fa-user"></i>
+          <span class="lang-es">Perfil Profesional</span>
+          <span class="lang-en">Professional Profile</span>
+          <span class="lang-ar">الملف المهني</span>
+        </h2>
         <p class="about-text">
-          Ingeniero de Telecomunicaciones con más de 20 años de experiencia internacional en el sector
-          tecnológico, especializado en test y validación de sistemas electrónicos y servicios de conectividad
-          celular (V2X, 4G/5G). Mi trayectoria combina un sólido rigor matemático con una visión estratégica
-          de post-venta y dirección técnica. Experto en el análisis de protocolos de red complejos y en la
-          certificación de dispositivos para mercados globales (EMEA y GCC).
+          <span class="lang-es">Ingeniero de Telecomunicaciones con más de 20 años de experiencia internacional en el
+            sector tecnológico, especializado en test y validación de sistemas electrónicos y servicios de conectividad
+            celular (V2X, 4G/5G). Mi trayectoria combina un sólido rigor matemático con una visión estratégica de
+            post-venta y dirección técnica. Experto en el análisis de protocolos de red complejos y en la certificación
+            de dispositivos para mercados globales (EMEA y GCC).</span>
+          <span class="lang-en">Telecommunications Engineer with over 20 years of international experience in the
+            technology sector, specialized in testing and validation of electronic systems and cellular connectivity
+            services (V2X, 4G/5G). My career combines solid mathematical rigor with a strategic vision of after-sales
+            and technical management. Expert in analyzing complex network protocols and device certification for global
+            markets (EMEA and GCC).</span>
+          <span class="lang-ar">مهندس اتصالات بخبرة تزيد عن 20 عامًا في القطاع التكنولوجي، متخصص في اختبار والتحقق من
+            الأنظمة الإلكترونية وخدمات الاتصال الخلوي (V2X، 4G/5G). يجمع مساري المهني بين الدقة الرياضية القوية والرؤية
+            الاستراتيجية لخدمات ما بعد البيع والإدارة الفنية. خبير في تحليل بروتوكولات الشبكة المعقدة واعتماد الأجهزة
+            للأسواق العالمية (أوروبا والشرق الأوسط والخليج).</span>
         </p>
 
-        <h2 class="section-title"><i class="fa-solid fa-briefcase"></i> Experiencia Profesional</h2>
+        <h2 class="section-title">
+          <i class="fa-solid fa-briefcase"></i>
+          <span class="lang-es">Experiencia Profesional</span>
+          <span class="lang-en">Professional Experience</span>
+          <span class="lang-ar">الخبرة المهنية</span>
+        </h2>
 
         <div class="experience-item">
           <div class="exp-header">
-            <span>Ingeniero de Test y Validación</span>
-            <span>Abr 2025 - Actualidad</span>
+            <span>
+              <span class="lang-es">Ingeniero de Test y Validación</span>
+              <span class="lang-en">Test and Validation Engineer</span>
+              <span class="lang-ar">مهندس اختبار وتحقق</span>
+            </span>
+            <span>
+              <span class="lang-es">Abr 2025 - Actualidad</span>
+              <span class="lang-en">Apr 2025 - Present</span>
+              <span class="lang-ar">أبريل 2025 - حتى الآن</span>
+            </span>
           </div>
           <div class="exp-company">AUCORE SL (Koolnova)</div>
-          <p class="exp-desc">Liderazgo técnico en la fase de validación de nuevos desarrollos electrónicos
-            para sistemas de control de climatización. Definición de casos de prueba y aseguramiento de la
-            interoperabilidad del ecosistema inteligente.</p>
+          <p class="exp-desc">
+            <span class="lang-es">Liderazgo técnico en la fase de validación de nuevos desarrollos electrónicos para
+              sistemas de control de climatización. Definición de casos de prueba y aseguramiento de la
+              interoperabilidad del ecosistema inteligente.</span>
+            <span class="lang-en">Technical leadership in the validation phase of new electronic developments for
+              climate control systems. Definition of test cases and assurance of intelligent ecosystem
+              interoperability.</span>
+            <span class="lang-ar">قيادة فنية في مرحلة التحقق من التطويرات الإلكترونية الجديدة لأنظمة التحكم في المناخ.
+              تحديد حالات الاختبار وضمان قابلية التشغيل البيني للنظام البيئي الذكي.</span>
+          </p>
         </div>
 
         <div class="experience-item">
           <div class="exp-header">
-            <span>Director Técnico y Post-venta</span>
-            <span>Oct 2021 - Abr 2025</span>
+            <span>
+              <span class="lang-es">Director Técnico y Post-venta</span>
+              <span class="lang-en">Technical and After-Sales Director</span>
+              <span class="lang-ar">مدير فني وخدمات ما بعد البيع</span>
+            </span>
+            <span>
+              <span class="lang-es">Oct 2021 - Abr 2025</span>
+              <span class="lang-en">Oct 2021 - Apr 2025</span>
+              <span class="lang-ar">أكتوبر 2021 - أبريل 2025</span>
+            </span>
           </div>
           <div class="exp-company">AUCORE SL (Koolnova)</div>
           <ul class="skills-list">
-            <li>Dirección de la estrategia técnica de soporte y validación de campo.</li>
-            <li>Gestión integral de garantías, soporte especializado B2B y logística de recambios técnicos.
+            <li>
+              <span class="lang-es">Dirección de la estrategia técnica de soporte y validación de campo.</span>
+              <span class="lang-en">Management of technical support strategy and field validation.</span>
+              <span class="lang-ar">إدارة استراتيجية الدعم الفني والتحقق الميداني.</span>
             </li>
-            <li>Intermediación técnica entre departamentos de I+D y clientes finales.</li>
+            <li>
+              <span class="lang-es">Gestión integral de garantías, soporte especializado B2B y logística de recambios
+                técnicos.</span>
+              <span class="lang-en">Comprehensive warranty management, specialized B2B support, and technical spare
+                parts logistics.</span>
+              <span class="lang-ar">إدارة شاملة للضمانات، ودعم متخصص للشركات (B2B)، ولوجستيات قطع الغيار الفنية.</span>
+            </li>
+            <li>
+              <span class="lang-es">Intermediación técnica entre departamentos de I+D y clientes finales.</span>
+              <span class="lang-en">Technical liaison between R&D departments and end customers.</span>
+              <span class="lang-ar">الوساطة الفنية بين أقسام البحث والتطوير والعملاء النهائيين.</span>
+            </li>
           </ul>
         </div>
 
         <div class="experience-item">
           <div class="exp-header">
-            <span>Connected Car Test Engineer</span>
-            <span>Ago 2019 - Oct 2021</span>
+            <span>
+              <span class="lang-es">Connected Car Test Engineer</span>
+              <span class="lang-en">Connected Car Test Engineer</span>
+              <span class="lang-ar">مهندس اختبار السيارات المتصلة</span>
+            </span>
+            <span>
+              <span class="lang-es">Ago 2019 - Oct 2021</span>
+              <span class="lang-en">Aug 2019 - Oct 2021</span>
+              <span class="lang-ar">أغسطس 2019 - أكتوبر 2021</span>
+            </span>
           </div>
           <div class="exp-company">DEKRA Testing & Certification</div>
           <ul class="skills-list">
-            <li>Ejecución y reporte de campañas de pruebas celulares (4G/5G) para automoción en redes reales
-              de España, UAE, Kuwait y Bahrein.</li>
-            <li>Análisis experto de logs de red mediante herramientas Qualcomm (QXDM, QCAT) y Wireshark.
+            <li>
+              <span class="lang-es">Ejecución y reporte de campañas de pruebas celulares (4G/5G) para automoción en
+                redes reales de España, UAE, Kuwait y Bahrein.</span>
+              <span class="lang-en">Execution and reporting of cellular test campaigns (4G/5G) for automotive in live
+                networks in Spain, UAE, Kuwait, and Bahrain.</span>
+              <span class="lang-ar">تنفيذ وإعداد تقارير حملات اختبار الشبكات الخلوية (4G/5G) للسيارات في شبكات حقيقية في
+                إسبانيا والإمارات والكويت والبحرين.</span>
             </li>
-            <li>Soporte técnico a fabricantes para la obtención de certificaciones GCF y PTCRB.</li>
+            <li>
+              <span class="lang-es">Análisis experto de logs de red mediante herramientas Qualcomm (QXDM, QCAT) y
+                Wireshark.</span>
+              <span class="lang-en">Expert analysis of network logs using Qualcomm tools (QXDM, QCAT) and
+                Wireshark.</span>
+              <span class="lang-ar">تحليل خبير لسجلات الشبكة باستخدام أدوات كوالكوم (QXDM، QCAT) و Wireshark.</span>
+            </li>
+            <li>
+              <span class="lang-es">Soporte técnico a fabricantes para la obtención de certificaciones GCF y
+                PTCRB.</span>
+              <span class="lang-en">Technical support to manufacturers for obtaining GCF and PTCRB
+                certifications.</span>
+              <span class="lang-ar">دعم فني للمصنعين للحصول على شهادات GCF و PTCRB.</span>
+            </li>
           </ul>
         </div>
 
         <div class="experience-item">
           <div class="exp-header">
-            <span>Export Post-Sales & Technical Services Responsible</span>
+            <span>
+              <span class="lang-es">Export Post-Sales & Services</span>
+              <span class="lang-en">Export Post-Sales & Services</span>
+              <span class="lang-ar">خدمات ما بعد البيع والتصدير</span>
+            </span>
             <span>2004 - 2018</span>
           </div>
           <div class="exp-company">ALTRA CORPORACIÓN (Airzone)</div>
-          <p class="exp-desc">Trayectoria de 14 años liderando el soporte técnico para la expansión
-            internacional de la marca. Responsable de la formación técnica a distribuidores globales y
-            gestión de incidencias críticas en mercados exteriores.</p>
+          <p class="exp-desc">
+            <span class="lang-es">Trayectoria de 14 años liderando el soporte técnico para la expansión internacional de
+              la marca. Responsable de la formación técnica a distribuidores globales y gestión de incidencias críticas
+              en mercados exteriores.</span>
+            <span class="lang-en">14-year career leading technical support for the brand's international expansion.
+              Responsible for technical training of global distributors and management of critical incidents in foreign
+              markets.</span>
+            <span class="lang-ar">مسيرة مهنية دامت 14 عامًا في قيادة الدعم الفني للتوسع الدولي للعلامة التجارية. مسؤول
+              عن التدريب الفني للموزعين العالميين وإدارة الحوادث الحرجة في الأسواق الخارجية.</span>
+          </p>
         </div>
 
-        <h2 class="section-title"><i class="fa-solid fa-code-branch"></i> Proyectos y Publicaciones</h2>
+        <h2 class="section-title">
+          <i class="fa-solid fa-code-branch"></i>
+          <span class="lang-es">Proyectos y Publicaciones</span>
+          <span class="lang-en">Projects & Publications</span>
+          <span class="lang-ar">المشاريع والمنشورات</span>
+        </h2>
 
         <div class="experience-item">
           <div class="exp-header">
-            <span>Repositorio de Código Abierto</span>
+            <span>
+              <span class="lang-es">Repositorio de Código Abierto</span>
+              <span class="lang-en">Open Source Repository</span>
+              <span class="lang-ar">مستودع مفتوح المصدر</span>
+            </span>
             <span>GitHub</span>
           </div>
           <div class="exp-company">AbuAwn (Adnan Bouaouda)</div>
-          <p class="exp-desc">Colección de proyectos personales y contribuciones en Scala, Python y análisis de datos.
-            Desarrollo de herramientas para procesamiento de logs 5G y algoritmos matemáticos.</p>
-          <div style="margin-top: 8px;">
-            <a href="https://github.com/AbuAwn" target="_blank"
-              style="text-decoration: none; color: var(--white); background: var(--primary); padding: 6px 12px; border-radius: 4px; font-size: 13px; font-weight: 600; display: inline-flex; align-items: center; gap: 6px;">
-              <i class="fa-brands fa-github"></i> Ver perfil en GitHub
-            </a>
-          </div>
+          <p class="exp-desc">
+            <span class="lang-es">Colección de proyectos personales y contribuciones en Scala, Python y análisis de
+              datos. Desarrollo de herramientas para procesamiento de logs 5G y algoritmos matemáticos.</span>
+            <span class="lang-en">Collection of personal projects and contributions in Scala, Python, and data analysis.
+              Development of tools for 5G log processing and mathematical algorithms.</span>
+            <span class="lang-ar">مجموعة من المشاريع الشخصية والمساهمات في سكالا وبايثون وتحليل البيانات. تطوير أدوات
+              لمعالجة سجلات 5G والخوارزميات الرياضية.</span>
+          </p>
         </div>
 
         <div class="experience-item">
           <div class="exp-header">
-            <span>Investigación Matemática (TFM)</span>
+            <span>
+              <span class="lang-es">Investigación Matemática (TFM)</span>
+              <span class="lang-en">Mathematical Research (MSc Thesis)</span>
+              <span class="lang-ar">بحث رياضي (رسالة ماجستير)</span>
+            </span>
             <span>2013</span>
           </div>
           <div class="exp-company">UNED - Análisis Matemático</div>
-          <p class="exp-desc">Trabajo de Fin de Máster sobre "Crecimiento de la derivada de Productos de Blaschke". Un
-            estudio exhaustivo sobre las propiedades analíticas en el disco unidad.</p>
-          <div style="margin-top: 8px;">
-            <a href="https://www.academia.edu/15226056/Crecimiento_de_la_derivada_de_Productos_de_Blaschke"
-              target="_blank"
-              style="text-decoration: none; color: var(--primary); border: 1px solid var(--primary); padding: 5px 10px; border-radius: 4px; font-size: 12px; font-weight: 600; display: inline-flex; align-items: center; gap: 6px; transition: all 0.2s;">
-              <i class="fa-solid fa-book-open"></i> Ver en Academia.edu
-            </a>
-          </div>
+          <p class="exp-desc">
+            <span class="lang-es">Trabajo de Fin de Máster sobre "Crecimiento de la derivada de Productos de Blaschke".
+              Un estudio exhaustivo sobre las propiedades analíticas en el disco unidad.</span>
+            <span class="lang-en">Master's Thesis on "Growth of the derivative of Blaschke Products". An exhaustive
+              study on analytic properties in the unit disk.</span>
+            <span class="lang-ar">رسالة ماجستير حول "نمو مشتقة منتجات بلاشكي". دراسة شاملة حول الخصائص التحليلية في قرص
+              الوحدة.</span>
+          </p>
         </div>
 
-        <h2 class="section-title"><i class="fa-solid fa-microphone"></i> Divulgación y Media</h2>
+        <h2 class="section-title">
+          <i class="fa-solid fa-microphone"></i>
+          <span class="lang-es">Divulgación y Media</span>
+          <span class="lang-en">Outreach & Media</span>
+          <span class="lang-ar">الإعلام والتوعية</span>
+        </h2>
 
         <div class="experience-item">
           <div class="exp-header">
-            <span>Podcast Tecnológico</span>
+            <span>
+              <span class="lang-es">Podcast Tecnológico</span>
+              <span class="lang-en">Tech Podcast</span>
+              <span class="lang-ar">بودكاست تقني</span>
+            </span>
             <span>Spotify</span>
           </div>
-          <div class="exp-company">Primer Episodio Publicado</div>
-          <p class="exp-desc">Conversaciones sobre tecnología, ingeniería y experiencias profesionales.</p>
-          <iframe style="border-radius:12px; margin-top: 10px;"
-            src="https://open.spotify.com/embed/episode/0LINAV91PM7DesmyXhV1dc?utm_source=generator" width="100%"
-            height="152" frameBorder="0" allowfullscreen=""
-            allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe>
+          <div class="exp-company">
+            <span class="lang-es">Primer Episodio Publicado</span>
+            <span class="lang-en">First Episode Published</span>
+            <span class="lang-ar">نشر الحلقة الأولى</span>
+          </div>
+          <p class="exp-desc">
+            <span class="lang-es">Conversaciones sobre tecnología, ingeniería y experiencias profesionales.</span>
+            <span class="lang-en">Conversations about technology, engineering, and professional experiences.</span>
+            <span class="lang-ar">محادثات حول التكنولوجيا والهندسة والتجارب المهنية.</span>
+          </p>
         </div>
 
-        <h2 class="section-title"><i class="fa-solid fa-graduation-cap"></i> Formación Académica</h2>
+        <h2 class="section-title">
+          <i class="fa-solid fa-graduation-cap"></i>
+          <span class="lang-es">Formación Académica</span>
+          <span class="lang-en">Education</span>
+          <span class="lang-ar">التعليم الأكاديمي</span>
+        </h2>
 
         <div class="experience-item">
           <div class="exp-header">
-            <span>Ingeniero Técnico de Telecomunicación</span>
+            <span>
+              <span class="lang-es">Ingeniero Técnico de Telecomunicación</span>
+              <span class="lang-en">Technical Telecommunication Engineer</span>
+              <span class="lang-ar">مهندس فني اتصالات</span>
+            </span>
             <span>1998 - 2004</span>
           </div>
-          <div class="exp-company">Universidad de Málaga (UMA)</div>
-          <p class="exp-desc">Especialidad en Sistemas Electrónicos. Título oficial homologado a Grado (MECES
-            2 / EQF 6).</p>
+          <div class="exp-company">
+            <span class="lang-es">Universidad de Málaga (UMA)</span>
+            <span class="lang-en">University of Malaga (UMA)</span>
+            <span class="lang-ar">جامعة ملقة (UMA)</span>
+          </div>
+          <p class="exp-desc">
+            <span class="lang-es">Especialidad en Sistemas Electrónicos. Título oficial homologado a Grado (MECES 2 /
+              EQF 6).</span>
+            <span class="lang-en">Electronic Systems Specialty. Official degree equivalent to Bachelor's (EQF 6).</span>
+            <span class="lang-ar">تخصص في الأنظمة الإلكترونية. شهادة رسمية تعادل البكالوريوس (EQF 6).</span>
+          </p>
         </div>
 
         <div class="experience-item">
           <div class="exp-header">
-            <span>Máster Universitario en Matemáticas Avanzadas</span>
+            <span>
+              <span class="lang-es">Máster Universitario en Matemáticas Avanzadas</span>
+              <span class="lang-en">Master's Degree in Advanced Mathematics</span>
+              <span class="lang-ar">ماجستير جامعي في الرياضيات المتقدمة</span>
+            </span>
             <span>2008 - 2013</span>
           </div>
-          <div class="exp-company">UNED - Facultad de Ciencias</div>
-          <p class="exp-desc">Especialidad en Análisis Matemático. Tesis: "Crecimiento de la derivada de
-            Productos de Blaschke". Calificación: Notable.</p>
+          <div class="exp-company">UNED</div>
+          <p class="exp-desc">
+            <span class="lang-es">Especialidad en Análisis Matemático. Tesis: "Crecimiento de la derivada de Productos
+              de Blaschke". Calificación: Notable.</span>
+            <span class="lang-en">Mathematical Analysis Specialty. Thesis: "Growth of the derivative of Blaschke
+              Products". Grade: Notable.</span>
+            <span class="lang-ar">تخصص في التحليل الرياضي. الأطروحة: "نمو مشتقة منتجات بلاشكي". التقدير: جيد
+              جداً.</span>
+          </p>
           <div class="math-box">
             <math xmlns="http://www.w3.org/1998/Math/MathML" display="block">
               <mi>B</mi>
@@ -562,34 +727,86 @@
 
         <div class="experience-item" style="margin-bottom: 0;">
           <div class="exp-header">
-            <span>Máster en Telemática y Redes (MTRT)</span>
+            <span>
+              <span class="lang-es">Máster en Telemática y Redes (MTRT)</span>
+              <span class="lang-en">Master in Telematics and Networks (MTRT)</span>
+              <span class="lang-ar">ماجستير في التيلماتيك والشبكات</span>
+            </span>
             <span>2018 - 2019</span>
           </div>
           <div class="exp-company">ETSIT Málaga (UMA)</div>
-          <p class="exp-desc">Foco en SDN (OpenFlow), 5G, LTE, IoT y programación funcional con Scala.</p>
+          <p class="exp-desc">
+            <span class="lang-es">Foco en SDN (OpenFlow), 5G, LTE, IoT y programación funcional con Scala.</span>
+            <span class="lang-en">Focus on SDN (OpenFlow), 5G, LTE, IoT, and functional programming with Scala.</span>
+            <span class="lang-ar">التركيز على SDN (OpenFlow)، 5G، LTE، IoT والبرمجة الوظيفية باستخدام سكالا.</span>
+          </p>
         </div>
       </div>
 
       <!-- Columna Lateral -->
       <div class="sidebar">
-        <h2 class="section-title">Contacto</h2>
+        <h2 class="section-title">
+          <span class="lang-es">Contacto</span>
+          <span class="lang-en">Contact</span>
+          <span class="lang-ar">اتصل</span>
+        </h2>
         <div class="contact-info">
           <div class="contact-item"><i class="fa-solid fa-phone"></i> +34 619 904 442</div>
           <div class="contact-item"><i class="fa-solid fa-envelope"></i> bouaouda@gmail.com</div>
-          <div class="contact-item"><i class="fa-solid fa-location-dot"></i> Málaga (Coín), España</div>
+          <div class="contact-item">
+            <i class="fa-solid fa-location-dot"></i>
+            <span class="lang-es">Málaga (Coín), España</span>
+            <span class="lang-en">Malaga (Coin), Spain</span>
+            <span class="lang-ar">ملقة (كوين)، إسبانيا</span>
+          </div>
           <div class="contact-item"><i class="fa-brands fa-linkedin"></i> linkedin.com/in/adnan-bouaouda-arafa
           </div>
         </div>
 
-        <h2 class="section-title">Idiomas</h2>
+        <h2 class="section-title">
+          <span class="lang-es">Idiomas</span>
+          <span class="lang-en">Languages</span>
+          <span class="lang-ar">اللغات</span>
+        </h2>
         <div class="contact-info">
-          <div class="contact-item"><strong>Árabe:</strong> Nativo</div>
-          <div class="contact-item"><strong>Español:</strong> Bilingüe</div>
-          <div class="contact-item"><strong>Francés:</strong> Fluido</div>
-          <div class="contact-item"><strong>Inglés:</strong> Avanzado (C1)</div>
+          <div class="contact-item">
+            <strong>
+              <span class="lang-es">Árabe:</span><span class="lang-en">Arabic:</span><span
+                class="lang-ar">العربية:</span>
+            </strong>
+            <span class="lang-es">Nativo</span><span class="lang-en">Native</span><span class="lang-ar">اللغة
+              الأم</span>
+          </div>
+          <div class="contact-item">
+            <strong>
+              <span class="lang-es">Español:</span><span class="lang-en">Spanish:</span><span
+                class="lang-ar">الإسبانية:</span>
+            </strong>
+            <span class="lang-es">Bilingüe</span><span class="lang-en">Bilingual</span><span class="lang-ar">ثنائي
+              اللغة</span>
+          </div>
+          <div class="contact-item">
+            <strong>
+              <span class="lang-es">Francés:</span><span class="lang-en">French:</span><span
+                class="lang-ar">الفرنسية:</span>
+            </strong>
+            <span class="lang-es">Fluido</span><span class="lang-en">Fluent</span><span class="lang-ar">بطلاقة</span>
+          </div>
+          <div class="contact-item">
+            <strong>
+              <span class="lang-es">Inglés:</span><span class="lang-en">English:</span><span
+                class="lang-ar">الإنجليزية:</span>
+            </strong>
+            <span class="lang-es">Avanzado (C1)</span><span class="lang-en">Advanced (C1)</span><span
+              class="lang-ar">متقدم (C1)</span>
+          </div>
         </div>
 
-        <h2 class="section-title">Stack Técnico</h2>
+        <h2 class="section-title">
+          <span class="lang-es">Stack Técnico</span>
+          <span class="lang-en">Tech Stack</span>
+          <span class="lang-ar">المكدس التقني</span>
+        </h2>
         <div class="badge-grid">
           <span class="badge">Scala</span>
           <span class="badge">Python</span>
@@ -605,19 +822,43 @@
           <span class="badge">Asterisk</span>
         </div>
 
-        <h2 class="section-title">Certificaciones</h2>
+        <h2 class="section-title">
+          <span class="lang-es">Certificaciones</span>
+          <span class="lang-en">Certifications</span>
+          <span class="lang-ar">الشهادات</span>
+        </h2>
         <div class="contact-info">
-          <div class="contact-item"><i class="fa-solid fa-certificate"></i> Certificado de Correspondencia
-            MECES 2 (EQF Level 6) - Ing. Téc. Telecomunicación</div>
+          <div class="contact-item"><i class="fa-solid fa-certificate"></i>
+            <span class="lang-es">Certificado de Correspondencia MECES 2 (EQF Level 6) - Ing. Téc.
+              Telecomunicación</span>
+            <span class="lang-en">MECES 2 Correspondence Certificate (EQF Level 6) - Tech. Telecom Eng.</span>
+            <span class="lang-ar">شهادة المعادلة MECES 2 (EQF Level 6) - هندسة اتصالات فنية</span>
+          </div>
           <div class="contact-item"><i class="fa-solid fa-certificate"></i> KNX Partner (Basic/Adv)</div>
           <div class="contact-item"><i class="fa-solid fa-certificate"></i> GCF Device Certification</div>
         </div>
 
-        <h2 class="section-title">Intereses</h2>
+        <h2 class="section-title">
+          <span class="lang-es">Intereses</span>
+          <span class="lang-en">Interests</span>
+          <span class="lang-ar">الاهتمامات</span>
+        </h2>
         <div class="contact-info">
-          <div class="contact-item"><i class="fa-solid fa-microchip"></i> Open FPGA & SDR</div>
-          <div class="contact-item"><i class="fa-solid fa-code"></i> Prog. Funcional</div>
-          <div class="contact-item"><i class="fa-solid fa-wave-square"></i> Teoría de Números</div>
+          <div class="contact-item"><i class="fa-solid fa-microchip"></i>
+            <span class="lang-es">FPGA & SDR Libre</span>
+            <span class="lang-en">Open FPGA & SDR</span>
+            <span class="lang-ar">FPGA & SDR مفتوحة</span>
+          </div>
+          <div class="contact-item"><i class="fa-solid fa-code"></i>
+            <span class="lang-es">Prog. Funcional</span>
+            <span class="lang-en">Funct. Programming</span>
+            <span class="lang-ar">البرمجة الوظيفية</span>
+          </div>
+          <div class="contact-item"><i class="fa-solid fa-wave-square"></i>
+            <span class="lang-es">Teoría de Números</span>
+            <span class="lang-en">Number Theory</span>
+            <span class="lang-ar">نظرية الأعداد</span>
+          </div>
         </div>
       </div>
     </div>

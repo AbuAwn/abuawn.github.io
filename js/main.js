@@ -25,6 +25,12 @@ function setLanguage(lang) {
             btn.classList.add('active');
         }
     });
+
+    // Update Page Title if definitions exist
+    const titleEl = document.getElementById(`title-${lang}`);
+    if (titleEl) {
+        document.title = titleEl.textContent;
+    }
 }
 
 // Initialize on Load
