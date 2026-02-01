@@ -1,456 +1,545 @@
-<html><head><base href="." /><meta charset="UTF-8" /><title>Adnan Bouaouda Arafa - Portfolio</title>
-<style>
-:root {
-  --primary: #0A66C2;
-  --secondary: #4C4C4C;
-  --bg: #f5f5f5;
-  --text: #2b2b2b;
-}
+<!DOCTYPE html>
+<html lang="es">
 
-@import url('https://fonts.googleapis.com/css2?family=Amiri&display=swap');
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CV Adnan Bouaouda Arafa</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&family=Lato:wght@300;400;700&display=swap"
+    rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <style>
+    :root {
+      --primary: #0f172a;
+      --primary-light: #1e293b;
+      --accent: #38bdf8;
+      --secondary: #eab308;
+      --text-dark: #334155;
+      --text-light: #64748b;
+      --white: #ffffff;
+      --bg: #f1f5f9;
+      --gradient-header: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+    }
 
-@font-face {
-  font-family: 'Andalus';
-  src: url('Andalus Regular.ttf') format('truetype');
-}
+    * {
+      box-sizing: border-box;
+    }
 
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-  font-family: 'Segoe UI', sans-serif;
-}
+    body {
+      background-color: var(--bg);
+      margin: 0;
+      padding: 20px;
+      font-family: 'Lato', sans-serif;
+      color: var(--text-dark);
+    }
 
-body {
-  background: var(--bg);
-  color: var(--text);
-  line-height: 1.6;
-}
+    .cv-page {
+      background: var(--white);
+      max-width: 1000px;
+      margin: 0 auto 30px auto;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+      position: relative;
+      overflow: hidden;
+      border-radius: 4px;
+      display: flex;
+      flex-direction: column;
+      min-height: 1400px;
+      /* Aumentado para mayor contenido */
+    }
 
-.header {
-  background: linear-gradient(135deg, var(--primary), #084c8e);
-  color: white;
-  padding: 4rem 2rem;
-  text-align: center;
-  position: relative;
-  overflow: hidden;
-}
+    .header {
+      background: var(--gradient-header);
+      color: var(--white);
+      padding: 30px 40px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      position: relative;
+      z-index: 2;
+    }
 
-.header::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: radial-gradient(circle at center, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0) 70%);
-}
+    .header::after {
+      content: "";
+      position: absolute;
+      top: 0;
+      right: 0;
+      width: 40%;
+      height: 100%;
+      background: rgba(255, 255, 255, 0.03);
+      transform: skewX(-20deg) translateX(50%);
+    }
 
-.profile-pic {
-  width: 180px;
-  height: 180px;
-  border-radius: 50%;
-  margin: 1rem auto;
-  object-fit: cover;
-  background: #fff;
-  padding: 5px;
-  box-shadow: 0 4px 25px rgba(0,0,0,0.2);
-  transition: transform 0.3s ease;
-}
+    .header-text h1 {
+      font-family: 'Poppins', sans-serif;
+      font-size: 36px;
+      margin: 0;
+      font-weight: 700;
+      letter-spacing: 1px;
+    }
 
-.profile-pic:hover {
-  transform: scale(1.05);
-}
+    .header-text .subtitle {
+      font-size: 16px;
+      color: var(--secondary);
+      text-transform: uppercase;
+      letter-spacing: 3px;
+      margin-top: 8px;
+      font-weight: 600;
+    }
 
-.container {
-  max-width: 1000px;
-  margin: 0 auto;
-  padding: 2rem;
-}
+    .profile-photo {
+      width: 240px;
+      aspect-ratio: 4/3;
+      border: 5px solid var(--white);
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+      overflow: hidden;
+      z-index: 10;
+      background: #eee;
+    }
 
-.section {
-  background: white;
-  border-radius: 15px;
-  padding: 2.5rem;
-  margin: 2rem 0;
-  box-shadow: 0 4px 20px rgba(0,0,0,0.08);
-  transition: transform 0.3s ease;
-}
+    .profile-photo img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      object-position: center 20%;
+      /* Focus higher up on the face */
+      transform: scale(1.35);
+      /* Zoom in closer */
+      transform-origin: center 30%;
+    }
 
-.section:hover {
-  transform: translateY(-5px);
-}
+    .main-container {
+      display: grid;
+      grid-template-columns: 1fr 300px;
+      padding: 30px 40px;
+      gap: 30px;
+      flex-grow: 1;
+    }
 
-.read-more-content {
-  max-height: 100px;
-  overflow: hidden;
-  transition: max-height 0.3s ease-out;
-  position: relative;
-}
+    h2.section-title {
+      font-family: 'Poppins', sans-serif;
+      font-size: 18px;
+      color: var(--primary);
+      border-bottom: 2px solid var(--secondary);
+      padding-bottom: 8px;
+      margin: 25px 0 15px 0;
+      text-transform: uppercase;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
 
-.read-more-content.expanded {
-  max-height: 1000px;
-}
+    h2.section-title:first-child {
+      margin-top: 0;
+    }
 
-.read-more-trigger {
-  background: none;
-  border: none;
-  color: var(--primary);
-  cursor: pointer;
-  font-weight: 500;
-  margin-top: 1rem;
-  padding: 0.5rem;
-  display: inline-flex;
-  align-items: center;
-  gap: 0.5rem;
-}
+    .about-text {
+      font-size: 14px;
+      line-height: 1.6;
+      color: var(--text-dark);
+      margin-bottom: 20px;
+      text-align: justify;
+    }
 
-.read-more-trigger:hover {
-  text-decoration: underline;
-}
+    .experience-item {
+      margin-bottom: 15px;
+    }
 
-.skill-tags {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.8rem;
-  margin: 1rem 0;
-}
+    .exp-header {
+      display: flex;
+      justify-content: space-between;
+      font-weight: 700;
+      font-size: 15px;
+      color: var(--text-dark);
+    }
 
-.skill-tag {
-  background: linear-gradient(135deg, var(--primary), #084c8e);
-  color: white;
-  padding: 0.6rem 1.2rem;
-  border-radius: 25px;
-  font-size: 0.9rem;
-  box-shadow: 0 2px 8px rgba(10, 102, 194, 0.2);
-  transition: transform 0.2s ease;
-}
+    .exp-company {
+      color: var(--primary);
+      font-weight: 600;
+      font-size: 14px;
+      margin: 2px 0;
+    }
 
-.skill-tag:hover {
-  transform: translateY(-2px);
-}
+    .exp-desc {
+      font-size: 13.5px;
+      line-height: 1.4;
+      color: var(--text-light);
+      margin: 2px 0;
+    }
 
-.experience-item {
-  margin-bottom: 2.5rem;
-  padding-left: 1.5rem;
-  border-left: 3px solid var(--primary);
-  position: relative;
-}
+    ul.skills-list {
+      margin: 5px 0 0 15px;
+      padding: 0;
+      list-style-type: disc;
+      font-size: 13px;
+      color: var(--text-light);
+    }
 
-.experience-item::before {
-  content: '';
-  position: absolute;
-  left: -8px;
-  top: 0;
-  width: 13px;
-  height: 13px;
-  background: var(--primary);
-  border-radius: 50%;
-}
+    ul.skills-list li {
+      margin-bottom: 3px;
+    }
 
-.nav {
-  background: rgba(255, 255, 255, 0.95);
-  padding: 1rem;
-  position: sticky;
-  top: 0;
-  z-index: 100;
-  box-shadow: 0 2px 15px rgba(0,0,0,0.08);
-  backdrop-filter: blur(10px);
-}
+    .sidebar {
+      display: flex;
+      flex-direction: column;
+      gap: 25px;
+    }
 
-.nav ul {
-  display: flex;
-  justify-content: center;
-  list-style: none;
-  gap: 2rem;
-}
+    .contact-info {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      font-size: 13px;
+    }
 
-.nav a {
-  color: var(--text);
-  text-decoration: none;
-  font-weight: 500;
-  transition: all 0.3s;
-  padding: 0.5rem 1rem;
-  border-radius: 20px;
-}
+    .contact-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
 
-.nav a:hover {
-  color: var(--primary);
-  background: rgba(10, 102, 194, 0.1);
-}
+    .contact-item i {
+      color: var(--primary);
+      width: 14px;
+    }
 
-.header-links {
-  display: flex;
-  gap: 1.5rem;
-  justify-content: center;
-  margin-top: 2rem;
-}
+    .badge-grid {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
 
-.header-links a {
-  color: white;
-  text-decoration: none;
-  padding: 0.8rem 1.8rem;
-  border-radius: 25px;
-  transition: all 0.3s;
-  box-shadow: 0 4px 15px rgba(0,0,0,0.2);
-  display: flex;
-  align-items: center;
-  gap: 0.8rem;
-  font-size: 1.1rem;
-  font-weight: 500;
-  letter-spacing: 0.5px;
-  position: relative;
-  overflow: hidden;
-}
+    .badge {
+      background: #f8fafc;
+      color: var(--primary-light);
+      padding: 5px 12px;
+      border-radius: 20px;
+      font-size: 11px;
+      font-weight: 600;
+      border: 1px solid #e2e8f0;
+      transition: all 0.2s ease;
+      box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+    }
 
-.header-links a::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: rgba(255,255,255,0.1);
-  transform: translateX(-100%);
-  transition: transform 0.3s ease;
-}
+    .badge:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+      border-color: var(--accent);
+      color: var(--primary);
+    }
 
-.header-links a:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 6px 20px rgba(0,0,0,0.3);
-}
+    .math-box {
+      background: #fcfcfc;
+      border: 1px solid #eee;
+      padding: 8px;
+      margin: 5px 0;
+      border-radius: 4px;
+      text-align: center;
+      font-size: 0.85em;
+    }
 
-.header-links a:hover::before {
-  transform: translateX(0);
-}
+    @media print {
+      @page {
+        margin: 15mm;
+        size: A4;
+      }
 
-.header-links a:hover svg {
-  transform: scale(1.1);
-}
+      body {
+        margin: 0;
+        padding: 0 !important;
+        background: white;
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+      }
 
-.header-links svg {
-  width: 22px;
-  height: 22px;
-  transition: transform 0.3s ease;
-  position: relative;
-  z-index: 1;
-}
+      .cv-page {
+        box-shadow: none;
+        width: 100%;
+        margin: 0;
+        border-radius: 0;
+        border: none;
+        min-height: auto;
+      }
 
-/* Specific colors for each button */
-.header-links a[href="mathematics.html"]:hover {
-  background: #b92fd1;
-}
+      .header {
+        /* Remove negative margins to prevent cutoff. Respect page margins. */
+        margin: 0 0 20px 0;
+        padding: 30px !important;
+        background: var(--gradient-header) !important;
+        color: var(--white) !important;
+        width: 100%;
+        border-radius: 6px;
+      }
 
-.header-links a[href="programming.html"]:hover {
-  background: #0d7ce4;
-}
+      .main-container {
+        display: grid;
+        grid-template-columns: 1fr 280px;
+        /* Slightly narrower sidebar */
+        padding: 0 10px !important;
+        gap: 25px !important;
+      }
 
-.arabic-name {
-  font-family: 'Andalus', serif;
-  font-size: 3rem; /* Increased from 2rem to 3rem */
-  margin-top: 0.5rem;
-  color: rgba(255, 255, 255, 0.9);
-  text-shadow: 1px 1px 2px rgba(0,0,0,0.2);
-  animation: fadeIn 1.2s ease-out;
-}
+      /* Compact list items for print */
+      ul.skills-list li {
+        margin-bottom: 0;
+        line-height: 1.4;
+      }
 
-/* Add styling for social links with normalized icon sizes */
-.social-links {
-  display: flex;
-  gap: 1.5rem;
-  justify-content: center;
-  margin-top: 1rem;
-}
+      /* Keep content blocks together */
+      .experience-item,
+      .contact-info,
+      .badge-grid {
+        break-inside: avoid;
+        page-break-inside: avoid;
+      }
 
-.social-links a {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  text-decoration: none;
-  color: var(--text);
-  padding: 0.5rem 1rem;
-  border-radius: 8px;
-  transition: all 0.3s ease;
-}
+      /* Keep titles with their following content */
+      h2.section-title {
+        break-after: avoid;
+        page-break-after: avoid;
+        margin: 10px 0 8px 0;
+        font-size: 16px;
+      }
 
-.social-links a:hover {
-  background: rgba(0, 0, 0, 0.05);
-}
+      .experience-item {
+        margin-bottom: 10px;
+      }
 
-.social-links svg {
-  width: 24px;  /* Normalized icon size */
-  height: 24px; /* Normalized icon size */
-}
-</style>
+      .about-text {
+        margin-bottom: 15px;
+      }
+
+      .sidebar {
+        gap: 15px;
+      }
+    }
+  </style>
 </head>
+
 <body>
 
-<header class="header fade-in">
-  <img src="img/adnan.png" alt="Adnan Bouaouda Arafa" class="profile-pic">
-  <div class="arabic-name">عدنان بوعودة عرفة</div>
-  <h1>Adnan Bouaouda Arafa</h1>
-  <div class="header-links">
-    <a href="mathematics.html" style="background: #9C27B0;">
-      <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2L2 7v10l10 5 10-5V7L12 2zm0 2.7L19.5 8 12 11.3 4.5 8 12 4.7zM4 9.8l7 3.1v6.3l-7-3.1V9.8zm9 9.4v-6.3l7-3.1v6.3l-7 3.1z"/></svg>
-      Mathematics
-    </a>
-    <a href="programming.html" style="background: #2196F3;">
-      <svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 16L2 12l6-4v3h8V8l6 4-6 4v-3H8v3zm14-4l-1.41-1.41L16 15.17V14h-2v3.17l4.59-4.58L20 14zm-1.41 1.41L16 15.17V14h-2v3.17l4.59-4.58L18.59 13.41z"/></svg>
-      Programming
-    </a>
+  <div class="cv-page">
+    <header class="header">
+      <div class="header-text">
+        <h1>ADNAN BOUAOUDA ARAFA</h1>
+        <div class="subtitle">Ingeniero Técnico de Telecomunicación</div>
+      </div>
+      <div class="profile-photo">
+        <img src="img/perfil_linkedin_pro.png" alt="Foto Profesional"
+          onerror="this.src='https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?q=80&w=400&auto=format&fit=crop'">
+      </div>
+    </header>
+
+    <div class="main-container">
+      <!-- Columna Principal -->
+      <div class="content">
+        <h2 class="section-title"><i class="fa-solid fa-user"></i> Perfil Profesional</h2>
+        <p class="about-text">
+          Ingeniero de Telecomunicaciones con más de 20 años de experiencia internacional en el sector
+          tecnológico, especializado en test y validación de sistemas electrónicos y servicios de conectividad
+          celular (V2X, 4G/5G). Mi trayectoria combina un sólido rigor matemático con una visión estratégica
+          de post-venta y dirección técnica. Experto en el análisis de protocolos de red complejos y en la
+          certificación de dispositivos para mercados globales (EMEA y GCC).
+        </p>
+
+        <h2 class="section-title"><i class="fa-solid fa-briefcase"></i> Experiencia Profesional</h2>
+
+        <div class="experience-item">
+          <div class="exp-header">
+            <span>Ingeniero de Test y Validación</span>
+            <span>Abr 2025 - Actualidad</span>
+          </div>
+          <div class="exp-company">AUCORE SL (Koolnova)</div>
+          <p class="exp-desc">Liderazgo técnico en la fase de validación de nuevos desarrollos electrónicos
+            para sistemas de control de climatización. Definición de casos de prueba y aseguramiento de la
+            interoperabilidad del ecosistema inteligente.</p>
+        </div>
+
+        <div class="experience-item">
+          <div class="exp-header">
+            <span>Director Técnico y Post-venta</span>
+            <span>Oct 2021 - Abr 2025</span>
+          </div>
+          <div class="exp-company">AUCORE SL (Koolnova)</div>
+          <ul class="skills-list">
+            <li>Dirección de la estrategia técnica de soporte y validación de campo.</li>
+            <li>Gestión integral de garantías, soporte especializado B2B y logística de recambios técnicos.
+            </li>
+            <li>Intermediación técnica entre departamentos de I+D y clientes finales.</li>
+          </ul>
+        </div>
+
+        <div class="experience-item">
+          <div class="exp-header">
+            <span>Connected Car Test Engineer</span>
+            <span>Ago 2019 - Oct 2021</span>
+          </div>
+          <div class="exp-company">DEKRA Testing & Certification</div>
+          <ul class="skills-list">
+            <li>Ejecución y reporte de campañas de pruebas celulares (4G/5G) para automoción en redes reales
+              de España, UAE, Kuwait y Bahrein.</li>
+            <li>Análisis experto de logs de red mediante herramientas Qualcomm (QXDM, QCAT) y Wireshark.
+            </li>
+            <li>Soporte técnico a fabricantes para la obtención de certificaciones GCF y PTCRB.</li>
+          </ul>
+        </div>
+
+        <div class="experience-item">
+          <div class="exp-header">
+            <span>Export Post-Sales & Technical Services Responsible</span>
+            <span>2004 - 2018</span>
+          </div>
+          <div class="exp-company">ALTRA CORPORACIÓN (Airzone)</div>
+          <p class="exp-desc">Trayectoria de 14 años liderando el soporte técnico para la expansión
+            internacional de la marca. Responsable de la formación técnica a distribuidores globales y
+            gestión de incidencias críticas en mercados exteriores.</p>
+        </div>
+
+        <h2 class="section-title"><i class="fa-solid fa-graduation-cap"></i> Formación Académica</h2>
+
+        <div class="experience-item">
+          <div class="exp-header">
+            <span>Ingeniero Técnico de Telecomunicación</span>
+            <span>1998 - 2004</span>
+          </div>
+          <div class="exp-company">Universidad de Málaga (UMA)</div>
+          <p class="exp-desc">Especialidad en Sistemas Electrónicos. Título oficial homologado a Grado (MECES
+            2 / EQF 6).</p>
+        </div>
+
+        <div class="experience-item">
+          <div class="exp-header">
+            <span>Máster Universitario en Matemáticas Avanzadas</span>
+            <span>2008 - 2013</span>
+          </div>
+          <div class="exp-company">UNED - Facultad de Ciencias</div>
+          <p class="exp-desc">Especialidad en Análisis Matemático. Tesis: "Crecimiento de la derivada de
+            Productos de Blaschke". Calificación: Notable.</p>
+          <div class="math-box">
+            <math xmlns="http://www.w3.org/1998/Math/MathML" display="block">
+              <mi>B</mi>
+              <mo>(</mo>
+              <mi>z</mi>
+              <mo>)</mo>
+              <mo>=</mo>
+              <msup>
+                <mi>z</mi>
+                <mi>m</mi>
+              </msup>
+              <munderover>
+                <mo>&#x220F;</mo>
+                <mrow>
+                  <mi>n</mi>
+                  <mo>=</mo>
+                  <mn>1</mn>
+                </mrow>
+                <mo>&#x221E;</mo>
+              </munderover>
+              <mfrac>
+                <mrow>
+                  <mo>|</mo>
+                  <msub>
+                    <mi>a</mi>
+                    <mi>n</mi>
+                  </msub>
+                  <mo>|</mo>
+                </mrow>
+                <msub>
+                  <mi>a</mi>
+                  <mi>n</mi>
+                </msub>
+              </mfrac>
+              <mfrac>
+                <mrow>
+                  <msub>
+                    <mi>a</mi>
+                    <mi>n</mi>
+                  </msub>
+                  <mo>-</mo>
+                  <mi>z</mi>
+                </mrow>
+                <mrow>
+                  <mn>1</mn>
+                  <mo>-</mo>
+                  <mover>
+                    <msub>
+                      <mi>a</mi>
+                      <mi>n</mi>
+                    </msub>
+                    <mo>&#xAF;</mo>
+                  </mover>
+                  <mi>z</mi>
+                </mrow>
+              </mfrac>
+            </math>
+          </div>
+        </div>
+
+        <div class="experience-item" style="margin-bottom: 0;">
+          <div class="exp-header">
+            <span>Máster en Telemática y Redes (MTRT)</span>
+            <span>2018 - 2019</span>
+          </div>
+          <div class="exp-company">ETSIT Málaga (UMA)</div>
+          <p class="exp-desc">Foco en SDN (OpenFlow), 5G, LTE, IoT y programación funcional con Scala.</p>
+        </div>
+      </div>
+
+      <!-- Columna Lateral -->
+      <div class="sidebar">
+        <h2 class="section-title">Contacto</h2>
+        <div class="contact-info">
+          <div class="contact-item"><i class="fa-solid fa-phone"></i> +34 619 904 442</div>
+          <div class="contact-item"><i class="fa-solid fa-envelope"></i> bouaouda@gmail.com</div>
+          <div class="contact-item"><i class="fa-solid fa-location-dot"></i> Málaga (Coín), España</div>
+          <div class="contact-item"><i class="fa-brands fa-linkedin"></i> linkedin.com/in/adnan-bouaouda-arafa
+          </div>
+        </div>
+
+        <h2 class="section-title">Idiomas</h2>
+        <div class="contact-info">
+          <div class="contact-item"><strong>Árabe:</strong> Nativo</div>
+          <div class="contact-item"><strong>Español:</strong> Bilingüe</div>
+          <div class="contact-item"><strong>Francés:</strong> Fluido</div>
+          <div class="contact-item"><strong>Inglés:</strong> Avanzado (C1)</div>
+        </div>
+
+        <h2 class="section-title">Stack Técnico</h2>
+        <div class="badge-grid">
+          <span class="badge">Scala</span>
+          <span class="badge">Python</span>
+          <span class="badge">C / C++</span>
+          <span class="badge">MatLab</span>
+          <span class="badge">LTE / 5G / V2X</span>
+          <span class="badge">Wireshark</span>
+          <span class="badge">QXDM / QCAT</span>
+          <span class="badge">KNX Partner</span>
+          <span class="badge">ESP32 / Arduino</span>
+          <span class="badge">SDN (POX)</span>
+          <span class="badge">VoIP / SIP</span>
+          <span class="badge">Asterisk</span>
+        </div>
+
+        <h2 class="section-title">Certificaciones</h2>
+        <div class="contact-info">
+          <div class="contact-item"><i class="fa-solid fa-certificate"></i> Certificado de Correspondencia
+            MECES 2 (EQF Level 6) - Ing. Téc. Telecomunicación</div>
+          <div class="contact-item"><i class="fa-solid fa-certificate"></i> KNX Partner (Basic/Adv)</div>
+          <div class="contact-item"><i class="fa-solid fa-certificate"></i> GCF Device Certification</div>
+        </div>
+
+        <h2 class="section-title">Intereses</h2>
+        <div class="contact-info">
+          <div class="contact-item"><i class="fa-solid fa-microchip"></i> Open FPGA & SDR</div>
+          <div class="contact-item"><i class="fa-solid fa-code"></i> Prog. Funcional</div>
+          <div class="contact-item"><i class="fa-solid fa-wave-square"></i> Teoría de Números</div>
+        </div>
+      </div>
+    </div>
   </div>
-</header>
 
-<nav class="nav">
-  <ul>
-    <li><a href="#about">About</a></li>
-    <li><a href="#experience">Experience</a></li>
-    <li><a href="#skills">Skills</a></li>
-    <li><a href="#contact">Contact</a></li>
-  </ul>
-</nav>
+</body>
 
-<div class="container">
-  <section id="about" class="section fade-in">
-    <h2>About Me</h2>
-    <div class="about-text">
-      <div class="read-more-content">
-        <p>Passionate about International After-Sales Support | Bridging Technical Expertise and Commercial Insight</p>
-        <br>
-        <p>Managing international after-sales support has been an incredible learning journey. Our goal is to ensure that customers maintain the same excitement and trust they felt on the first day they chose our ever-evolving products—products that present real challenges and opportunities every single day.</p>
-        <br>
-        <p>Being at the intersection of technical development and manufacturing on one side, and customer-facing commercial operations across various countries on the other, has given me a unique perspective...</p>
-      </div>
-      <button class="read-more-trigger">
-        Read More
-        <svg width="12" height="12" viewBox="0 0 12 12"><path d="M6 9L12 3L10.6 1.6L6 6.2L1.4 1.6L0 3L6 9Z" fill="currentColor"/></svg>
-      </button>
-    </div>
-  </section>
-
-  <section id="experience" class="section fade-in">
-    <h2>Professional Experience</h2>
-    <div class="experience-content">
-      <div class="experience-item">
-        <h3>After-Sales Manager - KOOLNOVA Smart Buildings</h3>
-        <p>Oct 2021 - Present · Málaga, Spain</p>
-        <ul>
-          <li>Technical support and customer service management</li>
-          <li>Training coordination and development</li>
-          <li>After-sales service optimization</li>
-        </ul>
-      </div>
-      <div class="experience-item">
-        <h3>Testing Engineer - DEKRA Testing and Certification</h3>
-        <p>Aug 2019 - Oct 2021 · Málaga, Spain</p>
-        <ul>
-          <li>Product testing and certification</li>
-          <li>Technical documentation and reporting</li>
-          <li>Travel management</li>
-        </ul>
-      </div>
-      <div class="experience-item">
-        <h3>Head of Technical Service Airzone France - Altra Corporation</h3>
-        <p>Feb 2011 - Feb 2018 · Málaga, Spain</p>
-        <ul>
-          <li>Technical support for international markets</li>
-          <li>On-site assistance and incident resolution</li>
-          <li>Technical training coordination</li>
-          <li>Warranty management and quality control</li>
-        </ul>
-      </div>
-      <div class="experience-item">
-        <h3>International After-Sales Coordinator - Airzone España</h3>
-        <p>Feb 2004 - Feb 2011</p>
-        <ul>
-          <li>International after-sales service coordination</li>
-          <li>Technical support and training</li>
-        </ul>
-      </div>
-    </div>
-    <button class="read-more-trigger">
-      Show More Experience
-      <svg width="12" height="12" viewBox="0 0 12 12"><path d="M6 9L12 3L10.6 1.6L6 6.2L1.4 1.6L0 3L6 9Z" fill="currentColor"/></svg>
-    </button>
-  </section>
-
-  <section id="skills" class="section fade-in">
-    <h2>Technical Skills</h2>
-    <div class="skill-tags">
-      <span class="skill-tag">Technical Support</span>
-      <span class="skill-tag">Customer Service</span>
-      <span class="skill-tag">Training</span>
-      <span class="skill-tag">After-Sales Management</span>
-      <span class="skill-tag">Quality Control</span>
-      <span class="skill-tag">Technical Documentation</span>
-      <span class="skill-tag">Project Management</span>
-      <span class="skill-tag">International Markets</span>
-    </div>
-  </section>
-
-  <section id="contact" class="section fade-in">
-    <h2>Contact</h2>
-    <div class="social-links">
-      <a href="https://www.linkedin.com/in/adnan-bouaouda-arafa-02468450/" target="_blank" rel="noopener noreferrer">
-        <svg viewBox="0 0 24 24" fill="#0A66C2"><path d="M19 3a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h14m-.5 15.5v-5.3a3.26 3.26 0 0 0-3.26-3.26c-.85 0-1.84.52-2.32 1.3v-1.11h-2.79v8.37h2.79v-4.93c0-.77.62-1.4 1.39-1.4a1.4 1.4 0 0 1 1.4 1.4v4.93h2.79M6.88 8.56a1.68 1.68 0 0 0 1.68-1.68c0-.93-.75-1.69-1.68-1.69a1.69 1.69 0 0 0-1.69 1.69c0 .93.76 1.68 1.69 1.68m1.39 9.94v-8.37H5.5v8.37h2.77z"/></svg>
-        LinkedIn
-      </a>
-      <a href="https://x.com/AdnanBououda" target="_blank" rel="noopener noreferrer">
-        <svg viewBox="0 0 24 24" fill="#000000"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
-        Twitter
-      </a>
-      <a href="https://www.researchgate.net/profile/Adnan-Bouaouda-Arafa" target="_blank" rel="noopener noreferrer">
-        <svg viewBox="0 0 24 24" fill="#00CCBB"><path d="M19.586 0c-.818 0-1.508.19-2.073.565-.563.377-.97.936-1.213 1.68a3.193 3.193 0 0 0-.112.437 8.365 8.365 0 0 0-.078.53 9 9 0 0 0-.05.727c-.01.282-.013.621-.013 1.016a31.121 31.121 0 0 0 .014 1.017 9 9 0 0 0 .05.727 7.946 7.946 0 0 0 .077.53h-.005a3.334 3.334 0 0 0 .113.438c.245.743.65 1.303 1.214 1.68.565.376 1.256.564 2.075.564.8 0 1.536-.213 2.105-.603.57-.39.94-.916 1.175-1.65.076-.235.135-.558.177-.93a10.9 10.9 0 0 0 .043-1.207v-.82c0-.095-.047-.142-.14-.142h-3.064c-.094 0-.14.047-.14.141v.956c0 .094.046.14.14.14h1.666c.056 0 .084.03.084.086 0 .36 0 .62-.036.865-.038.244-.1.447-.147.606-.108.385-.348.664-.638.876-.29.212-.738.35-1.227.35-.545 0-.901-.15-1.21-.323-.306-.174-.517-.4-.67-.645-.154-.247-.277-.573-.353-.876-.074-.302-.155-.574-.165-.836-.011-.261-.016-.498-.016-.707 0-.471.022-.846.087-1.087.065-.24.145-.527.234-.872.088-.345.244-.623.519-.833.273-.21.672-.32 1.19-.32.629 0 1.105.124 1.432.331.328.207.578.515.75.912.024.061.063.092.117.092.037 0 .068-.01.092-.028l1.139-.83c.031-.021.05-.058.056-.1.006-.042-.003-.078-.028-.11-.385-.65-.905-1.116-1.565-1.392-.66-.275-1.407-.413-2.24-.413z M5.484 5.527c-.186 0-.36.002-.532.008a8.284 8.284 0 0 0-.522.033 4.855 4.855 0 0 0-.51.072c-.329.063-.597.144-.803.245-.207.102-.378.234-.517.4a1.626 1.626 0 0 0-.307.577 2.307 2.307 0 0 0-.1.778c0 .438.074.792.222 1.063.15.27.335.473.56.611s.466.223.722.223c.298 0 .55-.078.756-.231a1.542 1.542 0 0 0 .503-.635c.13-.27.195-.564.195-.885 0-.18-.033-.351-.096-.512a1.098 1.098 0 0 0-.278-.403 1.174 1.174 0 0 0-.431-.26 1.612 1.612 0 0 0-.552-.089c-.075 0-.14.003-.193.007a1.26 1.26 0 0 0-.183.022c.183-.216.395-.377.635-.483.24-.105.485-.157.736-.157.17 0 .34.019.51.055.17.037.337.091.502.165.33.148.517.393.517.916v5.167h2.334V7.524c0-.913-.354-1.558-1.062-1.935-.709-.377-1.617-.565-2.724-.565z M1.524 14.884l3.193-7.578H7.79l3.194 7.578h-2.33L7.79 13.01H4.717l-.864 1.874z M6.254 7.306c.098 0 .187.011.27.033.08.022.151.057.212.103a.483.483 0 0 1 .157.181.61.61 0 0 1 .042.232.78.78 0 0 1-.09.37.642.642 0 0 1-.263.27.813.813 0 0 1-.398.098.81.81 0 0 1-.397-.097.642.642 0 0 1-.262-.27.78.78 0 0 1-.09-.37.61.61 0 0 1 .042-.232.481.481 0 0 1 .156-.18.683.683 0 0 1 .212-.104.837.837 0 0 1 .27-.033zM5.607 11.886h2.294l-.837-1.872h-.62z"/></svg>
-        ResearchGate
-      </a>
-    </div>
-  </section>
-</div>
-
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-    const sections = document.querySelectorAll('.fade-in');
-    const observer = new IntersectionObserver((entries) => {
-        entries.forEach(entry => {
-            if (entry.isIntersecting) {
-                entry.target.style.opacity = 1;
-                entry.target.style.transform = 'translateY(0)';
-            }
-        });
-    }, {
-        threshold: 0.1
-    });
-
-    sections.forEach(section => {
-        section.style.opacity = 0;
-        section.style.transform = 'translateY(20px)';
-        section.style.transition = 'opacity 0.6s ease-out, transform 0.6s ease-out';
-        observer.observe(section);
-    });
-
-    const readMoreTriggers = document.querySelectorAll('.read-more-trigger');
-    
-    readMoreTriggers.forEach(trigger => {
-        trigger.addEventListener('click', function() {
-            const content = this.previousElementSibling;
-            content.classList.toggle('expanded');
-            this.textContent = content.classList.contains('expanded') ? 'Read Less' : 'Read More';
-            
-            const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
-            svg.setAttribute("width", "12");
-            svg.setAttribute("height", "12");
-            svg.setAttribute("viewBox", "0 0 12 12");
-            const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
-            path.setAttribute("d", content.classList.contains('expanded') 
-                ? "M6 3L12 9L10.6 10.4L6 5.8L1.4 10.4L0 9L6 3Z"  // Up arrow
-                : "M6 9L12 3L10.6 1.6L6 6.2L1.4 1.6L0 3L6 9Z"    // Down arrow
-            );
-            path.setAttribute("fill", "currentColor");
-            svg.appendChild(path);
-            this.appendChild(svg);
-        });
-    });
-});
-</script>
-
-</body></html>
+</html>
