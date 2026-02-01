@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Projects | Adnan Bouaouda Arafa</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&family=Lato:wght@300;400;700&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="css/main.css">
+</head>
+
+<body>
+
+    <nav class="navbar">
+        <a href="index.html" class="nav-brand">AbuAwn</a>
+        <ul class="nav-links">
+            <li><a href="index.html" class="nav-link">Home</a></li>
+            <li><a href="projects.html" class="nav-link active"><span class="lang-es">Proyectos</span><span
+                        class="lang-en" style="display:none">Projects</span></a></li>
+            <li><a href="academic.html" class="nav-link"><span class="lang-es">Investigación</span><span class="lang-en"
+                        style="display:none">Research</span></a></li>
+            <li><a href="interests.html" class="nav-link"><span class="lang-es">Intereses</span><span class="lang-en"
+                        style="display:none">Interests</span></a></li>
+            <li><a href="cv.html" class="nav-link">CV</a></li>
+        </ul>
+        <button class="lang-switch" onclick="toggleLanguage()">ES / EN</button>
+    </nav>
+
+    <div class="page-header">
+        <div class="container" style="margin:0 auto; padding:0;">
+            <h1>
+                <span class="lang-es">Proyectos & Código</span>
+                <span class="lang-en" style="display:none">Code & Projects</span>
+            </h1>
+            <p>
+                <span class="lang-es">Repositorios destacados y herramientas desarrolladas.</span>
+                <span class="lang-en" style="display:none">Featured repositories and developed tools.</span>
+            </p>
+        </div>
+    </div>
+
+    <main class="container">
+
+        <!-- INTRO TO GITHUB -->
+        <div style="text-align: center; margin-bottom: 3rem;">
+            <p style="font-size: 1.1rem; max-width: 700px; margin: 0 auto 1.5rem auto;">
+                <span class="lang-es">Explora mi trabajo en código abierto. Mis proyectos se centran en el análisis de
+                    redes, algoritmos matemáticos y la programación funcional.</span>
+                <span class="lang-en" style="display:none">Explore my open source work. My projects focus on network
+                    analysis, mathematical algorithms, and functional programming.</span>
+            </p>
+            <a href="https://github.com/AbuAwn" target="_blank" class="btn-card"
+                style="background: #24292e; color: white;">
+                <i class="fa-brands fa-github"></i> <span class="lang-es">Ver Perfil Completo en GitHub</span><span
+                    class="lang-en" style="display:none">View Full GitHub Profile</span>
+            </a>
+        </div>
+
+        <!-- PROJECT 1: 5G/LTE Analysis -->
+        <div class="project-card">
+            <div style="font-size: 2.5rem; color: var(--primary); min-width: 60px;">
+                <i class="fa-solid fa-signal"></i>
+            </div>
+            <div class="project-content">
+                <span class="tag">Python</span> <span class="tag">Data Analysis</span> <span class="tag">5G/LTE</span>
+                <h3>
+                    <span class="lang-es">Herramientas de Análisis de Logs Celulares</span>
+                    <span class="lang-en" style="display:none">Cellular Log Analysis Tools</span>
+                </h3>
+                <p>
+                    <span class="lang-es">Scripts y utilidades para el procesamiento automatizado de trazas de redes
+                        móviles (QXDM, Wireshark). Permite la extracción eficiente de KPIs y la detección de anomalías
+                        en campañas de test de conducción (drive tests).</span>
+                    <span class="lang-en" style="display:none">Scripts and utilities for automated processing of mobile
+                        network traces (QXDM, Wireshark). Enables efficient KPI extraction and anomaly detection in
+                        drive test campaigns.</span>
+                </p>
+            </div>
+        </div>
+
+        <!-- PROJECT 2: Scala Algorithms -->
+        <div class="project-card">
+            <div style="font-size: 2.5rem; color: #dc322f; min-width: 60px;">
+                <i class="fa-solid fa-code"></i>
+            </div>
+            <div class="project-content">
+                <span class="tag">Scala</span> <span class="tag">Functional Programming</span> <span
+                    class="tag">Algorithms</span>
+                <h3>
+                    <span class="lang-es">Algoritmia Funcional en Scala</span>
+                    <span class="lang-en" style="display:none">Functional Algorithms in Scala</span>
+                </h3>
+                <p>
+                    <span class="lang-es">Implementación de estructuras de datos y algoritmos clásicos bajo el paradigma
+                        puramente funcional. Exploración de mónadas, funtores y concurrencia con Akka para sistemas
+                        reactivos.</span>
+                    <span class="lang-en" style="display:none">Implementation of data structures and classic algorithms
+                        under purely functional paradigm. Exploration of monads, functors, and concurrency with Akka for
+                        reactive systems.</span>
+                </p>
+            </div>
+        </div>
+
+        <!-- PROJECT 3: Math Tools -->
+        <div class="project-card">
+            <div style="font-size: 2.5rem; color: var(--secondary); min-width: 60px;">
+                <i class="fa-solid fa-calculator"></i>
+            </div>
+            <div class="project-content">
+                <span class="tag">Python</span> <span class="tag">MatLab</span> <span class="tag">Complex
+                    Analysis</span>
+                <h3>
+                    <span class="lang-es">Simulación Matemática & Visualización</span>
+                    <span class="lang-en" style="display:none">Math Simulation & Visualization</span>
+                </h3>
+                <p>
+                    <span class="lang-es">Notebooks y scripts para la visualización de funciones complejas y
+                        verificación numérica de teoremas relacionados con productos de Blaschke y análisis
+                        armónico.</span>
+                    <span class="lang-en" style="display:none">Notebooks and scripts for visualization of complex
+                        functions and numerical verification of theorems related to Blaschke products and harmonic
+                        analysis.</span>
+                </p>
+            </div>
+        </div>
+
+    </main>
+
+    <footer>
+        <p>&copy; 2025 Adnan Bouaouda Arafa.</p>
+    </footer>
+
+    <script>
+        let currentLang = 'es';
+        function toggleLanguage() {
+            currentLang = currentLang === 'es' ? 'en' : 'es';
+            document.querySelectorAll('.lang-es').forEach(el => el.style.display = currentLang === 'es' ? 'inline' : 'none');
+            document.querySelectorAll('.lang-en').forEach(el => el.style.display = currentLang === 'en' ? 'inline' : 'none');
+        }
+    </script>
+</body>
+
+</html>

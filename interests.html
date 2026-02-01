@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interests & Media | Adnan Bouaouda Arafa</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&family=Lato:wght@300;400;700&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="css/main.css">
+</head>
+
+<body>
+
+    <nav class="navbar">
+        <a href="index.html" class="nav-brand">AbuAwn</a>
+        <ul class="nav-links">
+            <li><a href="index.html" class="nav-link">Home</a></li>
+            <li><a href="projects.html" class="nav-link"><span class="lang-es">Proyectos</span><span class="lang-en"
+                        style="display:none">Projects</span></a></li>
+            <li><a href="academic.html" class="nav-link"><span class="lang-es">Investigación</span><span class="lang-en"
+                        style="display:none">Research</span></a></li>
+            <li><a href="interests.html" class="nav-link active"><span class="lang-es">Intereses</span><span
+                        class="lang-en" style="display:none">Interests</span></a></li>
+            <li><a href="cv.html" class="nav-link">CV</a></li>
+        </ul>
+        <button class="lang-switch" onclick="toggleLanguage()">ES / EN</button>
+    </nav>
+
+    <div class="page-header">
+        <div class="container" style="margin:0 auto; padding:0;">
+            <h1>
+                <span class="lang-es">Intereses & Media</span>
+                <span class="lang-en" style="display:none">Interests & Media</span>
+            </h1>
+            <p>
+                <span class="lang-es">Divulgación tecnológica, Podcast y pasiones personales.</span>
+                <span class="lang-en" style="display:none">Tech outreach, Podcast, and personal passions.</span>
+            </p>
+        </div>
+    </div>
+
+    <main class="container">
+
+        <!-- Podcast Section -->
+        <h2 style="margin-bottom: 20px;">Podcast</h2>
+        <div class="card" style="margin-bottom: 40px;">
+            <div style="display: flex; gap: 20px; align-items: center; margin-bottom: 20px;">
+                <div style="font-size: 2.5rem; color:#1db954;"><i class="fa-brands fa-spotify"></i></div>
+                <div>
+                    <h3>
+                        <span class="lang-es">Primer Episodio: Ingeniería y Vida</span>
+                        <span class="lang-en" style="display:none">First Episode: Engineering & Life</span>
+                    </h3>
+                    <p class="card-desc" style="margin-bottom: 0;">
+                        <span class="lang-es">Conversaciones profundas sobre el impacto de la tecnología, experiencias
+                            en el sector de las telecomunicaciones y la intersección con las matemáticas.</span>
+                        <span class="lang-en" style="display:none">Deep conversations about the impact of technology,
+                            experiences in the telecommunications sector, and the intersection with mathematics.</span>
+                    </p>
+                </div>
+            </div>
+            <iframe style="border-radius:12px;"
+                src="https://open.spotify.com/embed/episode/0LINAV91PM7DesmyXhV1dc?utm_source=generator" width="100%"
+                height="152" frameBorder="0" allowfullscreen=""
+                allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
+                loading="lazy"></iframe>
+        </div>
+
+        <!-- Other Interests in Grid -->
+        <h2 style="margin-bottom: 20px;">
+            <span class="lang-es">Áreas de Interés</span>
+            <span class="lang-en" style="display:none">Areas of Interest</span>
+        </h2>
+        <div class="grid-cards">
+            <div class="card">
+                <div class="card-icon"><i class="fa-solid fa-microchip"></i></div>
+                <h3>Open FPGA & SDR</h3>
+                <p class="card-desc">
+                    <span class="lang-es">Experimentación con Radio Definida por Software (SDR) y diseño de hardware
+                        libre. Explorando nuevas arquitecturas para procesamiento de señal.</span>
+                    <span class="lang-en" style="display:none">Experimentation with Software Defined Radio (SDR) and
+                        open hardware design. Exploring new architectures for signal processing.</span>
+                </p>
+            </div>
+
+            <div class="card">
+                <div class="card-icon"><i class="fa-solid fa-code"></i></div>
+                <h3>
+                    <span class="lang-es">Programación Funcional</span>
+                    <span class="lang-en" style="display:none">Functional Programming</span>
+                </h3>
+                <p class="card-desc">
+                    <span class="lang-es">Entusiasta del paradigma funcional, especialmente con Scala y Haskell.
+                        Aplicando inmutabilidad y transparencia referencial para construir software más robusto.</span>
+                    <span class="lang-en" style="display:none">Functional paradigm enthusiast, especially with Scala and
+                        Haskell. Applying immutability and referential transparency to build more robust
+                        software.</span>
+                </p>
+            </div>
+
+            <div class="card">
+                <div class="card-icon"><i class="fa-solid fa-infinity"></i></div>
+                <h3>
+                    <span class="lang-es">Teoría de Números</span>
+                    <span class="lang-en" style="display:none">Number Theory</span>
+                </h3>
+                <p class="card-desc">
+                    <span class="lang-es">Investigación amateur en propiedades de los números enteros y criptografía. La
+                        belleza de las matemáticas puras aplicada al mundo digital.</span>
+                    <span class="lang-en" style="display:none">Amateur research into integer properties and
+                        cryptography. The beauty of pure mathematics applied to the digital world.</span>
+                </p>
+            </div>
+        </div>
+
+    </main>
+
+    <footer>
+        <p>&copy; 2025 Adnan Bouaouda Arafa.</p>
+    </footer>
+
+    <script>
+        let currentLang = 'es';
+        function toggleLanguage() {
+            currentLang = currentLang === 'es' ? 'en' : 'es';
+            document.querySelectorAll('.lang-es').forEach(el => el.style.display = currentLang === 'es' ? 'inline' : 'none');
+            document.querySelectorAll('.lang-en').forEach(el => el.style.display = currentLang === 'en' ? 'inline' : 'none');
+        }
+    </script>
+</body>
+
+</html>
