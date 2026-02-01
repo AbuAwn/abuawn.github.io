@@ -8,41 +8,56 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link
-        href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&family=Lato:wght@300;400;700&display=swap"
+        href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&family=Lato:wght@300;400;700&family=Amiri:wght@400;700&family=Cairo:wght@400;600;700&display=swap"
         rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <link rel="stylesheet" href="css/main.css">
 </head>
 
-<body>
+<body class="es">
 
     <nav class="navbar">
         <a href="index.html" class="nav-brand">AbuAwn</a>
         <ul class="nav-links">
             <li><a href="index.html" class="nav-link">Home</a></li>
-            <li><a href="projects.html" class="nav-link"><span class="lang-es">Proyectos</span><span class="lang-en"
-                        style="display:none">Projects</span></a></li>
-            <li><a href="academic.html" class="nav-link"><span class="lang-es">Investigación</span><span class="lang-en"
-                        style="display:none">Research</span></a></li>
+            <li><a href="projects.html" class="nav-link">
+                    <span class="lang-es">Proyectos</span>
+                    <span class="lang-en">Projects</span>
+                    <span class="lang-ar">المشاريع</span>
+                </a></li>
+            <li><a href="academic.html" class="nav-link">
+                    <span class="lang-es">Investigación</span>
+                    <span class="lang-en">Research</span>
+                    <span class="lang-ar">الأبحاث</span>
+                </a></li>
             <li><a href="media.html" class="nav-link active">Media</a></li>
-            <li><a href="interests.html" class="nav-link"><span class="lang-es">Intereses</span><span class="lang-en"
-                        style="display:none">Interests</span></a></li>
+            <li><a href="interests.html" class="nav-link">
+                    <span class="lang-es">Intereses</span>
+                    <span class="lang-en">Interests</span>
+                    <span class="lang-ar">الاهتمامات</span>
+                </a></li>
             <li><a href="cv.html" class="nav-link">CV</a></li>
         </ul>
-        <button class="lang-switch" onclick="toggleLanguage()">ES / EN</button>
+        <div class="lang-selector">
+            <button class="lang-btn" data-lang="es">ES</button>
+            <button class="lang-btn" data-lang="en">EN</button>
+            <button class="lang-btn" data-lang="ar">عربي</button>
+        </div>
     </nav>
 
     <div class="page-header">
         <div class="container" style="margin:0 auto; padding:0;">
             <h1>
                 <span class="lang-es">Media & Opinión</span>
-                <span class="lang-en" style="display:none">Media & Opinion</span>
+                <span class="lang-en">Media & Opinion</span>
+                <span class="lang-ar">الإعلام والرأي</span>
             </h1>
             <p>
                 <span class="lang-es">Podcast, artículos y reflexiones sobre el pensamiento islámico, la filosofía y la
                     ciencia.</span>
-                <span class="lang-en" style="display:none">Podcast, articles, and reflections on Islamic thought,
-                    philosophy, and science.</span>
+                <span class="lang-en">Podcast, articles, and reflections on Islamic thought, philosophy, and
+                    science.</span>
+                <span class="lang-ar">بودكاست ومقالات وتأملات في الفكر الإسلامي والفلسفة والعلوم.</span>
             </p>
         </div>
     </div>
@@ -54,14 +69,25 @@
             <header style="margin-bottom: 20px; border-bottom: 1px solid #eee; padding-bottom: 20px;">
                 <div style="display: flex; gap: 15px; align-items: center; margin-bottom: 15px;">
                     <span class="tag" style="background: #e0f2fe; color: #0369a1;">Podcast</span>
-                    <span class="tag" style="background: #f1f5f9; color: #475569;">Ensayo / Essay</span>
+                    <span class="tag" style="background: #f1f5f9; color: #475569;">
+                        <span class="lang-es">Ensayo</span><span class="lang-en">Essay</span><span
+                            class="lang-ar">مقال</span>
+                    </span>
                     <span style="font-size: 0.9rem; color: #64748b;">Febrero 2025</span>
                 </div>
                 <h2 style="font-size: 1.8rem; margin-bottom: 10px; color: var(--primary);">
-                    Vida, propiedad y dignidad: un punto de encuentro entre el pensamiento islámico y el liberalismo
-                    clásico
+                    <span class="lang-es">Vida, propiedad y dignidad: un punto de encuentro entre el pensamiento
+                        islámico y el liberalismo clásico</span>
+                    <span class="lang-en">Life, Property, and Dignity: A Meeting Point Between Islamic Thought and
+                        Classical Liberalism</span>
+                    <span class="lang-ar">الحياة والملكية والكرامة: نقطة التقاء بين الفكر الإسلامي والليبرالية
+                        الكلاسيكية</span>
                 </h2>
-                <div style="color: var(--text-light); font-style: italic;">Por Adnan Bouaouda</div>
+                <div style="color: var(--text-light); font-style: italic;">
+                    <span class="lang-es">Por Adnan Bouaouda</span>
+                    <span class="lang-en">By Adnan Bouaouda</span>
+                    <span class="lang-ar">بقلم عدنان بوعودة</span>
+                </div>
             </header>
 
             <!-- Spotify Embed -->
@@ -75,84 +101,235 @@
 
             <!-- Full Text Content -->
             <div class="article-content" style="color: var(--text-main); font-size: 1.05rem; line-height: 1.8;">
-                <h3 style="margin-top: 0;">Introducción</h3>
-                <p style="margin-bottom: 15px;">El presente texto busca explorar los puntos de convergencia moral entre
-                    el pensamiento islámico clásico y las corrientes liberales de la filosofía europea moderna. A pesar
-                    de sus diferentes fundamentos —uno revelado y otro racionalista—, ambos sistemas coinciden en
-                    otorgar a la persona humana una dignidad esencial que se traduce en derechos inviolables sobre su
-                    vida, su propiedad y su honor.</p>
 
-                <h3 style="margin-top: 25px;">El hadiz de la inviolabilidad</h3>
+                <!-- Introduction -->
+                <h3 style="margin-top: 0;">
+                    <span class="lang-es">Introducción</span>
+                    <span class="lang-en">Introduction</span>
+                    <span class="lang-ar">مقدمة</span>
+                </h3>
+                <p style="margin-bottom: 15px;">
+                    <span class="lang-es">El presente texto busca explorar los puntos de convergencia moral entre el
+                        pensamiento islámico clásico y las corrientes liberales de la filosofía europea moderna. A pesar
+                        de sus diferentes fundamentos —uno revelado y otro racionalista—, ambos sistemas coinciden en
+                        otorgar a la persona humana una dignidad esencial que se traduce en derechos inviolables sobre
+                        su vida, su propiedad y su honor.</span>
+                    <span class="lang-en">This text seeks to explore the points of moral convergence between classical
+                        Islamic thought and the liberal currents of modern European philosophy. Despite their different
+                        foundations—one revealed and the other rationalist—both systems coincide in granting the human
+                        person an essential dignity that translates into inviolable rights over their life, property,
+                        and honor.</span>
+                    <span class="lang-ar">يسعى هذا النص لاستكشاف نقاط التقاء أخلاقية بين الفكر الإسلامي الكلاسيكي
+                        والتيارات الليبرالية في الفلسفة الأوروبية الحديثة. ورغم اختلاف أسسهما —أحدهما وحي والآخر عقلاني—
+                        إلا أن كلا النظامين يتفقان على منح الإنسان كرامة جوهرية تترجم إلى حقوق غير قابلة للانتهاك في
+                        حياته وملكيته وعرضه.</span>
+                </p>
+
+                <!-- Hadith Section -->
+                <h3 style="margin-top: 25px;">
+                    <span class="lang-es">El hadiz de la inviolabilidad</span>
+                    <span class="lang-en">The Hadith of Inviolability</span>
+                    <span class="lang-ar">حديث الحرمة</span>
+                </h3>
                 <blockquote
                     style="border-left: 4px solid var(--accent); padding-left: 20px; margin: 20px 0; background: #f8fafc; padding: 15px;">
-                    <p style="font-family: 'Amiri', serif; font-size: 1.2rem; direction: rtl; margin-bottom: 5px;">
+                    <div
+                        style="font-family: 'Amiri', serif; font-size: 1.2rem; direction: rtl; text-align: right; margin-bottom: 5px;">
                         «إِنَّ دِمَاءَكُمْ وَأَمْوَالَكُمْ وَأَعْرَاضَكُمْ عَلَيْكُمْ حَرَامٌ، كَحُرْمَةِ يَوْمِكُمْ
-                        هَذَا، فِي شَهْرِكُمْ هَذَا، فِي بَلَدِكُمْ هَذَا»</p>
-                    <p style="font-style: italic;">"Vuestras vidas, vuestros bienes y vuestro honor son sagrados para
-                        vosotros, como es sagrado este día vuestro, en este mes vuestro, en esta ciudad vuestra."</p>
+                        هَذَا، فِي شَهْرِكُمْ هَذَا، فِي بَلَدِكُمْ هَذَا»</div>
+                    <div style="font-style: italic;">
+                        <span class="lang-es">"Vuestras vidas, vuestros bienes y vuestro honor son sagrados para
+                            vosotros, como es sagrado este día vuestro, en este mes vuestro, en esta ciudad
+                            vuestra."</span>
+                        <span class="lang-en">"Verily your blood, your property and your honor are sacred and inviolable
+                            as the sacredness of this day of yours, in this month of yours, in this town of
+                            yours."</span>
+                        <span class="lang-ar">"إن دماءكم وأموالكم وأعراضكم عليكم حرام، كحرمة يومكم هذا، في شهركم هذا، في
+                            بلدكم هذا."</span>
+                    </div>
                 </blockquote>
-                <p style="margin-bottom: 15px;">En esta declaración, el Profeta no introduce un concepto ritual de
-                    santidad, sino una norma moral y jurídica de carácter universal. Lo "sagrado" no alude aquí a lo
-                    religioso en sentido estrecho, sino a lo inviolable: aquello que ningún individuo ni autoridad puede
-                    transgredir sin quebrar la ley natural que protege la armonía social.</p>
-                <p style="margin-bottom: 15px;">Así, la vida, la propiedad y el honor son elevados a la categoría de
-                    bienes protegidos por el mismo respeto que se debe a lo divino. Esta enseñanza sienta las bases de
-                    una concepción del orden civil en la que la dignidad humana es el principio rector.</p>
+                <p style="margin-bottom: 15px;">
+                    <span class="lang-es">En esta declaración, el Profeta no introduce un concepto ritual de santidad,
+                        sino una norma moral y jurídica de carácter universal. Lo "sagrado" no alude aquí a lo religioso
+                        en sentido estrecho, sino a lo inviolable: aquello que ningún individuo ni autoridad puede
+                        transgredir sin quebrar la ley natural que protege la armonía social.</span>
+                    <span class="lang-en">In this declaration, the Prophet does not introduce a ritual concept of
+                        sanctity, but a moral and legal norm of universal character. "Sacred" here does not refer to the
+                        religious in a narrow sense, but to the inviolable: that which no individual or authority can
+                        transgress without breaking the natural law that protects social harmony.</span>
+                    <span class="lang-ar">في هذا البيان، لا يقدم النبي مفهومًا طقوسيًا للقداسة، بل قاعدة أخلاقية
+                        وقانونية ذات طابع عالمي. "الحرام" هنا لا يشير إلى الديني بالمعنى الضيق، بل إلى ما لا يجوز
+                        انتهاكه: ذلك الذي لا يمكن لأي فرد أو سلطة أن تتجاوزه دون كسر القانون الطبيعي الذي يحمي الانسجام
+                        الاجتماعي.</span>
+                </p>
+                <p style="margin-bottom: 15px;">
+                    <span class="lang-es">Así, la vida, la propiedad y el honor son elevados a la categoría de bienes
+                        protegidos por el mismo respeto que se debe a lo divino. Esta enseñanza sienta las bases de una
+                        concepción del orden civil en la que la dignidad humana es el principio rector.</span>
+                    <span class="lang-en">Thus, life, property, and honor are elevated to the category of goods
+                        protected by the same respect owed to the divine. This teaching lays the foundations for a
+                        conception of civil order in which human dignity is the guiding principle.</span>
+                    <span class="lang-ar">وهكذا، ترتقي الحياة والملكية والعرض إلى مرتبة الخيرات المحمية بنفس الاحترام
+                        الواجب للمقدسات. هذا التعاليم تضع الأسس لمفهوم النظام المدني الذي تكون فيه الكرامة الإنسانية هي
+                        المبدأ الموجه.</span>
+                </p>
 
-                <h3 style="margin-top: 25px;">El eco en el pensamiento europeo moderno</h3>
-                <p style="margin-bottom: 15px;">Siglos más tarde, filósofos como John Locke (1632–1704) y, en un
-                    registro distinto, Ayn Rand (1905–1982), defenderían esos mismos principios desde la razón natural.
-                    Locke hablaría del derecho a la vida, la libertad y la propiedad como derechos previos a toda
-                    sociedad civil; Rand los elevaría a expresión suprema del interés racional del individuo.</p>
-                <p style="margin-bottom: 15px;">Ambos sistemas, aunque distantes en su lenguaje y fundamento, comparten
-                    una convicción esencial: que el ser humano posee un valor intrínseco que debe ser protegido frente
-                    al poder arbitrario.</p>
+                <!-- European Thought -->
+                <h3 style="margin-top: 25px;">
+                    <span class="lang-es">El eco en el pensamiento europeo moderno</span>
+                    <span class="lang-en">The Echo in Modern European Thought</span>
+                    <span class="lang-ar">الصدى في الفكر الأوروبي الحديث</span>
+                </h3>
+                <p style="margin-bottom: 15px;">
+                    <span class="lang-es">Siglos más tarde, filósofos como John Locke (1632–1704) y, en un registro
+                        distinto, Ayn Rand (1905–1982), defenderían esos mismos principios desde la razón natural. Locke
+                        hablaría del derecho a la vida, la libertad y la propiedad como derechos previos a toda sociedad
+                        civil; Rand los elevaría a expresión suprema del interés racional del individuo.</span>
+                    <span class="lang-en">Centuries later, philosophers like John Locke (1632–1704) and, in a different
+                        register, Ayn Rand (1905–1982), would defend those same principles from natural reason. Locke
+                        would speak of the right to life, liberty, and property as rights prior to any civil society;
+                        Rand would elevate them to the supreme expression of the individual's rational interest.</span>
+                    <span class="lang-ar">بعد قرون، دافع فلاسفة مثل جون لوك (1632–1704)، وبنبرة مختلفة، آين راند
+                        (1905–1982)، عن نفس هذه المبادئ انطلاقًا من العقل الطبيعي. تحدث لوك عن الحق في الحياة والحرية
+                        والملكية كحقوق سابقة لأي مجتمع مدني؛ ورفعتها راند لتكون التعبير الأسمى عن المصلحة العقلانية
+                        للفرد.</span>
+                </p>
+                <p style="margin-bottom: 15px;">
+                    <span class="lang-es">Ambos sistemas, aunque distantes en su lenguaje y fundamento, comparten una
+                        convicción esencial: que el ser humano posee un valor intrínseco que debe ser protegido frente
+                        al poder arbitrario.</span>
+                    <span class="lang-en">Both systems, although distant in their language and foundation, share an
+                        essential conviction: that the human being possesses an intrinsic value that must be protected
+                        against arbitrary power.</span>
+                    <span class="lang-ar">كلا النظامين، وإن اختلفا في اللغة والأساس، يشتركان في قناعة جوهرية: أن الكائن
+                        البشري يمتلك قيمة ذاتية يجب حمايتها من السلطة الاستبدادية.</span>
+                </p>
 
-                <h3 style="margin-top: 25px;">El reconocimiento ilustrado del Profeta</h3>
-                <p style="margin-bottom: 15px;">Esta afinidad no pasó inadvertida para algunos pensadores ilustrados.
-                    Jean-Jacques Rousseau (1712–1778), en El contrato social (1762), reconoció en Muhammad ﷺ no a un
-                    impostor ni a un hechicero, sino a un legislador admirable, capaz de unir el poder espiritual y el
-                    político en un solo principio de justicia y cohesión.</p>
-                <p style="margin-bottom: 15px;">Del mismo modo, Claude-Emmanuel Pastoret (1755–c.1830), en su obra
-                    Zoroastre, Confucius et Mahomet (1787), situó al Profeta entre los grandes reformadores de la
-                    humanidad, destacando la pureza de su monoteísmo (tawhid) y la coherencia moral de su mensaje.
-                    Pastoret defendió al Islam frente a las acusaciones de sus contemporáneos, subrayando el carácter
-                    racional y ético de su legislación.</p>
+                <!-- Recognition -->
+                <h3 style="margin-top: 25px;">
+                    <span class="lang-es">El reconocimiento ilustrado del Profeta</span>
+                    <span class="lang-en">The Enlightened Recognition of the Prophet</span>
+                    <span class="lang-ar">الاعتراف التنويري بالنبي</span>
+                </h3>
+                <p style="margin-bottom: 15px;">
+                    <span class="lang-es">Esta afinidad no pasó inadvertida para algunos pensadores ilustrados.
+                        Jean-Jacques Rousseau (1712–1778), en El contrato social (1762), reconoció en Muhammad ﷺ no a un
+                        impostor ni a un hechicero, sino a un legislador admirable, capaz de unir el poder espiritual y
+                        el político en un solo principio de justicia y cohesión.</span>
+                    <span class="lang-en">This affinity did not go unnoticed by some Enlightenment thinkers.
+                        Jean-Jacques Rousseau (1712–1778), in The Social Contract (1762), recognized in Muhammad ﷺ not
+                        an impostor or a sorcerer, but an admirable legislator, capable of uniting spiritual and
+                        political power in a single principle of justice and cohesion.</span>
+                    <span class="lang-ar">لم يمر هذا التقارب دون أن يلاحظه بعض مفكري التنوير. فجان جاك روسو (1712–1778)،
+                        في "العقد الاجتماعي" (1762)، لم يرَ في محمد ﷺ دجالاً أو ساحرًا، بل مشرعًا مثيرًا للإعجاب، قادرًا
+                        على توحيد السلطة الروحية والسياسية في مبدأ واحد للعدالة والتماسك.</span>
+                </p>
+                <p style="margin-bottom: 15px;">
+                    <span class="lang-es">Del mismo modo, Claude-Emmanuel Pastoret (1755–c.1830), en su obra Zoroastre,
+                        Confucius et Mahomet (1787), situó al Profeta entre los grandes reformadores de la humanidad,
+                        destacando la pureza de su monoteísmo (tawhid) y la coherencia moral de su mensaje. Pastoret
+                        defendió al Islam frente a las acusaciones de sus contemporáneos, subrayando el carácter
+                        racional y ético de su legislación.</span>
+                    <span class="lang-en">Similarly, Claude-Emmanuel Pastoret (1755–c.1830), in his work Zoroastre,
+                        Confucius et Mahomet (1787), placed the Prophet among the great reformers of humanity,
+                        highlighting the purity of his monotheism (tawhid) and the moral coherence of his message.
+                        Pastoret defended Islam against the accusations of his contemporaries, emphasizing the rational
+                        and ethical character of its legislation.</span>
+                    <span class="lang-ar">وبالمثل، وضع كلود إيمانويل باستوريه (1755–حوالي 1830)، في كتابه "زرادشت
+                        وكونفوشيوس ومحمد" (1787)، النبي بين المصلحين العظماء للبشرية، مبرزًا نقاء توحيده والتماسك
+                        الأخلاقي لرسالته. دافع باستوريه عن الإسلام ضد اتهامات معاصريه، مؤكدًا على الطابع العقلاني
+                        والأخلاقي لتشريعاته.</span>
+                </p>
 
-                <h3 style="margin-top: 25px;">Conclusión</h3>
-                <p style="margin-bottom: 15px;">Así, tanto desde la revelación como desde la razón, el pensamiento
-                    islámico y el liberalismo clásico convergen en una verdad común: la vida, la propiedad y la dignidad
-                    son la triple base sobre la cual se edifica toda sociedad justa.</p>
-                <p style="margin-bottom: 15px; font-weight: 600;">En ambos casos, el respeto a estos bienes no es solo
-                    una norma política, sino una afirmación profunda del valor del ser humano como criatura libre y
-                    moral.</p>
+                <!-- Conclusion -->
+                <h3 style="margin-top: 25px;">
+                    <span class="lang-es">Conclusión</span>
+                    <span class="lang-en">Conclusion</span>
+                    <span class="lang-ar">خاتمة</span>
+                </h3>
+                <p style="margin-bottom: 15px;">
+                    <span class="lang-es">Así, tanto desde la revelación como desde la razón, el pensamiento islámico y
+                        el liberalismo clásico convergen en una verdad común: la vida, la propiedad y la dignidad son la
+                        triple base sobre la cual se edifica toda sociedad justa.</span>
+                    <span class="lang-en">Thus, both from revelation and from reason, Islamic thought and classical
+                        liberalism converge on a common truth: life, property, and dignity are the triple foundation
+                        upon which every just society is built.</span>
+                    <span class="lang-ar">وهكذا، سواء من الوحي أو من العقل، يلتقي الفكر الإسلامي والليبرالية الكلاسيكية
+                        في حقيقة مشتركة: الحياة والملكية والكرامة هي الأساس الثلاثي الذي يبنى عليه كل مجتمع عادل.</span>
+                </p>
+                <p style="margin-bottom: 15px; font-weight: 600;">
+                    <span class="lang-es">En ambos casos, el respeto a estos bienes no es solo una norma política, sino
+                        una afirmación profunda del valor del ser humano como criatura libre y moral.</span>
+                    <span class="lang-en">In both cases, respect for these goods is not only a political norm but a
+                        profound affirmation of the value of the human being as a free and moral creature.</span>
+                    <span class="lang-ar">في كلتا الحالتين، احترام هذه الخيرات ليس مجرد قاعدة سياسية، بل هو تأكيد عميق
+                        لقيمة الإنسان كمخلوق حر وأخلاقي.</span>
+                </p>
 
-                <!-- NEW AUTHOR'S NOTE SECTION -->
+                <!-- Author's Note -->
                 <div
                     style="background-color: #f8fafc; border-left: 4px solid var(--primary); padding: 15px; margin: 30px 0; font-size: 0.95rem; border-radius: 4px;">
                     <h4 style="margin-top: 0; color: var(--primary); display: flex; align-items: center; gap: 8px;">
-                        <i class="fa-solid fa-lightbulb" style="color: var(--secondary);"></i> Nota del Autor: El Origen
-                        de la Reflexión
+                        <i class="fa-solid fa-lightbulb" style="color: var(--secondary);"></i>
+                        <span class="lang-es">Nota del Autor: El Origen de la Reflexión</span>
+                        <span class="lang-en">Author's Note: The Origin of the Reflection</span>
+                        <span class="lang-ar">ملاحظة المؤلف: أصل الفكرة</span>
                     </h4>
-                    <p style="margin-bottom: 10px;">Este trabajo es fruto de años de búsqueda en ambas orillas del
-                        Mediterráneo. La chispa final que encendió esta comparación surgió viendo <em>Mad Men</em>
-                        (T1:E8, "The Hobo Code"), cuando Bert Cooper recomienda <em>La rebelión de Atlas</em> a Don
-                        Draper. Esa escena me llevó a profundizar en la filosofía de Ayn Rand y a encontrar resonancias
-                        inesperadas con los textos clásicos de mi propia tradición.</p>
-                    <p style="margin-bottom: 0;"><strong>Reconocimiento a la IA:</strong> Quiero agradecer especialmente
-                        a <a href="https://notebooklm.google.com/" target="_blank"
-                            style="color: var(--primary); text-decoration: underline;">Google NotebookLM</a>. Esta
-                        herramienta no solo me ayudó a sintetizar mis ideas dispersas, sino que generó el podcast que
-                        acompaña este artículo, animándome finalmente a publicar este trabajo.</p>
+                    <p style="margin-bottom: 10px;">
+                        <span class="lang-es">Este trabajo es fruto de años de búsqueda en ambas orillas del
+                            Mediterráneo. La chispa final que encendió esta comparación surgió viendo <em>Mad Men</em>
+                            (T1:E8, "The Hobo Code"), cuando Bert Cooper recomienda <em>La rebelión de Atlas</em> a Don
+                            Draper. Esa escena me llevó a profundizar en la filosofía de Ayn Rand y a encontrar
+                            resonancias inesperadas con los textos clásicos de mi propia tradición.</span>
+                        <span class="lang-en">This work is the fruit of years of searching on both shores of the
+                            Mediterranean. The final spark that ignited this comparison arose while watching <em>Mad
+                                Men</em> (S1:E8, "The Hobo Code"), when Bert Cooper recommends <em>Atlas Shrugged</em>
+                            to Don Draper. That scene led me to delve deeper into Ayn Rand's philosophy and find
+                            unexpected resonances with the classical texts of my own tradition.</span>
+                        <span class="lang-ar">هذا العمل هو ثمرة سنوات من البحث في ضفتي البحر المتوسط. الشرارة النهائية
+                            التي أشعلت هذه المقارنة ظهرت أثناء مشاهدة مسلسل "ماد رجال" (Mad Men) (الموسم 1: الحلقة 8)،
+                            عندما ينصح بيرت كوبر دون دريبر بقراءة "أطلس مستهزئاً" (Atlas Shrugged). قادني هذا المشهد
+                            للتعمق في فلسفة آين راند والعثور على أصداء غير متوقعة مع النصوص الكلاسيكية لتقاليدي
+                            الخاصة.</span>
+                    </p>
+                    <p style="margin-bottom: 0;">
+                        <strong>
+                            <span class="lang-es">Reconocimiento a la IA:</span>
+                            <span class="lang-en">AI Acknowledgement:</span>
+                            <span class="lang-ar">تقدير للذكاء الاصطناعي:</span>
+                        </strong>
+                        <span class="lang-es">Quiero agradecer especialmente a <a href="https://notebooklm.google.com/"
+                                target="_blank" style="color: var(--primary); text-decoration: underline;">Google
+                                NotebookLM</a>. Esta herramienta no solo me ayudó a sintetizar mis ideas dispersas, sino
+                            que generó el podcast que acompaña este artículo, animándome finalmente a publicar este
+                            trabajo.</span>
+                        <span class="lang-en">I want to especially thank <a href="https://notebooklm.google.com/"
+                                target="_blank" style="color: var(--primary); text-decoration: underline;">Google
+                                NotebookLM</a>. This tool not only helped me synthesize my scattered ideas, but
+                            generated the podcast accompanying this article, finally encouraging me to publish this
+                            work.</span>
+                        <span class="lang-ar">أود أن أشكر بشكل خاص <a href="https://notebooklm.google.com/"
+                                target="_blank" style="color: var(--primary); text-decoration: underline;">Google
+                                NotebookLM</a>. لم تساعدني هذه الأداة فقط في تجميع أفكاري المتناثرة، بل أنتجت البودكاست
+                            المرافق لهذا المقال، مما شجعني أخيرًا على نشر هذا العمل.</span>
+                    </p>
                 </div>
-                <!-- END NEW SECTION -->
 
                 <hr style="margin: 40px 0; border: 0; border-top: 1px solid #eee;">
 
                 <div style="font-size: 0.9rem; color: var(--text-light);">
-                    <h4 style="margin-bottom: 10px;">Referencias:</h4>
+                    <h4 style="margin-bottom: 10px;">
+                        <span class="lang-es">Referencias:</span>
+                        <span class="lang-en">References:</span>
+                        <span class="lang-ar">المراجع:</span>
+                    </h4>
                     <ul style="list-style-type: disc; margin-left: 20px;">
-                        <li>Sermón de despedida del Profeta Muhammad ﷺ, transmitido en Sahih al-Bujári y Sahih Muslim.
+                        <li>
+                            <span class="lang-es">Sermón de despedida del Profeta Muhammad ﷺ, transmitido en Sahih
+                                al-Bujári y Sahih Muslim.</span>
+                            <span class="lang-en">The Farewell Sermon of Prophet Muhammad ﷺ, transmitted in Sahih
+                                al-Bukhari and Sahih Muslim.</span>
+                            <span class="lang-ar">خطبة الوداع للنبي محمد ﷺ، المروية في صحيح البخاري وصحيح مسلم.</span>
                         </li>
                         <li>Jean-Jacques Rousseau, Du Contrat Social ou Principes du Droit Politique, Amsterdam, 1762.
                         </li>
@@ -169,14 +346,7 @@
         <p>&copy; 2025 Adnan Bouaouda Arafa.</p>
     </footer>
 
-    <script>
-        let currentLang = 'es';
-        function toggleLanguage() {
-            currentLang = currentLang === 'es' ? 'en' : 'es';
-            document.querySelectorAll('.lang-es').forEach(el => el.style.display = currentLang === 'es' ? 'inline' : 'none');
-            document.querySelectorAll('.lang-en').forEach(el => el.style.display = currentLang === 'en' ? 'inline' : 'none');
-        }
-    </script>
+    <script src="js/main.js"></script>
 </body>
 
 </html>

@@ -8,45 +8,64 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link
-        href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&family=Lato:wght@300;400;700&display=swap"
+        href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&family=Lato:wght@300;400;700&family=Amiri:wght@400;700&family=Cairo:wght@400;600;700&display=swap"
         rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <link rel="stylesheet" href="css/main.css">
 </head>
 
-<body>
+<body class="es">
 
     <nav class="navbar">
         <a href="index.html" class="nav-brand">AbuAwn</a>
         <ul class="nav-links">
             <li><a href="index.html" class="nav-link active">Home</a></li>
-            <li><a href="projects.html" class="nav-link"><span class="lang-es">Proyectos</span><span class="lang-en"
-                        style="display:none">Projects</span></a></li>
-            <li><a href="academic.html" class="nav-link"><span class="lang-es">Investigación</span><span class="lang-en"
-                        style="display:none">Research</span></a></li>
+            <li><a href="projects.html" class="nav-link">
+                    <span class="lang-es">Proyectos</span>
+                    <span class="lang-en">Projects</span>
+                    <span class="lang-ar">المشاريع</span>
+                </a></li>
+            <li><a href="academic.html" class="nav-link">
+                    <span class="lang-es">Investigación</span>
+                    <span class="lang-en">Research</span>
+                    <span class="lang-ar">الأبحاث</span>
+                </a></li>
             <li><a href="media.html" class="nav-link">Media</a></li>
-            <li><a href="interests.html" class="nav-link"><span class="lang-es">Intereses</span><span class="lang-en"
-                        style="display:none">Interests</span></a></li>
+            <li><a href="interests.html" class="nav-link">
+                    <span class="lang-es">Intereses</span>
+                    <span class="lang-en">Interests</span>
+                    <span class="lang-ar">الاهتمامات</span>
+                </a></li>
             <li><a href="cv.html" class="nav-link">CV</a></li>
         </ul>
-        <button class="lang-switch" onclick="toggleLanguage()">ES / EN</button>
+        <div class="lang-selector">
+            <button class="lang-btn" data-lang="es">ES</button>
+            <button class="lang-btn" data-lang="en">EN</button>
+            <button class="lang-btn" data-lang="ar">عربي</button>
+        </div>
     </nav>
 
     <header class="hero">
         <div class="hero-content">
             <img src="img/perfil_linkedin_pro.png" alt="Adnan Bouaouda" class="profile-img">
-            <h1>Adnan Bouaouda Arafa</h1>
+            <h1>
+                <span class="lang-es">Adnan Bouaouda Arafa</span>
+                <span class="lang-en">Adnan Bouaouda Arafa</span>
+                <span class="lang-ar">عدنان بوعودة عرفة</span>
+            </h1>
             <div class="subtitle">
                 <span class="lang-es">Ingeniero de Telecomunicaciones & Matemático</span>
-                <span class="lang-en" style="display:none">Telecommunications Engineer & Mathematician</span>
+                <span class="lang-en">Telecommunications Engineer & Mathematician</span>
+                <span class="lang-ar">مهندس اتصالات وعالم رياضيات</span>
             </div>
             <p style="max-width: 600px; margin: 0 auto; color: #cbd5e1;">
                 <span class="lang-es">Ingeniero de Test y Validación. Especializado en sistemas electrónicos, IoT y
                     análisis matemático. Apasionado por la tecnología, la programación funcional y la
                     investigación.</span>
-                <span class="lang-en" style="display:none">Test and Validation Engineer. Specialized in electronic
-                    systems, IoT, and mathematical analysis. Passionate about technology, functional programming, and
-                    research.</span>
+                <span class="lang-en">Test and Validation Engineer. Specialized in electronic systems, IoT, and
+                    mathematical analysis. Passionate about technology, functional programming, and research.</span>
+                <span class="lang-ar">مهندس اختبار وتحقق من الصحة. متخصص في الأنظمة الإلكترونية، وإنترنت الأشياء،
+                    والتحليل الرياضي. شغوف بالتكنولوجيا، والبرمجة الوظيفية، والبحث العلمي.</span>
             </p>
         </div>
     </header>
@@ -59,17 +78,21 @@
                 <div class="card-icon"><i class="fa-solid fa-briefcase"></i></div>
                 <h3 class="card-title">
                     <span class="lang-es">Perfil Profesional</span>
-                    <span class="lang-en" style="display:none">Professional Profile</span>
+                    <span class="lang-en">Professional Profile</span>
+                    <span class="lang-ar">الملف المهني</span>
                 </h3>
                 <p class="card-desc">
                     <span class="lang-es">Más de 20 años de experiencia en test, validación de sistemas electrónicos y
                         gestión técnica. Conoce mi trayectoria completa.</span>
-                    <span class="lang-en" style="display:none">Over 20 years of experience in testing, electronic
-                        systems validation, and technical management. See my full career path.</span>
+                    <span class="lang-en">Over 20 years of experience in testing, electronic systems validation, and
+                        technical management. See my full career path.</span>
+                    <span class="lang-ar">أكثر من 20 عامًا من الخبرة في الاختبار والتحقق من الأنظمة الإلكترونية والإدارة
+                        الفنية. تعرف على مساري المهني الكامل.</span>
                 </p>
                 <a href="cv.html" class="btn-card">
                     <span class="lang-es">Ver Curriculum</span>
-                    <span class="lang-en" style="display:none">View Resume</span>
+                    <span class="lang-en">View Resume</span>
+                    <span class="lang-ar">عرض السيرة الذاتية</span>
                 </a>
             </div>
 
@@ -78,17 +101,21 @@
                 <div class="card-icon"><i class="fa-brands fa-github"></i></div>
                 <h3 class="card-title">
                     <span class="lang-es">Código & Proyectos</span>
-                    <span class="lang-en" style="display:none">Code & Projects</span>
+                    <span class="lang-en">Code & Projects</span>
+                    <span class="lang-ar">البرمجة والمشاريع</span>
                 </h3>
                 <p class="card-desc">
                     <span class="lang-es">Implementaciones en Scala, scripts en Python para análisis de logs (QXDM), y
                         herramientas de automatización.</span>
-                    <span class="lang-en" style="display:none">Scala implementations, Python scripts for log analysis
-                        (QXDM), and automation tools.</span>
+                    <span class="lang-en">Scala implementations, Python scripts for log analysis (QXDM), and automation
+                        tools.</span>
+                    <span class="lang-ar">تطبيقات برمجية بلغة سكالا، ونصوص بايثون لتحليل السجلات (QXDM)، وأدوات التشغيل
+                        الآلي.</span>
                 </p>
                 <a href="projects.html" class="btn-card">
                     <span class="lang-es">Explorar Portfolio</span>
-                    <span class="lang-en" style="display:none">Explore Portfolio</span>
+                    <span class="lang-en">Explore Portfolio</span>
+                    <span class="lang-ar">استكشف المحفظة</span>
                 </a>
             </div>
 
@@ -97,36 +124,61 @@
                 <div class="card-icon"><i class="fa-solid fa-graduation-cap"></i></div>
                 <h3 class="card-title">
                     <span class="lang-es">Investigación</span>
-                    <span class="lang-en" style="display:none">Research</span>
+                    <span class="lang-en">Research</span>
+                    <span class="lang-ar">البحث العلمي</span>
                 </h3>
                 <p class="card-desc">
                     <span class="lang-es">Publicaciones académicas en Matemáticas (Productos de Blaschke) y Telemática
                         (Lógica LTL & Scala).</span>
-                    <span class="lang-en" style="display:none">Academic publications in Mathematics (Blaschke Products)
-                        and Telematics (LTL Logic & Scala).</span>
+                    <span class="lang-en">Academic publications in Mathematics (Blaschke Products) and Telematics (LTL
+                        Logic & Scala).</span>
+                    <span class="lang-ar">منشورات أكاديمية في الرياضيات (منتجات بلاشكي) والتيلماتيك (منطق LTL
+                        وسكالا).</span>
                 </p>
                 <a href="academic.html" class="btn-card">
                     <span class="lang-es">Leer Publicaciones</span>
-                    <span class="lang-en" style="display:none">Read Publications</span>
+                    <span class="lang-en">Read Publications</span>
+                    <span class="lang-ar">قراءة المنشورات</span>
+                </a>
+            </div>
+
+            <!-- Media -->
+            <div class="card">
+                <div class="card-icon"><i class="fa-solid fa-microphone"></i></div> <!-- Updated Icon -->
+                <h3 class="card-title">
+                    <span class="lang-es">Media & Opinión</span>
+                    <span class="lang-en">Media & Opinion</span>
+                    <span class="lang-ar">الإعلام والرأي</span>
+                </h3>
+                <p class="card-desc">
+                    <span class="lang-es">Podcast y ensayos sobre convergencia cultural, filosofía y tecnología.</span>
+                    <span class="lang-en">Podcast and essays on cultural convergence, philosophy, and technology.</span>
+                    <span class="lang-ar">بودكاست ومقالات حول التقارب الثقافي والفلسفة والتكنولوجيا.</span>
+                </p>
+                <a href="media.html" class="btn-card">
+                    <span class="lang-es">Ver Contenido</span>
+                    <span class="lang-en">View Content</span>
+                    <span class="lang-ar">عرض المحتوى</span>
                 </a>
             </div>
 
             <!-- Interests & Media -->
             <div class="card">
-                <div class="card-icon"><i class="fa-solid fa-podcast"></i></div>
+                <div class="card-icon"><i class="fa-solid fa-heart"></i></div> <!-- Updated Icon -->
                 <h3 class="card-title">
-                    <span class="lang-es">Intereses & Media</span>
-                    <span class="lang-en" style="display:none">Interests & Media</span>
+                    <span class="lang-es">Intereses</span>
+                    <span class="lang-en">Interests</span>
+                    <span class="lang-ar">الاهتمامات</span>
                 </h3>
                 <p class="card-desc">
-                    <span class="lang-es">Podcast sobre tecnología, divulgación sobre FPGA/SDR y teoría de
-                        números.</span>
-                    <span class="lang-en" style="display:none">Technology podcast, FPGA/SDR outreach, and number
-                        theory.</span>
+                    <span class="lang-es">Divulgación sobre FPGA/SDR y teoría de números.</span>
+                    <span class="lang-en">Outreach on FPGA/SDR and number theory.</span>
+                    <span class="lang-ar">التوعية حول FPGA/SDR وشرح نظرية الأعداد.</span>
                 </p>
                 <a href="interests.html" class="btn-card">
                     <span class="lang-es">Ver Actividades</span>
-                    <span class="lang-en" style="display:none">See Activities</span>
+                    <span class="lang-en">See Activities</span>
+                    <span class="lang-ar">انظر الأنشطة</span>
                 </a>
             </div>
 
@@ -134,19 +186,10 @@
     </main>
 
     <footer>
-        <p>&copy; 2025 Adnan Bouaouda Arafa. <span class="lang-es">Diseñado con estilo Premium.</span><span
-                class="lang-en" style="display:none">Designed with Premium style.</span></p>
+        <p>&copy; 2025 Adnan Bouaouda Arafa.</p>
     </footer>
 
-    <script>
-        let currentLang = 'es';
-
-        function toggleLanguage() {
-            currentLang = currentLang === 'es' ? 'en' : 'es';
-            document.querySelectorAll('.lang-es').forEach(el => el.style.display = currentLang === 'es' ? 'inline' : 'none');
-            document.querySelectorAll('.lang-en').forEach(el => el.style.display = currentLang === 'en' ? 'inline' : 'none');
-        }
-    </script>
+    <script src="js/main.js"></script>
 </body>
 
 </html>
