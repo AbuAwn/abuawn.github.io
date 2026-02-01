@@ -94,18 +94,20 @@ a {
 
 .lang-selector {
     display: flex;
-    gap: 5px;
+    gap: 8px;
+    align-items: center;
 }
 
 .lang-btn {
-    background: none;
-    border: 1px solid var(--primary-light);
-    border-radius: 4px;
-    padding: 4px 8px;
+    background: #ffffff;
+    border: 2px solid var(--primary-light);
+    border-radius: 6px;
+    padding: 6px 10px;
     cursor: pointer;
-    font-size: 0.8rem;
-    font-weight: 600;
-    color: var(--text-light);
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: var(--primary);
+    transition: all 0.2s ease;
 }
 
 .lang-btn:hover,
@@ -113,6 +115,8 @@ a {
     background: var(--primary);
     color: var(--white);
     border-color: var(--primary);
+    transform: translateY(-1px);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 /* Hero Section */
