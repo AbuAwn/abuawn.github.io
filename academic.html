@@ -8,40 +8,54 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link
-        href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&family=Lato:wght@300;400;700&display=swap"
+        href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&family=Lato:wght@300;400;700&family=Amiri:wght@400;700&family=Cairo:wght@400;600;700&display=swap"
         rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <link rel="stylesheet" href="css/main.css">
 </head>
 
-<body>
+<body class="es">
 
     <nav class="navbar">
         <a href="index.html" class="nav-brand">AbuAwn</a>
         <ul class="nav-links">
             <li><a href="index.html" class="nav-link">Home</a></li>
-            <li><a href="projects.html" class="nav-link"><span class="lang-es">Proyectos</span><span class="lang-en"
-                        style="display:none">Projects</span></a></li>
-            <li><a href="academic.html" class="nav-link active"><span class="lang-es">Investigación</span><span
-                        class="lang-en" style="display:none">Research</span></a></li>
+            <li><a href="projects.html" class="nav-link">
+                    <span class="lang-es">Proyectos</span>
+                    <span class="lang-en">Projects</span>
+                    <span class="lang-ar">المشاريع</span>
+                </a></li>
+            <li><a href="academic.html" class="nav-link active">
+                    <span class="lang-es">Investigación</span>
+                    <span class="lang-en">Research</span>
+                    <span class="lang-ar">الأبحاث</span>
+                </a></li>
             <li><a href="media.html" class="nav-link">Media</a></li>
-            <li><a href="interests.html" class="nav-link"><span class="lang-es">Intereses</span><span class="lang-en"
-                        style="display:none">Interests</span></a></li>
+            <li><a href="interests.html" class="nav-link">
+                    <span class="lang-es">Intereses</span>
+                    <span class="lang-en">Interests</span>
+                    <span class="lang-ar">الاهتمامات</span>
+                </a></li>
             <li><a href="cv.html" class="nav-link">CV</a></li>
         </ul>
-        <button class="lang-switch" onclick="toggleLanguage()">ES / EN</button>
+        <div class="lang-selector">
+            <button class="lang-btn" data-lang="es">ES</button>
+            <button class="lang-btn" data-lang="en">EN</button>
+            <button class="lang-btn" data-lang="ar">عربي</button>
+        </div>
     </nav>
 
     <div class="page-header">
         <div class="container" style="margin:0 auto; padding:0;">
             <h1>
                 <span class="lang-es">Investigación Académica</span>
-                <span class="lang-en" style="display:none">Academic Research</span>
+                <span class="lang-en">Academic Research</span>
+                <span class="lang-ar">البحث الأكاديمي</span>
             </h1>
             <p>
                 <span class="lang-es">Tesis de Máster y Publicaciones en Matemáticas y Telemática.</span>
-                <span class="lang-en" style="display:none">Master's Theses and Publications in Mathematics and
-                    Telematics.</span>
+                <span class="lang-en">Master's Theses and Publications in Mathematics and Telematics.</span>
+                <span class="lang-ar">رسائل الماجستير والمنشورات في الرياضيات والتيلماتيك.</span>
             </p>
         </div>
     </div>
@@ -59,24 +73,30 @@
                 <h3>
                     <span class="lang-es">Implementación en Scala de Monitores para Lógica LTL Dirigida por
                         Eventos</span>
-                    <span class="lang-en" style="display:none">Scala Implementation of Monitors for Event-Driven LTL
-                        Logic</span>
+                    <span class="lang-en">Scala Implementation of Monitors for Event-Driven LTL Logic</span>
+                    <span class="lang-ar">تنفيذ مراقبين بلغة سكالا للمنطق الزمني الخطي الموجه بالأحداث</span>
                 </h3>
                 <p>
                     <span class="lang-es">Este trabajo presenta una implementación práctica de monitores de tiempo de
                         ejecución para verificar propiedades especificadas en Lógica Temporal Lineal (LTL). Desarrollado
                         en Scala, el sistema permite la verificación formal de trazas de eventos en sistemas
                         distribuidos, con aplicaciones directas en validación de protocolos y SDN.</span>
-                    <span class="lang-en" style="display:none">This work presents a practical implementation of runtime
-                        monitors to verify properties specified in Linear Temporal Logic (LTL). Developed in Scala, the
-                        system enables formal verification of event traces in distributed systems, with direct
-                        applications in protocol validation and SDN.</span>
+                    <span class="lang-en">This work presents a practical implementation of runtime monitors to verify
+                        properties specified in Linear Temporal Logic (LTL). Developed in Scala, the system enables
+                        formal verification of event traces in distributed systems, with direct applications in protocol
+                        validation and SDN.</span>
+                    <span class="lang-ar">يقدم هذا العمل تنفيذًا عمليًا لمراقبي زمن التشغيل للتحقق من الخصائص المحددة في
+                        المنطق الزمني الخطي (LTL). تم تطوير النظام بلغة سكالا، ويسمح بالتحقق الرسمي من تتبعات الأحداث في
+                        الأنظمة الموزعة، مع تطبيقات مباشرة في التحقق من صحة البروتوكولات والشبكات المعرفة بالبرمجيات
+                        (SDN).</span>
                 </p>
                 <div style="margin-top: 15px;">
                     <a href="https://www.academia.edu/143773084/Implementaci%C3%B3n_en_Scala_de_Monitores_para_una_L%C3%B3gica_LTL_Dirigida_por_Eventos"
                         target="_blank" class="project-link">
-                        <i class="fa-solid fa-book-open"></i> <span class="lang-es">Leer en Academia.edu</span><span
-                            class="lang-en" style="display:none">Read on Academia.edu</span>
+                        <i class="fa-solid fa-book-open"></i>
+                        <span class="lang-es">Leer en Academia.edu</span>
+                        <span class="lang-en">Read on Academia.edu</span>
+                        <span class="lang-ar">اقرأ على Academia.edu</span>
                     </a>
                 </div>
             </div>
@@ -91,21 +111,26 @@
                 <span class="tag">MSc Mathematics</span> <span class="tag">Complex Analysis</span>
                 <h3>
                     <span class="lang-es">Crecimiento de la Derivada de Productos de Blaschke</span>
-                    <span class="lang-en" style="display:none">Growth of the Derivative of Blaschke Products</span>
+                    <span class="lang-en">Growth of the Derivative of Blaschke Products</span>
+                    <span class="lang-ar">نمو مشتقة منتجات بلاشكي</span>
                 </h3>
                 <p>
                     <span class="lang-es">Estudio en profundidad dentro del campo del Análisis Complejo. La tesis
                         investiga las propiedades asintóticas y el comportamiento en la frontera de las derivadas de los
                         Productos de Blaschke en el disco unidad, aportando nuevos resultados sobre su acotación.</span>
-                    <span class="lang-en" style="display:none">In-depth study within the field of Complex Analysis. The
-                        thesis investigates the asymptotic properties and boundary behavior of the derivatives of
-                        Blaschke Products in the unit disk, providing new results on their boundedness.</span>
+                    <span class="lang-en">In-depth study within the field of Complex Analysis. The thesis investigates
+                        the asymptotic properties and boundary behavior of the derivatives of Blaschke Products in the
+                        unit disk, providing new results on their boundedness.</span>
+                    <span class="lang-ar">دراسة متعمقة في مجال التحليل المركب. تبحث الأطروحة في الخصائص المقاربة والسلوك
+                        عند الحدود لمشتقات منتجات بلاشكي في قرص الوحدة، مما يوفر نتائج جديدة حول محدوديتها.</span>
                 </p>
                 <div style="margin-top: 15px;">
                     <a href="https://www.academia.edu/15226056/Crecimiento_de_la_derivada_de_Productos_de_Blaschke"
                         target="_blank" class="project-link">
-                        <i class="fa-solid fa-book-open"></i> <span class="lang-es">Leer en Academia.edu</span><span
-                            class="lang-en" style="display:none">Read on Academia.edu</span>
+                        <i class="fa-solid fa-book-open"></i>
+                        <span class="lang-es">Leer en Academia.edu</span>
+                        <span class="lang-en">Read on Academia.edu</span>
+                        <span class="lang-ar">اقرأ على Academia.edu</span>
                     </a>
                     <a href="img/TFM_Matematicas.pdf" target="_blank" class="project-link" style="margin-left: 20px;">
                         <i class="fa-solid fa-file-pdf"></i> PDF
@@ -120,14 +145,7 @@
         <p>&copy; 2025 Adnan Bouaouda Arafa.</p>
     </footer>
 
-    <script>
-        let currentLang = 'es';
-        function toggleLanguage() {
-            currentLang = currentLang === 'es' ? 'en' : 'es';
-            document.querySelectorAll('.lang-es').forEach(el => el.style.display = currentLang === 'es' ? 'inline' : 'none');
-            document.querySelectorAll('.lang-en').forEach(el => el.style.display = currentLang === 'en' ? 'inline' : 'none');
-        }
-    </script>
+    <script src="js/main.js"></script>
 </body>
 
 </html>

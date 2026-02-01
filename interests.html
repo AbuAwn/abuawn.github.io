@@ -8,58 +8,80 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link
-        href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&family=Lato:wght@300;400;700&display=swap"
+        href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&family=Lato:wght@300;400;700&family=Amiri:wght@400;700&family=Cairo:wght@400;600;700&display=swap"
         rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <link rel="stylesheet" href="css/main.css">
 </head>
 
-<body>
+<body class="es">
 
     <nav class="navbar">
         <a href="index.html" class="nav-brand">AbuAwn</a>
         <ul class="nav-links">
             <li><a href="index.html" class="nav-link">Home</a></li>
-            <li><a href="projects.html" class="nav-link"><span class="lang-es">Proyectos</span><span class="lang-en"
-                        style="display:none">Projects</span></a></li>
-            <li><a href="academic.html" class="nav-link"><span class="lang-es">Investigación</span><span class="lang-en"
-                        style="display:none">Research</span></a></li>
-            <li><a href="interests.html" class="nav-link active"><span class="lang-es">Intereses</span><span
-                        class="lang-en" style="display:none">Interests</span></a></li>
+            <li><a href="projects.html" class="nav-link">
+                    <span class="lang-es">Proyectos</span>
+                    <span class="lang-en">Projects</span>
+                    <span class="lang-ar">المشاريع</span>
+                </a></li>
+            <li><a href="academic.html" class="nav-link">
+                    <span class="lang-es">Investigación</span>
+                    <span class="lang-en">Research</span>
+                    <span class="lang-ar">الأبحاث</span>
+                </a></li>
+            <li><a href="media.html" class="nav-link">Media</a></li>
+            <li><a href="interests.html" class="nav-link active">
+                    <span class="lang-es">Intereses</span>
+                    <span class="lang-en">Interests</span>
+                    <span class="lang-ar">الاهتمامات</span>
+                </a></li>
             <li><a href="cv.html" class="nav-link">CV</a></li>
         </ul>
-        <button class="lang-switch" onclick="toggleLanguage()">ES / EN</button>
+        <div class="lang-selector">
+            <button class="lang-btn" data-lang="es">ES</button>
+            <button class="lang-btn" data-lang="en">EN</button>
+            <button class="lang-btn" data-lang="ar">عربي</button>
+        </div>
     </nav>
 
     <div class="page-header">
         <div class="container" style="margin:0 auto; padding:0;">
             <h1>
-                <span class="lang-es">Intereses & Media</span>
-                <span class="lang-en" style="display:none">Interests & Media</span>
+                <span class="lang-es">Intereses</span>
+                <span class="lang-en">Interests</span>
+                <span class="lang-ar">الاهتمامات</span>
             </h1>
             <p>
-                <span class="lang-es">Divulgación tecnológica, Podcast y pasiones personales.</span>
-                <span class="lang-en" style="display:none">Tech outreach, Podcast, and personal passions.</span>
+                <span class="lang-es">Pasiones tecnológicas y científicas.</span>
+                <span class="lang-en">Technological and scientific passions.</span>
+                <span class="lang-ar">شغف بالتكنولوجيا والعلوم.</span>
             </p>
         </div>
     </div>
 
     <main class="container">
 
-        <!-- Other Interests in Grid -->
         <h2 style="margin-bottom: 20px;">
             <span class="lang-es">Áreas de Interés</span>
-            <span class="lang-en" style="display:none">Areas of Interest</span>
+            <span class="lang-en">Areas of Interest</span>
+            <span class="lang-ar">مجالات الاهتمام</span>
         </h2>
         <div class="grid-cards">
             <div class="card">
                 <div class="card-icon"><i class="fa-solid fa-microchip"></i></div>
-                <h3>Open FPGA & SDR</h3>
+                <h3>
+                    <span class="lang-es">FPGA & SDR Libre</span>
+                    <span class="lang-en">Open FPGA & SDR</span>
+                    <span class="lang-ar">FPGA & SDR مفتوحة المصدر</span>
+                </h3>
                 <p class="card-desc">
                     <span class="lang-es">Experimentación con Radio Definida por Software (SDR) y diseño de hardware
                         libre. Explorando nuevas arquitecturas para procesamiento de señal.</span>
-                    <span class="lang-en" style="display:none">Experimentation with Software Defined Radio (SDR) and
-                        open hardware design. Exploring new architectures for signal processing.</span>
+                    <span class="lang-en">Experimentation with Software Defined Radio (SDR) and open hardware design.
+                        Exploring new architectures for signal processing.</span>
+                    <span class="lang-ar">تجارب مع الراديو المعرف برمجياً (SDR) وتصميم الأجهزة المفتوحة. استكشاف
+                        معماريات جديدة لمعالجة الإشارات.</span>
                 </p>
             </div>
 
@@ -67,14 +89,16 @@
                 <div class="card-icon"><i class="fa-solid fa-code"></i></div>
                 <h3>
                     <span class="lang-es">Programación Funcional</span>
-                    <span class="lang-en" style="display:none">Functional Programming</span>
+                    <span class="lang-en">Functional Programming</span>
+                    <span class="lang-ar">البرمجة الوظيفية</span>
                 </h3>
                 <p class="card-desc">
                     <span class="lang-es">Entusiasta del paradigma funcional, especialmente con Scala y Haskell.
                         Aplicando inmutabilidad y transparencia referencial para construir software más robusto.</span>
-                    <span class="lang-en" style="display:none">Functional paradigm enthusiast, especially with Scala and
-                        Haskell. Applying immutability and referential transparency to build more robust
-                        software.</span>
+                    <span class="lang-en">Functional paradigm enthusiast, especially with Scala and Haskell. Applying
+                        immutability and referential transparency to build more robust software.</span>
+                    <span class="lang-ar">متحمس للنموذج الوظيفي، خاصة مع سكالا وهاسكل. تطبيق الثبات والشفافية المرجعية
+                        لبناء برمجيات أكثر متانة.</span>
                 </p>
             </div>
 
@@ -82,13 +106,16 @@
                 <div class="card-icon"><i class="fa-solid fa-infinity"></i></div>
                 <h3>
                     <span class="lang-es">Teoría de Números</span>
-                    <span class="lang-en" style="display:none">Number Theory</span>
+                    <span class="lang-en">Number Theory</span>
+                    <span class="lang-ar">نظرية الأعداد</span>
                 </h3>
                 <p class="card-desc">
                     <span class="lang-es">Investigación amateur en propiedades de los números enteros y criptografía. La
                         belleza de las matemáticas puras aplicada al mundo digital.</span>
-                    <span class="lang-en" style="display:none">Amateur research into integer properties and
-                        cryptography. The beauty of pure mathematics applied to the digital world.</span>
+                    <span class="lang-en">Amateur research into integer properties and cryptography. The beauty of pure
+                        mathematics applied to the digital world.</span>
+                    <span class="lang-ar">بحث هاوٍ في خصائص الأعداد الصحيحة والتشفير. جمال الرياضيات البحتة المطبق على
+                        العالم الرقمي.</span>
                 </p>
             </div>
         </div>
@@ -99,14 +126,7 @@
         <p>&copy; 2025 Adnan Bouaouda Arafa.</p>
     </footer>
 
-    <script>
-        let currentLang = 'es';
-        function toggleLanguage() {
-            currentLang = currentLang === 'es' ? 'en' : 'es';
-            document.querySelectorAll('.lang-es').forEach(el => el.style.display = currentLang === 'es' ? 'inline' : 'none');
-            document.querySelectorAll('.lang-en').forEach(el => el.style.display = currentLang === 'en' ? 'inline' : 'none');
-        }
-    </script>
+    <script src="js/main.js"></script>
 </body>
 
 </html>
