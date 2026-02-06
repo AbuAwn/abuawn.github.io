@@ -308,8 +308,8 @@
             </select>
         </div>
         <button class="btn-action" onclick="generateLayout()">Generar Nueva Matriz</button>
-        <div id="help-tip">🎯 <b>Doble clic</b> para eliminar un panel individual.<br>Usa el resaltado blanco para
-            apuntar.</div>
+        <div id="help-tip">🎯 <b>Presor Intermedio:</b> 20mm respetados.<br><b>Doble clic</b> para eliminar un panel.
+        </div>
 
         <h2>5. Ajuste de Posición</h2>
         <div class="row-selector">
@@ -350,7 +350,7 @@
         let moveTarget = 1;
 
         // Constantes globales de instalación
-        const P_GAP = 0.02; // Espacio entre paneles (m)
+        const P_GAP = 0.02; // Separación de 20mm exacta para presores intermedios Sunfer
         const P_SAFE = 0.08; // Margen de seguridad para anclajes (m)
 
         const panelPresets = {
@@ -399,7 +399,10 @@
         function applyPanelPreset() {
             const p = document.getElementById('panelPreset').value;
             const custom = p === 'custom';
-            ['pLength', 'pWidth', 'pVoc', 'pVmpH'].forEach(id => document.getElementById(id).disabled = !custom);
+            ['pLength', 'pWidth', 'pVoc', 'pVmpH'].forEach(id => {
+                const el = document.getElementById(id);
+                if (el) el.disabled = !custom;
+            });
 
             if (!custom) {
                 const data = panelPresets[p];
@@ -414,7 +417,10 @@
         function applyInverterPreset() {
             const i = document.getElementById('invPreset').value;
             const custom = i === 'custom';
-            ['invVstart', 'invVmin'].forEach(id => document.getElementById(id).disabled = !custom);
+            ['invVstart', 'invVmin'].forEach(id => {
+                const el = document.getElementById(id);
+                if (el) el.disabled = !custom;
+            });
 
             if (!custom) {
                 const data = inverterPresets[i];
@@ -494,28 +500,23 @@
         }
 
         function generateLayout() {
-            const rowsInput = document.getElementById('genRows');
-            const colsInput = document.getElementById('genCols');
-            const orientInput = document.getElementById('genOrient');
-            const pLengthInput = document.getElementById('pLength');
-            const pWidthInput = document.getElementById('pWidth');
+            const rIn = document.getElementById('genRows'), cIn = document.getElementById('genCols');
+            const oIn = document.getElementById('genOrient'), lIn = document.getElementById('pLength'), wIn = document.getElementById('pWidth');
 
-            if (!rowsInput || !colsInput || !orientInput || !pLengthInput || !pWidthInput) return;
+            if (!rIn || !cIn || !oIn || !lIn || !wIn) return;
 
-            const rows = parseInt(rowsInput.value);
-            const cols = parseInt(colsInput.value);
-            const orient = orientInput.value;
-            const pL = parseFloat(pLengthInput.value) / 1000;
-            const pW = parseFloat(pWidthInput.value) / 1000;
+            const rows = parseInt(rIn.value), cols = parseInt(cIn.value), orient = oIn.value;
+            const pL = parseFloat(lIn.value) / 1000, pW = parseFloat(wIn.value) / 1000;
 
             const w = orient === 'v' ? pW : pL;
             const h = orient === 'v' ? pL : pW;
 
             panels = [];
-            let minX = Math.min(...vertices.map(v => v.x));
-            let maxX = Math.max(...vertices.map(v => v.x));
-            let totalW = cols * (w + P_GAP);
-            let startX = (maxX - minX - totalW) / 2;
+            let minX = Math.min(...vertices.map(v => v.x)), maxX = Math.max(...vertices.map(v => v.x));
+
+            // Cálculo milimétrico de ancho total: paneles + (gaps entre paneles)
+            const totalW = cols * w + (Math.max(0, cols - 1) * P_GAP);
+            const startX = (maxX - minX - totalW) / 2;
 
             for (let r = 0; r < rows; r++) {
                 for (let c = 0; c < cols; c++) {
@@ -557,19 +558,13 @@
             if (!panelsGroup) return;
             panelsGroup.clear();
 
-            const slopeInput = document.getElementById('roofSlope');
-            const pVocInput = document.getElementById('pVoc');
-            const pVmpHInput = document.getElementById('pVmpH');
-            const invVstartInput = document.getElementById('invVstart');
-            const invVminInput = document.getElementById('invVmin');
+            const sIn = document.getElementById('roofSlope'), vIn = document.getElementById('pVoc'), mIn = document.getElementById('pVmpH');
+            const vsIn = document.getElementById('invVstart'), vmIn = document.getElementById('invVmin');
 
-            if (!slopeInput || !pVocInput || !pVmpHInput || !invVstartInput || !invVminInput) return;
+            if (!sIn || !vIn || !mIn || !vsIn || !vmIn) return;
 
-            const slope = parseFloat(slopeInput.value);
-            const pVoc = parseFloat(pVocInput.value);
-            const pVmpH = parseFloat(pVmpHInput.value);
-            const vStartLimit = parseFloat(invVstartInput.value);
-            const vMinLimit = parseFloat(invVminInput.value);
+            const slope = parseFloat(sIn.value), pVoc = parseFloat(vIn.value), pVmpH = parseFloat(mIn.value);
+            const vStartLimit = parseFloat(vsIn.value), vMinLimit = parseFloat(vmIn.value);
 
             let minX = Math.min(...vertices.map(v => v.x)), maxX = Math.max(...vertices.map(v => v.x));
             const pivot = new THREE.Group();
@@ -598,10 +593,8 @@
             const vTotalVoc = panels.length * pVoc;
             const vTotalVmpH = panels.length * pVmpH;
 
-            const stVocEl = document.getElementById('st-voc');
-            const stVmpEl = document.getElementById('st-vmp');
-            const stCountEl = document.getElementById('st-count');
-            const msgEl = document.getElementById('safety-msg');
+            const stVocEl = document.getElementById('st-voc'), stVmpEl = document.getElementById('st-vmp');
+            const stCountEl = document.getElementById('st-count'), msgEl = document.getElementById('safety-msg');
 
             if (stVocEl) stVocEl.innerText = vTotalVoc.toFixed(1) + " V";
             if (stVmpEl) stVmpEl.innerText = vTotalVmpH.toFixed(1) + " V";
@@ -626,15 +619,12 @@
         }
 
         function syncFromStandard() {
-            const bInput = document.getElementById('roofB');
-            const tInput = document.getElementById('roofT');
-            const hInput = document.getElementById('roofH');
-            const modeInput = document.getElementById('roofPreset');
+            const bIn = document.getElementById('roofB'), tIn = document.getElementById('roofT');
+            const hIn = document.getElementById('roofH'), mIn = document.getElementById('roofPreset');
 
-            if (!bInput || !tInput || !hInput || !modeInput) return;
+            if (!bIn || !tIn || !hIn || !mIn) return;
 
-            const b = parseFloat(bInput.value), t = parseFloat(tInput.value);
-            const h = parseFloat(hInput.value), mode = modeInput.value;
+            const b = parseFloat(bIn.value), t = parseFloat(tIn.value), h = parseFloat(hIn.value), mode = mIn.value;
 
             if (mode === 'rectangulo') vertices = [{ x: 0, y: 0 }, { x: b, y: 0 }, { x: b, y: h }, { x: 0, y: h }];
             else if (mode === 'trapecio') { const off = (b - t) / 2; vertices = [{ x: 0, y: 0 }, { x: b, y: 0 }, { x: b - off, y: h }, { x: off, y: h }]; }
