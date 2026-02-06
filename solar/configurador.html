@@ -1,0 +1,669 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Configurador Solar Pro - Ingeniería Sunfer</title>
+    <style>
+        :root {
+            --accent: #ffcc00;
+            --bg: #0a0a0a;
+            --panel: rgba(20, 20, 20, 0.95);
+        }
+
+        body {
+            margin: 0;
+            overflow: hidden;
+            font-family: 'Inter', 'Segoe UI', sans-serif;
+            background-color: var(--bg);
+            color: white;
+        }
+
+        #ui-panel {
+            position: absolute;
+            top: 15px;
+            left: 15px;
+            background: var(--panel);
+            padding: 18px;
+            border-radius: 12px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.8);
+            width: 340px;
+            backdrop-filter: blur(12px);
+            border: 1px solid #333;
+            z-index: 100;
+            max-height: 92vh;
+            overflow-y: auto;
+            scrollbar-width: thin;
+        }
+
+        h2 {
+            margin: 15px 0 8px 0;
+            font-size: 11px;
+            color: var(--accent);
+            text-transform: uppercase;
+            letter-spacing: 1.2px;
+            border-bottom: 1px solid #333;
+            padding-bottom: 5px;
+        }
+
+        h2:first-child {
+            margin-top: 0;
+        }
+
+        .group {
+            margin-bottom: 12px;
+        }
+
+        label {
+            display: block;
+            font-size: 10px;
+            color: #888;
+            margin-bottom: 4px;
+            font-weight: 600;
+        }
+
+        input,
+        select {
+            width: 100%;
+            background: #1a1a1a;
+            border: 1px solid #333;
+            color: white;
+            padding: 8px;
+            border-radius: 6px;
+            font-size: 12px;
+            outline: none;
+            transition: 0.2s;
+        }
+
+        input:focus,
+        select:focus {
+            border-color: var(--accent);
+            background: #222;
+        }
+
+        input:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .flex-row {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 8px;
+        }
+
+        .flex-item {
+            flex: 1;
+        }
+
+        .btn-action {
+            background: var(--accent);
+            color: black;
+            border: none;
+            padding: 10px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 800;
+            font-size: 11px;
+            width: 100%;
+            text-transform: uppercase;
+            margin-top: 5px;
+        }
+
+        .btn-action:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(255, 204, 0, 0.3);
+        }
+
+        .move-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 6px;
+            margin: 10px 0;
+        }
+
+        .move-btn {
+            background: #252525;
+            border: 1px solid #444;
+            color: white;
+            height: 35px;
+            border-radius: 6px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .move-btn:hover {
+            border-color: var(--accent);
+            color: var(--accent);
+        }
+
+        .stat-box {
+            background: rgba(255, 204, 0, 0.05);
+            padding: 12px;
+            border-radius: 8px;
+            border: 1px solid rgba(255, 204, 0, 0.2);
+            font-size: 11px;
+            margin-top: 15px;
+        }
+
+        .stat-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 4px;
+        }
+
+        .stat-val {
+            color: var(--accent);
+            font-weight: bold;
+        }
+
+        .warning {
+            padding: 8px;
+            border-radius: 6px;
+            font-size: 10px;
+            margin-top: 10px;
+            text-align: center;
+            font-weight: bold;
+        }
+
+        .ok {
+            background: rgba(46, 204, 113, 0.15);
+            color: #2ecc71;
+            border: 1px solid #2ecc71;
+        }
+
+        .err {
+            background: rgba(231, 76, 60, 0.15);
+            color: #e74c3c;
+            border: 1px solid #e74c3c;
+        }
+
+        .row-selector {
+            display: flex;
+            gap: 4px;
+            background: #111;
+            padding: 4px;
+            border-radius: 8px;
+            margin: 8px 0;
+        }
+
+        .row-opt {
+            flex: 1;
+            text-align: center;
+            font-size: 9px;
+            padding: 6px 2px;
+            border-radius: 6px;
+            cursor: pointer;
+            background: #222;
+            border: 1px solid #333;
+            color: #888;
+        }
+
+        .row-opt.active {
+            background: var(--accent);
+            color: black;
+            font-weight: bold;
+        }
+
+        #help-tip {
+            font-size: 9px;
+            color: #aaa;
+            margin-top: 8px;
+            text-align: center;
+            padding: 5px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 4px;
+            border: 1px dashed #444;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div id="ui-panel">
+        <h2>1. Geometría del Tejado</h2>
+        <div class="group">
+            <label>Tipo de Cubierta</label>
+            <select id="roofPreset" onchange="syncFromStandard()">
+                <option value="trapecio">Trapecio Isósceles</option>
+                <option value="trapecio_recto">Trapecio Rectángulo</option>
+                <option value="rectangulo">Rectángulo</option>
+            </select>
+        </div>
+
+        <div id="standard-dims">
+            <div class="flex-row">
+                <div class="flex-item group"><label>Base Inferior (m)</label><input type="number" id="roofB" value="7.0"
+                        step="0.1" onchange="syncFromStandard()"></div>
+                <div class="flex-item group"><label>Base Superior (m)</label><input type="number" id="roofT" value="4.5"
+                        step="0.1" onchange="syncFromStandard()"></div>
+            </div>
+            <div class="flex-row">
+                <div class="flex-item group"><label>Altura (m)</label><input type="number" id="roofH" value="2.5"
+                        step="0.1" onchange="syncFromStandard()"></div>
+                <div class="flex-item group"><label>Pendiente (º)</label><input type="number" id="roofSlope" value="30"
+                        onchange="updateView()"></div>
+            </div>
+        </div>
+
+        <h2>2. Lista de Paneles</h2>
+        <div class="group">
+            <label>Modelo del Panel</label>
+            <select id="panelPreset" onchange="applyPanelPreset()">
+                <option value="ja450">JA Solar 450W (Voc 39.4V)</option>
+                <option value="tensite">Tensite 500W (Voc 43.1V)</option>
+                <option value="trina">Trina Vertex S+ (Voc 52.9V)</option>
+                <option value="tongwei">Tongwei 435W (Voc 43.8V)</option>
+                <option value="custom">-- MANUAL / PERSONALIZADO --</option>
+            </select>
+        </div>
+
+        <div class="flex-row">
+            <div class="flex-item group"><label>Largo (mm)</label><input type="number" id="pLength" value="1762"
+                    onchange="updateView()" disabled></div>
+            <div class="flex-item group"><label>Ancho (mm)</label><input type="number" id="pWidth" value="1134"
+                    onchange="updateView()" disabled></div>
+        </div>
+
+        <div class="flex-row">
+            <div class="flex-item group"><label title="Voltaje de Circuito Abierto">Voc (V)</label><input type="number"
+                    id="pVoc" value="39.4" step="0.1" onchange="renderPanels()" disabled></div>
+            <div class="flex-item group"><label title="Voltaje Vmp a 70°C">Vmp Calor (V)</label><input type="number"
+                    id="pVmpH" value="28.3" step="0.1" onchange="renderPanels()" disabled></div>
+        </div>
+
+        <h2>3. Inversor (Umbrales)</h2>
+        <div class="group">
+            <label>Modelo de Inversor</label>
+            <select id="invPreset" onchange="applyInverterPreset()">
+                <option value="hoymiles">Hoymiles HYS-6.0LV (Híbrido)</option>
+                <option value="goodwe">GoodWe Serie EH / BH</option>
+                <option value="fronius">Fronius Primo Gen24</option>
+                <option value="sma">SMA Sunny Boy</option>
+                <option value="custom">-- MANUAL / OTRO --</option>
+            </select>
+        </div>
+        <div class="flex-row">
+            <div class="flex-item group"><label title="Voltaje mínimo para arrancar">V. Arranque (V)</label><input
+                    type="number" id="invVstart" value="150" step="1" onchange="renderPanels()" disabled></div>
+            <div class="flex-item group"><label title="Voltaje mínimo de operación">V. Mín Producción (V)</label><input
+                    type="number" id="invVmin" value="125" step="1" onchange="renderPanels()" disabled></div>
+        </div>
+
+        <h2>4. Generador de Instalación</h2>
+        <div class="flex-row">
+            <div class="flex-item group"><label>Filas</label><input type="number" id="genRows" value="2" min="1"
+                    max="4"></div>
+            <div class="flex-item group"><label>Paneles/Fila</label><input type="number" id="genCols" value="3" min="1"
+                    max="8"></div>
+        </div>
+        <div class="group">
+            <label>Orientación Inicial</label>
+            <select id="genOrient">
+                <option value="v">Vertical (Portrait)</option>
+                <option value="h" selected>Horizontal (Landscape)</option>
+            </select>
+        </div>
+        <button class="btn-action" onclick="generateLayout()">Generar Nueva Matriz</button>
+        <div id="help-tip">🎯 <b>Doble clic</b> para eliminar un panel individual.<br>Usa el resaltado blanco para
+            apuntar.</div>
+
+        <h2>5. Ajuste de Posición</h2>
+        <div class="row-selector">
+            <div class="row-opt" onclick="setMoveTarget('all')" id="tgt-all">Todo</div>
+            <div class="row-opt" onclick="setMoveTarget(0)" id="tgt-0">Fila 1</div>
+            <div class="row-opt active" onclick="setMoveTarget(1)" id="tgt-1">Fila 2</div>
+        </div>
+
+        <div class="move-grid">
+            <div></div><button class="move-btn" onclick="movePanel(0, 0.05)">▲</button>
+            <div></div>
+            <button class="move-btn" onclick="movePanel(-0.1, 0)">◀</button>
+            <button class="move-btn" onclick="generateLayout()">C</button>
+            <button class="move-btn" onclick="movePanel(0.1, 0)">▶</button>
+            <div></div><button class="move-btn" onclick="movePanel(0, -0.05)">▼</button>
+            <div></div>
+        </div>
+
+        <div class="stat-box">
+            <div class="stat-row"><span>Voc (Arranque):</span> <span id="st-voc" class="stat-val">0 V</span></div>
+            <div class="stat-row"><span>Vmp (Calor):</span> <span id="st-vmp" class="stat-val">0 V</span></div>
+            <div class="stat-row"><span>Paneles Reales:</span> <span id="st-count" class="stat-val">0</span></div>
+        </div>
+        <div id="safety-msg" class="warning ok">DISEÑO CORRECTO</div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+
+    <script>
+        let scene, camera, renderer, controls, roofMesh, panelsGroup;
+        let raycaster = new THREE.Raycaster();
+        let mouse = new THREE.Vector2();
+        let hoveredPanel = null;
+
+        let vertices = [];
+        let panels = [];
+        let moveTarget = 1;
+
+        // Constantes globales de instalación
+        const P_GAP = 0.02; // Espacio entre paneles (m)
+        const P_SAFE = 0.08; // Margen de seguridad para anclajes (m)
+
+        const panelPresets = {
+            ja450: { l: 1762, w: 1134, voc: 39.4, vmpH: 28.3 },
+            tensite: { l: 1961, w: 1134, voc: 43.1, vmpH: 31.0 },
+            trina: { l: 1762, w: 1134, voc: 52.9, vmpH: 38.3 },
+            tongwei: { l: 1899, w: 1096, voc: 43.8, vmpH: 31.1 }
+        };
+
+        const inverterPresets = {
+            hoymiles: { vstart: 150, vmin: 125 },
+            goodwe: { vstart: 100, vmin: 80 },
+            fronius: { vstart: 80, vmin: 80 },
+            sma: { vstart: 100, vmin: 100 }
+        };
+
+        function init() {
+            scene = new THREE.Scene();
+            scene.background = new THREE.Color(0x050505);
+            camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 1000);
+            camera.position.set(12, 10, 15);
+
+            renderer = new THREE.WebGLRenderer({ antialias: true });
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            document.body.appendChild(renderer.domElement);
+
+            scene.add(new THREE.AmbientLight(0xffffff, 0.8));
+            const sun = new THREE.DirectionalLight(0xffffff, 0.6);
+            sun.position.set(5, 20, 10);
+            scene.add(sun);
+
+            panelsGroup = new THREE.Group();
+            scene.add(panelsGroup);
+
+            controls = new THREE.OrbitControls(camera, renderer.domElement);
+            controls.enableDamping = true;
+
+            window.addEventListener('mousemove', onMouseMove);
+            window.addEventListener('dblclick', onPanelDelete);
+
+            syncFromStandard();
+            generateLayout();
+            animate();
+        }
+
+        function applyPanelPreset() {
+            const p = document.getElementById('panelPreset').value;
+            const custom = p === 'custom';
+            ['pLength', 'pWidth', 'pVoc', 'pVmpH'].forEach(id => document.getElementById(id).disabled = !custom);
+
+            if (!custom) {
+                const data = panelPresets[p];
+                document.getElementById('pLength').value = data.l;
+                document.getElementById('pWidth').value = data.w;
+                document.getElementById('pVoc').value = data.voc;
+                document.getElementById('pVmpH').value = data.vmpH;
+            }
+            updateView();
+        }
+
+        function applyInverterPreset() {
+            const i = document.getElementById('invPreset').value;
+            const custom = i === 'custom';
+            ['invVstart', 'invVmin'].forEach(id => document.getElementById(id).disabled = !custom);
+
+            if (!custom) {
+                const data = inverterPresets[i];
+                document.getElementById('invVstart').value = data.vstart;
+                document.getElementById('invVmin').value = data.vmin;
+            }
+            renderPanels();
+        }
+
+        function onMouseMove(event) {
+            mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+            mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
+
+            raycaster.setFromCamera(mouse, camera);
+            const intersects = raycaster.intersectObjects(panelsGroup.children, true);
+
+            if (intersects.length > 0) {
+                let obj = intersects[0].object;
+                while (obj.parent && !obj.userData.id) obj = obj.parent;
+
+                if (hoveredPanel !== obj) {
+                    if (hoveredPanel) resetHighlight(hoveredPanel);
+                    hoveredPanel = obj;
+                    highlightPanel(hoveredPanel);
+                }
+            } else {
+                if (hoveredPanel) resetHighlight(hoveredPanel);
+                hoveredPanel = null;
+            }
+        }
+
+        function highlightPanel(obj) {
+            obj.children.forEach(child => {
+                if (child instanceof THREE.LineSegments) child.material.color.set(0xffffff);
+            });
+        }
+
+        function resetHighlight(obj) {
+            obj.children.forEach(child => {
+                if (child instanceof THREE.LineSegments) child.material.color.set(0x444444);
+            });
+        }
+
+        function onPanelDelete() {
+            if (hoveredPanel && hoveredPanel.userData.id) {
+                panels = panels.filter(p => p.id !== hoveredPanel.userData.id);
+                renderPanels();
+                hoveredPanel = null;
+            }
+        }
+
+        function isPointInPoly(pt, poly) {
+            let inside = false;
+            for (let i = 0, j = poly.length - 1; i < poly.length; j = i++) {
+                let xi = poly[i].x, yi = poly[i].y;
+                let xj = poly[j].x, yj = poly[j].y;
+                let intersect = ((yi > pt.y) != (yj > pt.y)) && (pt.x < (xj - xi) * (pt.y - yi) / (yj - yi) + xi);
+                if (intersect) inside = !inside;
+            }
+            return inside;
+        }
+
+        function checkSafety(p) {
+            const corners = [
+                { x: p.x, y: p.y }, { x: p.x + p.w, y: p.y },
+                { x: p.x, y: p.y + p.h }, { x: p.x + p.w, y: p.y + p.h }
+            ];
+            const anchors = [
+                { x: p.x + p.w * 0.2, y: p.y + p.h * 0.25 }, { x: p.x + p.w * 0.8, y: p.y + p.h * 0.25 },
+                { x: p.x + p.w * 0.2, y: p.y + p.h * 0.75 }, { x: p.x + p.w * 0.8, y: p.y + p.h * 0.75 }
+            ];
+            const allCornersIn = corners.every(c => isPointInPoly(c, vertices));
+            const allAnchorsIn = anchors.every(a => isPointInPoly(a, vertices));
+            if (allCornersIn) return 'ok';
+            if (allAnchorsIn) return 'warn';
+            return 'err';
+        }
+
+        function generateLayout() {
+            const rowsInput = document.getElementById('genRows');
+            const colsInput = document.getElementById('genCols');
+            const orientInput = document.getElementById('genOrient');
+            const pLengthInput = document.getElementById('pLength');
+            const pWidthInput = document.getElementById('pWidth');
+
+            if (!rowsInput || !colsInput || !orientInput || !pLengthInput || !pWidthInput) return;
+
+            const rows = parseInt(rowsInput.value);
+            const cols = parseInt(colsInput.value);
+            const orient = orientInput.value;
+            const pL = parseFloat(pLengthInput.value) / 1000;
+            const pW = parseFloat(pWidthInput.value) / 1000;
+
+            const w = orient === 'v' ? pW : pL;
+            const h = orient === 'v' ? pL : pW;
+
+            panels = [];
+            let minX = Math.min(...vertices.map(v => v.x));
+            let maxX = Math.max(...vertices.map(v => v.x));
+            let totalW = cols * (w + P_GAP);
+            let startX = (maxX - minX - totalW) / 2;
+
+            for (let r = 0; r < rows; r++) {
+                for (let c = 0; c < cols; c++) {
+                    panels.push({
+                        id: 'p_' + Math.random().toString(36).substr(2, 9),
+                        row: r,
+                        x: startX + c * (w + P_GAP),
+                        y: 0.1 + r * (h + P_GAP),
+                        w: w, h: h
+                    });
+                }
+            }
+            updateView();
+        }
+
+        function updateView() {
+            if (roofMesh) scene.remove(roofMesh);
+            const shape = new THREE.Shape();
+            if (vertices.length < 3) return;
+
+            shape.moveTo(vertices[0].x, vertices[0].y);
+            for (let i = 1; i < vertices.length; i++) shape.lineTo(vertices[i].x, vertices[i].y);
+            shape.lineTo(vertices[0].x, vertices[0].y);
+
+            const slopeInput = document.getElementById('roofSlope');
+            if (!slopeInput) return;
+
+            const slope = parseFloat(slopeInput.value);
+            roofMesh = new THREE.Mesh(new THREE.ExtrudeGeometry(shape, { depth: 0.05, bevelEnabled: false }),
+                new THREE.MeshPhongMaterial({ color: 0x8b4513, transparent: true, opacity: 0.7, side: THREE.DoubleSide }));
+            let minX = Math.min(...vertices.map(v => v.x)), maxX = Math.max(...vertices.map(v => v.x));
+            roofMesh.position.set(-(minX + maxX) / 2, 4.05, 3.0);
+            roofMesh.rotation.x = -Math.PI / 2 + (slope * Math.PI / 180);
+            scene.add(roofMesh);
+            renderPanels();
+        }
+
+        function renderPanels() {
+            if (!panelsGroup) return;
+            panelsGroup.clear();
+
+            const slopeInput = document.getElementById('roofSlope');
+            const pVocInput = document.getElementById('pVoc');
+            const pVmpHInput = document.getElementById('pVmpH');
+            const invVstartInput = document.getElementById('invVstart');
+            const invVminInput = document.getElementById('invVmin');
+
+            if (!slopeInput || !pVocInput || !pVmpHInput || !invVstartInput || !invVminInput) return;
+
+            const slope = parseFloat(slopeInput.value);
+            const pVoc = parseFloat(pVocInput.value);
+            const pVmpH = parseFloat(pVmpHInput.value);
+            const vStartLimit = parseFloat(invVstartInput.value);
+            const vMinLimit = parseFloat(invVminInput.value);
+
+            let minX = Math.min(...vertices.map(v => v.x)), maxX = Math.max(...vertices.map(v => v.x));
+            const pivot = new THREE.Group();
+            pivot.position.set(-(minX + maxX) / 2, 4.05, 3.0);
+            pivot.rotation.x = -Math.PI / 2 + (slope * Math.PI / 180);
+            let anyPositionError = false;
+
+            panels.forEach(p => {
+                const status = checkSafety(p);
+                let color = 0x111122;
+                if (status === 'warn') color = 0x27ae60;
+                if (status === 'err') { color = 0xc0392b; anyPositionError = true; }
+                const m = new THREE.Mesh(new THREE.PlaneGeometry(p.w, p.h), new THREE.MeshPhongMaterial({ color: color, side: THREE.DoubleSide }));
+                m.position.set(p.x + p.w / 2, p.y + p.h / 2, 0.1);
+                m.userData.id = p.id;
+                m.add(new THREE.LineSegments(new THREE.EdgesGeometry(new THREE.PlaneGeometry(p.w, p.h)), new THREE.LineBasicMaterial({ color: 0x444444 })));
+                [[0.2, 0.25], [0.8, 0.25], [0.2, 0.75], [0.8, 0.75]].forEach(pos => {
+                    const f = new THREE.Mesh(new THREE.BoxGeometry(0.04, 0.1, 0.05), new THREE.MeshPhongMaterial({ color: 0xff0000 }));
+                    f.position.set(p.w * pos[0] - p.w / 2, p.h * pos[1] - p.h / 2, 0.02);
+                    m.add(f);
+                });
+                pivot.add(m);
+            });
+            panelsGroup.add(pivot);
+
+            const vTotalVoc = panels.length * pVoc;
+            const vTotalVmpH = panels.length * pVmpH;
+
+            const stVocEl = document.getElementById('st-voc');
+            const stVmpEl = document.getElementById('st-vmp');
+            const stCountEl = document.getElementById('st-count');
+            const msgEl = document.getElementById('safety-msg');
+
+            if (stVocEl) stVocEl.innerText = vTotalVoc.toFixed(1) + " V";
+            if (stVmpEl) stVmpEl.innerText = vTotalVmpH.toFixed(1) + " V";
+            if (stCountEl) stCountEl.innerText = panels.length;
+
+            if (msgEl) {
+                const voltageOk = vTotalVoc >= vStartLimit && vTotalVmpH >= vMinLimit;
+                if (!anyPositionError && voltageOk && panels.length > 0) {
+                    msgEl.innerText = "DISEÑO CORRECTO";
+                    msgEl.className = "warning ok";
+                } else if (!voltageOk && panels.length > 0) {
+                    msgEl.innerText = "¡ALERTA: VOLTAJE INSUFICIENTE!";
+                    msgEl.className = "warning err";
+                } else if (anyPositionError) {
+                    msgEl.innerText = "¡REVISAR POSICIÓN DE PANELES!";
+                    msgEl.className = "warning err";
+                } else {
+                    msgEl.innerText = "SIN PANELES INSTALADOS";
+                    msgEl.className = "warning";
+                }
+            }
+        }
+
+        function syncFromStandard() {
+            const bInput = document.getElementById('roofB');
+            const tInput = document.getElementById('roofT');
+            const hInput = document.getElementById('roofH');
+            const modeInput = document.getElementById('roofPreset');
+
+            if (!bInput || !tInput || !hInput || !modeInput) return;
+
+            const b = parseFloat(bInput.value), t = parseFloat(tInput.value);
+            const h = parseFloat(hInput.value), mode = modeInput.value;
+
+            if (mode === 'rectangulo') vertices = [{ x: 0, y: 0 }, { x: b, y: 0 }, { x: b, y: h }, { x: 0, y: h }];
+            else if (mode === 'trapecio') { const off = (b - t) / 2; vertices = [{ x: 0, y: 0 }, { x: b, y: 0 }, { x: b - off, y: h }, { x: off, y: h }]; }
+            else vertices = [{ x: 0, y: 0 }, { x: b, y: 0 }, { x: t, y: h }, { x: 0, y: h }];
+            updateView();
+        }
+
+        function setMoveTarget(t) {
+            moveTarget = t;
+            document.querySelectorAll('.row-opt').forEach(el => el.classList.remove('active'));
+            const tgtEl = document.getElementById('tgt-' + t);
+            if (tgtEl) tgtEl.classList.add('active');
+        }
+
+        function movePanel(dx, dy) {
+            panels.forEach(p => { if (moveTarget === 'all' || p.row === moveTarget) { p.x += dx; p.y += dy; } });
+            renderPanels();
+        }
+
+        function animate() { requestAnimationFrame(animate); if (controls) controls.update(); if (renderer && scene && camera) renderer.render(scene, camera); }
+        window.onload = init;
+        window.onresize = () => {
+            if (camera && renderer) {
+                camera.aspect = window.innerWidth / window.innerHeight;
+                camera.updateProjectionMatrix();
+                renderer.setSize(window.innerWidth, window.innerHeight);
+            }
+        };
+    </script>
+</body>
+
+</html>
