@@ -672,7 +672,7 @@
                     const railY = yPos + pHeight * factor;
 
                     // Riel (Perfil) - Silver/Aluminum
-                    const railGeo = new THREE.BoxGeometry(railLen, 0.04, 0.04);
+                    const railGeo = new THREE.BoxGeometry(railLen, 0.045, 0.045);
                     const railMat = new THREE.MeshPhongMaterial({ color: 0xc0c0c0 });
                     const rail = new THREE.Mesh(railGeo, railMat);
                     rail.position.set(centerX, railY, railZ);
@@ -680,7 +680,7 @@
 
                     // Tapa G1 (Black Caps on ends)
                     if (isSunfer) {
-                        const capGeo = new THREE.BoxGeometry(0.01, 0.042, 0.042);
+                        const capGeo = new THREE.BoxGeometry(0.01, 0.048, 0.048);
                         const capMat = new THREE.MeshPhongMaterial({ color: 0x111111 });
 
                         const capL = new THREE.Mesh(capGeo, capMat);
@@ -690,50 +690,69 @@
                         const capR = new THREE.Mesh(capGeo, capMat);
                         capR.position.set(centerX + railLen / 2 + 0.005, railY, railZ);
                         parentGroup.add(capR);
+
+                        // Visualizar Uniones (Splices) - UG1
+                        const d = sunferData[n];
+                        if (d && d.bom && d.bom.ug1 > 0) {
+                            const splicesPerLine = d.bom.ug1 / 2;
+                            if (splicesPerLine >= 1) {
+                                const segmentLen = railLen / (splicesPerLine + 1);
+                                for (let s = 1; s <= splicesPerLine; s++) {
+                                    const sx = (centerX - railLen / 2) + segmentLen * s;
+                                    const spliceGeo = new THREE.BoxGeometry(0.15, 0.055, 0.055);
+                                    const spliceMat = new THREE.MeshPhongMaterial({ color: 0x2980b9 });
+                                    const spliceMesh = new THREE.Mesh(spliceGeo, spliceMat);
+                                    spliceMesh.position.set(sx, railY, railZ);
+                                    parentGroup.add(spliceMesh);
+                                }
+                            }
+                        }
                     }
 
                     // Dibujar anclajes (HOOKS)
                     anchorsCoords.forEach(ax => {
                         const ancGroup = new THREE.Group();
-                        // Base part (under rail)
-                        const ancGeo = new THREE.BoxGeometry(0.06, 0.15, 0.02);
-                        const ancMat = new THREE.MeshPhongMaterial({ color: isSunfer ? 0xc0392b : 0x3498db }); // Rojo Sunfer
+                        // Base part (under rail) - Bigger and Brighter Red
+                        const ancGeo = new THREE.BoxGeometry(0.08, 0.16, 0.03);
+                        const ancMat = new THREE.MeshPhongMaterial({ color: isSunfer ? 0xff4500 : 0x3498db });
                         const anc = new THREE.Mesh(ancGeo, ancMat);
                         anc.position.set(0, 0, 0);
                         ancGroup.add(anc);
 
                         // Vertical part (to roof)
-                        const legGeo = new THREE.BoxGeometry(0.04, 0.04, 0.1);
+                        const legGeo = new THREE.BoxGeometry(0.05, 0.05, 0.12);
                         const leg = new THREE.Mesh(legGeo, ancMat);
-                        leg.position.set(0, 0.05, -0.06);
+                        leg.position.set(0, 0.06, -0.06);
                         ancGroup.add(leg);
 
-                        ancGroup.position.set(ax, railY, 0.03); // Just under rail
+                        ancGroup.position.set(ax, railY, 0.02); // Just under rail
                         parentGroup.add(ancGroup);
                     });
                 });
 
-                // Dibujar Clamps (Presores) solo una vez (no por riel, sino sobre los paneles)
-                // S10 Laterales
-                const clampZ = 0.12;
-                const clampMat = new THREE.MeshPhongMaterial({ color: 0xaaaaaa }); // Silver
+                // Dibujar Clamps (Presores)
+                // S10 Laterales - Thick Silver Blocks
+                const clampZ = 0.125;
+                const clampMat = new THREE.MeshPhongMaterial({ color: 0xbdc3c7 });
+                const clampHighlight = new THREE.MeshPhongMaterial({ color: 0x95a5a6 });
 
-                // Left End
-                const s10L = new THREE.Mesh(new THREE.BoxGeometry(0.03, rowPanels[0].h + 0.05, 0.02), clampMat);
-                s10L.position.set(minX - 0.015, yPos + rowPanels[0].h / 2, clampZ);
+                // Left End (S10)
+                const s10L = new THREE.Mesh(new THREE.BoxGeometry(0.04, rowPanels[0].h + 0.02, 0.025), clampMat);
+                s10L.position.set(minX - 0.02, yPos + rowPanels[0].h / 2, clampZ);
                 parentGroup.add(s10L);
 
-                // Right End
-                const s10R = new THREE.Mesh(new THREE.BoxGeometry(0.03, rowPanels[0].h + 0.05, 0.02), clampMat);
-                s10R.position.set(maxX + 0.015, yPos + rowPanels[0].h / 2, clampZ);
+                // Right End (S10)
+                const s10R = new THREE.Mesh(new THREE.BoxGeometry(0.04, rowPanels[0].h + 0.02, 0.025), clampMat);
+                s10R.position.set(maxX + 0.02, yPos + rowPanels[0].h / 2, clampZ);
                 parentGroup.add(s10R);
 
-                // S11 Centrales (entre paneles)
+                // S11 Centrales (entre paneles) - Separadores
                 for (let i = 0; i < n - 1; i++) {
                     const pCur = rowPanels[i];
                     const pNext = rowPanels[i + 1];
                     const midX = (pCur.x + pCur.w + pNext.x) / 2;
-                    const s11 = new THREE.Mesh(new THREE.BoxGeometry(0.02, rowPanels[0].h + 0.05, 0.015), clampMat);
+
+                    const s11 = new THREE.Mesh(new THREE.BoxGeometry(0.025, rowPanels[0].h * 0.9, 0.02), clampHighlight);
                     s11.position.set(midX, yPos + rowPanels[0].h / 2, clampZ);
                     parentGroup.add(s11);
                 }
