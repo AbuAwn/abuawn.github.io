@@ -337,6 +337,11 @@
                 <option value="generic_2350">Genérico (Perfil 2350mm)</option>
                 <option value="manual">Manual / Personalizado</option>
             </select>
+            <label style="display:flex; align-items:center; cursor:pointer; color:#eee; margin-top:10px;">
+                <input type="checkbox" id="viewStructureOnly" onchange="renderStructureWrapper()"
+                    style="width:auto; margin-right:8px;">
+                Ocultar Paneles (Ver Estructura)
+            </label>
         </div>
 
         <div id="generic-options" style="display:none; margin-top:5px; border-top:1px solid #333; padding-top:5px;">
@@ -665,11 +670,27 @@
                 // Dibujar 2 rieles 
                 [0.25, 0.75].forEach(factor => {
                     const railY = yPos + pHeight * factor;
+
+                    // Riel (Perfil) - Silver/Aluminum
                     const railGeo = new THREE.BoxGeometry(railLen, 0.04, 0.04);
-                    const railMat = new THREE.MeshPhongMaterial({ color: 0x888888 });
+                    const railMat = new THREE.MeshPhongMaterial({ color: 0xc0c0c0 });
                     const rail = new THREE.Mesh(railGeo, railMat);
                     rail.position.set(centerX, railY, railZ);
                     parentGroup.add(rail);
+
+                    // Tapa G1 (Black Caps on ends)
+                    if (isSunfer) {
+                        const capGeo = new THREE.BoxGeometry(0.01, 0.042, 0.042);
+                        const capMat = new THREE.MeshPhongMaterial({ color: 0x111111 });
+
+                        const capL = new THREE.Mesh(capGeo, capMat);
+                        capL.position.set(centerX - railLen / 2 - 0.005, railY, railZ);
+                        parentGroup.add(capL);
+
+                        const capR = new THREE.Mesh(capGeo, capMat);
+                        capR.position.set(centerX + railLen / 2 + 0.005, railY, railZ);
+                        parentGroup.add(capR);
+                    }
 
                     // Dibujar anclajes (HOOKS)
                     anchorsCoords.forEach(ax => {
@@ -795,6 +816,8 @@
             pivot.rotation.x = -Math.PI / 2 + (slope * Math.PI / 180);
             let anyPositionError = false;
 
+            const hidePanels = document.getElementById('viewStructureOnly')?.checked;
+
             panels.forEach(p => {
                 const status = checkSafety(p);
                 let color = 0x111122;
@@ -804,6 +827,11 @@
                 m.position.set(p.x + p.w / 2, p.y + p.h / 2, 0.1);
                 m.userData.id = p.id;
                 m.add(new THREE.LineSegments(new THREE.EdgesGeometry(new THREE.PlaneGeometry(p.w, p.h)), new THREE.LineBasicMaterial({ color: 0x444444 })));
+
+                if (hidePanels) {
+                    m.visible = false;
+                }
+
                 pivot.add(m);
             });
 
