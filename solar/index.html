@@ -577,9 +577,6 @@
             // Mostrar opciones manuales solo si es custom
             if (optsDiv) optsDiv.style.display = (mode.startsWith('generic') || mode === 'manual') ? 'block' : 'none';
 
-            // Auto preset values only when switching, checking a custom flag or similar might be better but simple logic for now:
-            // Actually, best to set them unless user changed them. But onchange fires this. 
-            // Let's just set them if it's strictly the specific value selected
             if (mode === 'generic_1230' && document.activeElement !== genRailEl) { genRailEl.value = 1.23; genSpaceEl.value = 0.8; }
             if (mode === 'generic_2350' && document.activeElement !== genRailEl) { genRailEl.value = 2.35; genSpaceEl.value = 1.4; }
 
@@ -598,6 +595,9 @@
                 const rowPanels = rows[rKey];
                 const n = rowPanels.length;
                 if (n === 0) return;
+
+                // Sort panels by x position to find gaps accurately
+                rowPanels.sort((a, b) => a.x - b.x);
 
                 let minX = Infinity, maxX = -Infinity;
                 let yPos = rowPanels[0].y;
@@ -646,20 +646,15 @@
                     const railUnit = parseFloat(genRailEl.value) || 2.35;
                     const maxSpace = parseFloat(genSpaceEl.value) || 1.4;
 
-                    // Generic BOM approximation
-                    // Estimate rails needed to cover span
-                    // If span is 4m and unit is 2.35, we need 2 per line.
                     const railsNeeded = Math.ceil(panelSpan / railUnit);
-                    totalBom.g_rail += railsNeeded * 2; // 2 rails per row
+                    totalBom.g_rail += railsNeeded * 2;
                     totalBom.g_union += Math.max(0, railsNeeded - 1) * 2;
 
-                    railLen = panelSpan + 0.1; // Extra margin
+                    railLen = panelSpan + 0.1;
                     startX = centerX - railLen / 2;
 
-                    // Distribuir anclajes uniformemente
-                    // Min 2 anchors. Max spacing `maxSpace`.
                     const anchorCount = Math.max(2, Math.ceil(railLen / maxSpace) + 1);
-                    const step = (railLen - 0.4) / (anchorCount - 1); // 0.2 margin each side
+                    const step = (railLen - 0.4) / (anchorCount - 1);
 
                     for (let k = 0; k < anchorCount; k++) {
                         anchorsCoords.push(startX + 0.2 + k * step);
@@ -676,15 +671,52 @@
                     rail.position.set(centerX, railY, railZ);
                     parentGroup.add(rail);
 
-                    // Dibujar anclajes
+                    // Dibujar anclajes (HOOKS)
                     anchorsCoords.forEach(ax => {
-                        const ancGeo = new THREE.BoxGeometry(0.06, 0.15, 0.06);
-                        const ancMat = new THREE.MeshPhongMaterial({ color: isSunfer ? 0xd35400 : 0x3498db });
+                        const ancGroup = new THREE.Group();
+                        // Base part (under rail)
+                        const ancGeo = new THREE.BoxGeometry(0.06, 0.15, 0.02);
+                        const ancMat = new THREE.MeshPhongMaterial({ color: isSunfer ? 0xc0392b : 0x3498db }); // Rojo Sunfer
                         const anc = new THREE.Mesh(ancGeo, ancMat);
-                        anc.position.set(ax, railY, 0.02);
-                        parentGroup.add(anc);
+                        anc.position.set(0, 0, 0);
+                        ancGroup.add(anc);
+
+                        // Vertical part (to roof)
+                        const legGeo = new THREE.BoxGeometry(0.04, 0.04, 0.1);
+                        const leg = new THREE.Mesh(legGeo, ancMat);
+                        leg.position.set(0, 0.05, -0.06);
+                        ancGroup.add(leg);
+
+                        ancGroup.position.set(ax, railY, 0.03); // Just under rail
+                        parentGroup.add(ancGroup);
                     });
                 });
+
+                // Dibujar Clamps (Presores) solo una vez (no por riel, sino sobre los paneles)
+                // S10 Laterales
+                const clampZ = 0.12;
+                const clampMat = new THREE.MeshPhongMaterial({ color: 0xaaaaaa }); // Silver
+
+                // Left End
+                const s10L = new THREE.Mesh(new THREE.BoxGeometry(0.03, rowPanels[0].h + 0.05, 0.02), clampMat);
+                s10L.position.set(minX - 0.015, yPos + rowPanels[0].h / 2, clampZ);
+                parentGroup.add(s10L);
+
+                // Right End
+                const s10R = new THREE.Mesh(new THREE.BoxGeometry(0.03, rowPanels[0].h + 0.05, 0.02), clampMat);
+                s10R.position.set(maxX + 0.015, yPos + rowPanels[0].h / 2, clampZ);
+                parentGroup.add(s10R);
+
+                // S11 Centrales (entre paneles)
+                for (let i = 0; i < n - 1; i++) {
+                    const pCur = rowPanels[i];
+                    const pNext = rowPanels[i + 1];
+                    const midX = (pCur.x + pCur.w + pNext.x) / 2;
+                    const s11 = new THREE.Mesh(new THREE.BoxGeometry(0.02, rowPanels[0].h + 0.05, 0.015), clampMat);
+                    s11.position.set(midX, yPos + rowPanels[0].h / 2, clampZ);
+                    parentGroup.add(s11);
+                }
+
             });
 
             updateBOM(totalBom);
