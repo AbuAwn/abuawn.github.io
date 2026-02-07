@@ -331,14 +331,27 @@
         <h2>6. Estructura y Anclajes</h2>
         <div class="group">
             <label>Sistema de Anclaje</label>
-            <select id="structPreset" onchange="renderPanels()">
-                <option value="sunfer">Sunfer 02.3V (Automático)</option>
-                <option value="manual">Manual / Genérico</option>
+            <select id="structPreset" onchange="renderStructureWrapper()">
+                <option value="sunfer">Sunfer 02.3V (Coplanar Vertical)</option>
+                <option value="generic_1230">Genérico (Perfil 1230mm)</option>
+                <option value="generic_2350">Genérico (Perfil 2350mm)</option>
+                <option value="manual">Manual / Personalizado</option>
             </select>
         </div>
-        <div class="group">
-            <label>Separación Máx. Anclajes (m)</label>
-            <input type="number" id="structSpacing" value="1.5" step="0.1" onchange="renderPanels()" disabled>
+
+        <div id="generic-options" style="display:none; margin-top:5px; border-top:1px solid #333; padding-top:5px;">
+            <div class="flex-row">
+                <div class="flex-item group"><label>Largo Perfil (m)</label><input type="number" id="genRailLen"
+                        value="2.35" step="0.05" onchange="renderStructureWrapper()"></div>
+                <div class="flex-item group"><label>Sep. Anclajes (m)</label><input type="number" id="genSpacing"
+                        value="1.4" step="0.05" onchange="renderStructureWrapper()"></div>
+            </div>
+        </div>
+
+        <h3>Desglose de Materiales</h3>
+        <div id="bom-container"
+            style="background:rgba(255,255,255,0.05); padding:8px; border-radius:6px; font-size:10px; margin-bottom:15px; border:1px dashed #444;">
+            <div style="color:#888; font-style:italic;">Genere una matriz para ver componentes.</div>
         </div>
 
         <div class="stat-box">
@@ -512,14 +525,68 @@
             return 'err';
         }
 
+        // Datos oficiales SUNFER 02.3V
+        const sunferData = {
+            1: { anchors: 2, railLen: 1230, spacings: [800], edge: 215, bom: { s02_3: 4, s10: 4, s11: 0, ug1: 0, g1_1230: 2, g1_1800: 0, g1_550: 0, tapa: 4, s13: 4 } },
+            2: { anchors: 2, railLen: 2460, spacings: [1400], edge: 530, bom: { s02_3: 4, s10: 4, s11: 2, ug1: 2, g1_1230: 4, g1_1800: 0, g1_550: 0, tapa: 4, s13: 6 } },
+            3: { anchors: 3, railLen: 3600, spacings: [1400, 1400], edge: [300, 500], bom: { s02_3: 6, s10: 4, s11: 4, ug1: 2, g1_1230: 0, g1_1800: 4, g1_550: 0, tapa: 4, s13: 8 } },
+            4: { anchors: 3, railLen: 4830, spacings: [1770, 1770], edge: 645, bom: { s02_3: 6, s10: 4, s11: 6, ug1: 4, g1_1230: 2, g1_1800: 4, g1_550: 0, tapa: 4, s13: 10 } },
+            5: { anchors: 4, railLen: 5950, spacings: [1700, 1700, 1700], edge: 425, bom: { s02_3: 8, s10: 4, s11: 8, ug1: 6, g1_1230: 0, g1_1800: 6, g1_550: 2, tapa: 4, s13: 12 } },
+            6: { anchors: 5, railLen: 7200, spacings: [1600, 1500, 1700, 1600], edge: 400, bom: { s02_3: 10, s10: 4, s11: 10, ug1: 6, g1_1230: 0, g1_1800: 8, g1_550: 0, tapa: 4, s13: 14 } }
+        };
+
+        function renderStructureWrapper() {
+            renderPanels();
+        }
+
+        function updateBOM(totalBom) {
+            const container = document.getElementById('bom-container');
+            if (!totalBom) {
+                container.innerHTML = '<div style="color:#666; font-style:italic;">Sin datos.</div>';
+                return;
+            }
+            let html = '<table style="width:100%; border-collapse:collapse; color:#ddd; font-family:monospace;">';
+
+            const labels = {
+                s02_3: 'Soporte S02.3', s10: 'Presor Lat. S10', s11: 'Presor Cen. S11',
+                ug1: 'Unión Guía UG1', g1_1230: 'Perfil G1-1230', g1_1800: 'Perfil G1-1800',
+                g1_550: 'Perfil G1-550', tapa: 'Tapa G1', s13: 'Tornillería S13',
+                // Generic labels
+                g_rail: 'Perfil Genérico', g_anc: 'Anclaje Genérico', g_union: 'Unión Perfil'
+            };
+
+            for (const k in totalBom) {
+                if (totalBom[k] > 0) {
+                    const name = labels[k] || k;
+                    html += `<tr style="border-bottom:1px solid #222;"><td style="padding:2px 0;">${name}</td><td style="text-align:right; font-weight:bold; color:#ffcc00;">${totalBom[k]}</td></tr>`;
+                }
+            }
+            html += '</table>';
+            container.innerHTML = html;
+        }
+
         function renderStructure(parentGroup) {
             const modeEl = document.getElementById('structPreset');
-            const spaceEl = document.getElementById('structSpacing');
-            if (!modeEl || !spaceEl) return;
+            const genRailEl = document.getElementById('genRailLen');
+            const genSpaceEl = document.getElementById('genSpacing');
+            const optsDiv = document.getElementById('generic-options');
 
+            if (!modeEl) return;
             const mode = modeEl.value;
-            // Configurar input manual
-            spaceEl.disabled = (mode !== 'manual');
+
+            // Mostrar opciones manuales solo si es custom
+            if (optsDiv) optsDiv.style.display = (mode.startsWith('generic') || mode === 'manual') ? 'block' : 'none';
+
+            // Auto preset values only when switching, checking a custom flag or similar might be better but simple logic for now:
+            // Actually, best to set them unless user changed them. But onchange fires this. 
+            // Let's just set them if it's strictly the specific value selected
+            if (mode === 'generic_1230' && document.activeElement !== genRailEl) { genRailEl.value = 1.23; genSpaceEl.value = 0.8; }
+            if (mode === 'generic_2350' && document.activeElement !== genRailEl) { genRailEl.value = 2.35; genSpaceEl.value = 1.4; }
+
+            if (genRailEl) genRailEl.disabled = (mode !== 'manual');
+            if (genSpaceEl) genSpaceEl.disabled = (mode !== 'manual');
+
+            const totalBom = { s02_3: 0, s10: 0, s11: 0, ug1: 0, g1_1230: 0, g1_1800: 0, g1_550: 0, tapa: 0, s13: 0, g_rail: 0, g_anc: 0, g_union: 0 };
 
             const rows = {};
             panels.forEach(p => {
@@ -529,7 +596,8 @@
 
             Object.keys(rows).forEach(rKey => {
                 const rowPanels = rows[rKey];
-                if (rowPanels.length === 0) return;
+                const n = rowPanels.length;
+                if (n === 0) return;
 
                 let minX = Infinity, maxX = -Infinity;
                 let yPos = rowPanels[0].y;
@@ -540,11 +608,66 @@
                     maxX = Math.max(maxX, p.x + p.w);
                 });
 
-                const railLen = maxX - minX;
+                const panelSpan = maxX - minX;
                 const centerX = (minX + maxX) / 2;
                 const railZ = 0.05;
 
-                // Dibujar 2 rieles por fila
+                // Definir geometría del riel y anclajes
+                let railLen = panelSpan, startX = minX;
+                let anchorsCoords = [];
+                let isSunfer = (mode === 'sunfer');
+
+                if (isSunfer && sunferData[n]) {
+                    const d = sunferData[n];
+                    railLen = d.railLen / 1000;
+                    startX = centerX - railLen / 2;
+
+                    let cx = startX;
+                    if (Array.isArray(d.edge)) {
+                        cx += d.edge[0] / 1000;
+                    } else {
+                        cx += d.edge / 1000;
+                    }
+
+                    // Primer anclaje
+                    anchorsCoords.push(cx);
+
+                    // Resto de anclajes
+                    for (let i = 0; i < d.spacings.length; i++) {
+                        cx += d.spacings[i] / 1000;
+                        anchorsCoords.push(cx);
+                    }
+
+                    // BOM
+                    for (let k in d.bom) totalBom[k] += d.bom[k];
+
+                } else {
+                    // Lógica Genérica
+                    const railUnit = parseFloat(genRailEl.value) || 2.35;
+                    const maxSpace = parseFloat(genSpaceEl.value) || 1.4;
+
+                    // Generic BOM approximation
+                    // Estimate rails needed to cover span
+                    // If span is 4m and unit is 2.35, we need 2 per line.
+                    const railsNeeded = Math.ceil(panelSpan / railUnit);
+                    totalBom.g_rail += railsNeeded * 2; // 2 rails per row
+                    totalBom.g_union += Math.max(0, railsNeeded - 1) * 2;
+
+                    railLen = panelSpan + 0.1; // Extra margin
+                    startX = centerX - railLen / 2;
+
+                    // Distribuir anclajes uniformemente
+                    // Min 2 anchors. Max spacing `maxSpace`.
+                    const anchorCount = Math.max(2, Math.ceil(railLen / maxSpace) + 1);
+                    const step = (railLen - 0.4) / (anchorCount - 1); // 0.2 margin each side
+
+                    for (let k = 0; k < anchorCount; k++) {
+                        anchorsCoords.push(startX + 0.2 + k * step);
+                    }
+                    totalBom.g_anc += anchorCount * 2;
+                }
+
+                // Dibujar 2 rieles 
                 [0.25, 0.75].forEach(factor => {
                     const railY = yPos + pHeight * factor;
                     const railGeo = new THREE.BoxGeometry(railLen, 0.04, 0.04);
@@ -553,43 +676,18 @@
                     rail.position.set(centerX, railY, railZ);
                     parentGroup.add(rail);
 
-                    // Calcular Anclajes
-                    let anchorCount = 2;
-                    if (mode === 'sunfer') {
-                        const n = rowPanels.length;
-                        if (n <= 1) anchorCount = 2;
-                        else if (n <= 2) anchorCount = 2;
-                        else if (n <= 4) anchorCount = 3;
-                        else if (n <= 5) anchorCount = 4;
-                        else anchorCount = 5;
-                    } else {
-                        const spacing = parseFloat(spaceEl.value) || 1.5;
-                        anchorCount = Math.max(2, Math.ceil(railLen / spacing) + 1);
-                    }
-
-                    // Distribución de anclajes
-                    const overhangRatio = 0.17; // ~17% de vuelo 
-                    const usableLen = railLen * (1 - 2 * overhangRatio);
-                    const startX = minX + railLen * overhangRatio;
-
-                    for (let k = 0; k < anchorCount; k++) {
-                        let x = 0;
-                        if (anchorCount === 2) {
-                            x = (k === 0) ? (minX + railLen * overhangRatio) : (maxX - railLen * overhangRatio);
-                        } else {
-                            const step = usableLen / (anchorCount - 1);
-                            x = startX + k * step;
-                        }
-
-                        // Dibujar anclaje (Cubo Rojo)
+                    // Dibujar anclajes
+                    anchorsCoords.forEach(ax => {
                         const ancGeo = new THREE.BoxGeometry(0.06, 0.15, 0.06);
-                        const ancMat = new THREE.MeshPhongMaterial({ color: 0xff0000 });
+                        const ancMat = new THREE.MeshPhongMaterial({ color: isSunfer ? 0xd35400 : 0x3498db });
                         const anc = new THREE.Mesh(ancGeo, ancMat);
-                        anc.position.set(x, railY, 0.02);
+                        anc.position.set(ax, railY, 0.02);
                         parentGroup.add(anc);
-                    }
+                    });
                 });
             });
+
+            updateBOM(totalBom);
         }
 
         function generateLayout() {
