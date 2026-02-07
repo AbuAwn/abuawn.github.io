@@ -772,11 +772,6 @@
                 m.position.set(p.x + p.w / 2, p.y + p.h / 2, 0.1);
                 m.userData.id = p.id;
                 m.add(new THREE.LineSegments(new THREE.EdgesGeometry(new THREE.PlaneGeometry(p.w, p.h)), new THREE.LineBasicMaterial({ color: 0x444444 })));
-                [[0.2, 0.25], [0.8, 0.25], [0.2, 0.75], [0.8, 0.75]].forEach(pos => {
-                    const f = new THREE.Mesh(new THREE.BoxGeometry(0.04, 0.1, 0.05), new THREE.MeshPhongMaterial({ color: 0xff0000 }));
-                    f.position.set(p.w * pos[0] - p.w / 2, p.h * pos[1] - p.h / 2, 0.02);
-                    m.add(f);
-                });
                 pivot.add(m);
             });
 
