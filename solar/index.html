@@ -898,44 +898,12 @@
 
                     // BOM Tapas (Siempre 4 por fila de paneles: 2 rieles x 2 extremos)
                     // BOM Tapas y Presores (Genérico)
-                    if (!isSunfer) {
-                        totalBom.tapa += 4;
-
-                        // Presores Genéricos (Reutilizamos S10 para Laterales, S11 para Intermedios)
-                        const pCount = d.panels.length;
-                        if (pCount > 0) {
-                            totalBom.s10 += 4; // 2 rails * 2 ends
-                            totalBom.s11 += Math.max(0, pCount - 1) * 2;
-                        }
-
-                        // Dibujar Presores Genéricos
-                        [0.25, 0.75].forEach(factor => {
-                            const railY = yPos + pHeight * factor;
-                            const zOffset = 0.125;
-
-                            const clampGeo = new THREE.BoxGeometry(0.04, 0.05, 0.03);
-                            const clampMat = new THREE.MeshPhongMaterial({ color: 0x7f8c8d });
-                            const midMat = new THREE.MeshPhongMaterial({ color: 0xecf0f1 });
-
-                            const cL = new THREE.Mesh(clampGeo, clampMat);
-                            cL.position.set(centerX - panelSpan / 2 + 0.02, railY, zOffset);
-                            parentGroup.add(cL);
-
-                            const cR = new THREE.Mesh(clampGeo, clampMat);
-                            cR.position.set(centerX + panelSpan / 2 - 0.02, railY, zOffset);
-                            parentGroup.add(cR);
-
-                            if (pCount > 1) {
-                                const pW = d.panels[0].w;
-                                const startP = centerX - panelSpan / 2;
-                                for (let k = 1; k < pCount; k++) {
-                                    const cx = startP + k * (pW + P_GAP) - P_GAP / 2;
-                                    const cm = new THREE.Mesh(clampGeo, midMat);
-                                    cm.position.set(cx, railY, zOffset);
-                                    parentGroup.add(cm);
-                                }
-                            }
-                        });
+                    // Presores Genéricos (Reutilizamos S10 para Laterales, S11 para Intermedios)
+                    const pCount = rowPanels.length;
+                    totalBom.tapa += 4;
+                    if (pCount > 0) {
+                        totalBom.s10 += 4; // 2 rails * 2 ends
+                        totalBom.s11 += Math.max(0, pCount - 1) * 2;
                     }
                 }
 
