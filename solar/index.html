@@ -342,6 +342,11 @@
                     style="width:auto; margin-right:8px;">
                 Ocultar Paneles (Ver Estructura)
             </label>
+            <label style="display:flex; align-items:center; cursor:pointer; color:#eee; margin-top:5px;">
+                <input type="checkbox" id="viewDimensions" onchange="renderStructureWrapper()"
+                    style="width:auto; margin-right:8px;">
+                Ver Cotas (Distancias)
+            </label>
         </div>
 
         <div id="generic-options" style="display:none; margin-top:5px; border-top:1px solid #333; padding-top:5px;">
@@ -782,6 +787,54 @@
                         ancGroup.position.set(ax, railY, 0.05);
                         parentGroup.add(ancGroup);
                     });
+
+                    // Draw dimensions if enabled
+                    if (document.getElementById('viewDimensions')?.checked) {
+                        const startRailX = centerX - railLen / 2;
+                        const endRailX = centerX + railLen / 2;
+                        // Helper function defined below
+                        // Pass sorted points: start, anchors..., end
+                        const points = [startRailX, ...anchorsCoords, endRailX].sort((a, b) => a - b);
+
+                        const lineMat = new THREE.LineBasicMaterial({ color: 0xffff00 });
+                        const dimY = railY - 0.15; // Below rail
+                        const dimZ = 0.2; // Above panel so visible? Or on Scale? 
+                        // Panel is Z=0.1. Rail Z=0.05 (inside panel pivot). Wait, pivot Z?
+                        // Pivot is added to scene. Panel Mesh Z=0.1.
+                        // Rail Z=0.05.
+                        // Let's put text at Z=0.25 to be safe on top.
+
+                        for (let i = 0; i < points.length - 1; i++) {
+                            const p1 = points[i];
+                            const p2 = points[i + 1];
+                            const dist = p2 - p1;
+                            if (dist < 0.005) continue;
+
+                            // Line
+                            const geometry = new THREE.BufferGeometry().setFromPoints([
+                                new THREE.Vector3(p1, dimY, dimZ),
+                                new THREE.Vector3(p2, dimY, dimZ)
+                            ]);
+                            const line = new THREE.Line(geometry, lineMat);
+                            parentGroup.add(line);
+
+                            // Ticks
+                            const tH = 0.04;
+                            const t1 = new THREE.Line(new THREE.BufferGeometry().setFromPoints([
+                                new THREE.Vector3(p1, dimY - tH, dimZ), new THREE.Vector3(p1, dimY + tH, dimZ)
+                            ]), lineMat);
+                            const t2 = new THREE.Line(new THREE.BufferGeometry().setFromPoints([
+                                new THREE.Vector3(p2, dimY - tH, dimZ), new THREE.Vector3(p2, dimY + tH, dimZ)
+                            ]), lineMat);
+                            parentGroup.add(t1); parentGroup.add(t2);
+
+                            // Text
+                            const mid = (p1 + p2) / 2;
+                            const lbl = makeTextSprite(dist.toFixed(2) + 'm');
+                            lbl.position.set(mid, dimY - 0.05, dimZ + 0.05);
+                            parentGroup.add(lbl);
+                        }
+                    }
                 });
 
                 // Dibujar Clamps (Presores) - Spot Clamps aligned with rails
@@ -980,6 +1033,72 @@
         function movePanel(dx, dy) {
             panels.forEach(p => { if (moveTarget === 'all' || p.row === moveTarget) { p.x += dx; p.y += dy; } });
             renderPanels();
+        }
+
+        function drawDimensions(group, startX, endX, anchors, y, z) {
+            const show = document.getElementById('viewDimensions')?.checked;
+            if (!show) return;
+
+            const points = [startX, ...anchors, endX].sort((a, b) => a - b);
+            const lineMat = new THREE.LineBasicMaterial({ color: 0xffff00 });
+
+            for (let i = 0; i < points.length - 1; i++) {
+                const p1 = points[i];
+                const p2 = points[i + 1];
+                const dist = p2 - p1;
+                if (dist < 0.01) continue;
+
+                // Draw Line
+                const geo = new THREE.BufferGeometry().setFromPoints([
+                    new THREE.Vector3(p1, y, z),
+                    new THREE.Vector3(p2, y, z)
+                ]);
+                const line = new THREE.Line(geo, lineMat);
+                group.add(line);
+
+                // Draw Ticks
+                const tickH = 0.05;
+                const t1 = new THREE.Line(new THREE.BufferGeometry().setFromPoints([
+                    new THREE.Vector3(p1, y - tickH, z), new THREE.Vector3(p1, y + tickH, z)
+                ]), lineMat);
+                const t2 = new THREE.Line(new THREE.BufferGeometry().setFromPoints([
+                    new THREE.Vector3(p2, y - tickH, z), new THREE.Vector3(p2, y + tickH, z)
+                ]), lineMat);
+                group.add(t1);
+                group.add(t2);
+
+                // Draw Text
+                const mid = (p1 + p2) / 2;
+                const label = makeTextSprite(dist.toFixed(2) + 'm');
+                label.position.set(mid, y - 0.1, z);
+                group.add(label);
+            }
+        }
+
+        function makeTextSprite(message) {
+            const canvas = document.createElement('canvas');
+            const context = canvas.getContext('2d');
+            const fontSize = 48;
+            context.font = "Bold " + fontSize + "px Arial";
+            const metrics = context.measureText(message);
+            const textWidth = metrics.width;
+
+            canvas.width = textWidth + 20;
+            canvas.height = fontSize + 20;
+
+            context.fillStyle = "rgba(0,0,0,0.6)";
+            context.fillRect(0, 0, canvas.width, canvas.height); // Background
+
+            context.font = "Bold " + fontSize + "px Arial";
+            context.fillStyle = "rgba(255, 255, 0, 1.0)";
+            context.fillText(message, 10, fontSize);
+
+            const texture = new THREE.Texture(canvas);
+            texture.needsUpdate = true;
+            const spriteMat = new THREE.SpriteMaterial({ map: texture, transparent: true });
+            const sprite = new THREE.Sprite(spriteMat);
+            sprite.scale.set(0.4 * (canvas.width / 100), 0.4 * (canvas.height / 100), 1);
+            return sprite;
         }
 
         function animate() { requestAnimationFrame(animate); if (controls) controls.update(); if (renderer && scene && camera) renderer.render(scene, camera); }
