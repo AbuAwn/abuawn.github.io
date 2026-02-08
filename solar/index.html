@@ -554,8 +554,8 @@
 
             const labels = {
                 s02_3: { n: 'Soporte S02.3', c: '#ff4500' },
-                s10: { n: 'Presor Lat. S10', c: '#bdc3c7' },
-                s11: { n: 'Presor Cen. S11', c: '#95a5a6' },
+                s10: { n: 'Presor Lat. S10', c: '#7f8c8d' },
+                s11: { n: 'Presor Cen. S11', c: '#ecf0f1' },
                 ug1: { n: 'Unión Guía UG1', c: '#2980b9' },
                 g1_1230: { n: 'Perfil G1-1230', c: '#c0c0c0' },
                 g1_1800: { n: 'Perfil G1-1800', c: '#c0c0c0' },
@@ -746,32 +746,41 @@
                     });
                 });
 
-                // Dibujar Clamps (Presores)
-                // S10 Laterales - Thick Silver Blocks
+                // Dibujar Clamps (Presores) - Spot Clamps aligned with rails
                 const clampZ = 0.125;
-                const clampMat = new THREE.MeshPhongMaterial({ color: 0xbdc3c7 });
-                const clampHighlight = new THREE.MeshPhongMaterial({ color: 0x95a5a6 });
+                // Colores distintos para diferenciar S10 y S11
+                const matS10 = new THREE.MeshPhongMaterial({ color: 0x7f8c8d }); // Slate/Dark Gray for S10
+                const matS11 = new THREE.MeshPhongMaterial({ color: 0xecf0f1 }); // Bright Silver for S11
 
-                // Left End (S10)
-                const s10L = new THREE.Mesh(new THREE.BoxGeometry(0.04, rowPanels[0].h + 0.02, 0.025), clampMat);
-                s10L.position.set(minX - 0.02, yPos + rowPanels[0].h / 2, clampZ);
-                parentGroup.add(s10L);
+                [0.25, 0.75].forEach(factor => {
+                    const railY = yPos + pHeight * factor;
 
-                // Right End (S10)
-                const s10R = new THREE.Mesh(new THREE.BoxGeometry(0.04, rowPanels[0].h + 0.02, 0.025), clampMat);
-                s10R.position.set(maxX + 0.02, yPos + rowPanels[0].h / 2, clampZ);
-                parentGroup.add(s10R);
+                    // S10 Laterales (End Clamps) - 60mm length
+                    const geoS10 = new THREE.BoxGeometry(0.04, 0.06, 0.03);
 
-                // S11 Centrales (entre paneles) - Separadores
-                for (let i = 0; i < n - 1; i++) {
-                    const pCur = rowPanels[i];
-                    const pNext = rowPanels[i + 1];
-                    const midX = (pCur.x + pCur.w + pNext.x) / 2;
+                    // Left End S10
+                    const s10L = new THREE.Mesh(geoS10, matS10);
+                    s10L.position.set(minX - 0.015, railY, clampZ);
+                    parentGroup.add(s10L);
 
-                    const s11 = new THREE.Mesh(new THREE.BoxGeometry(0.025, rowPanels[0].h * 0.9, 0.02), clampHighlight);
-                    s11.position.set(midX, yPos + rowPanels[0].h / 2, clampZ);
-                    parentGroup.add(s11);
-                }
+                    // Right End S10
+                    const s10R = new THREE.Mesh(geoS10, matS10);
+                    s10R.position.set(maxX + 0.015, railY, clampZ);
+                    parentGroup.add(s10R);
+
+                    // S11 Centrales (Inter Clamps)
+                    const geoS11 = new THREE.BoxGeometry(0.02, 0.06, 0.035); // Slightly taller
+
+                    for (let i = 0; i < n - 1; i++) {
+                        const pCur = rowPanels[i];
+                        const pNext = rowPanels[i + 1];
+                        const midX = (pCur.x + pCur.w + pNext.x) / 2;
+
+                        const s11 = new THREE.Mesh(geoS11, matS11);
+                        s11.position.set(midX, railY, clampZ);
+                        parentGroup.add(s11);
+                    }
+                });
 
             });
 
