@@ -662,10 +662,10 @@
                 s10: { n: 'Presor Lat. S10', c: '#e74c3c' }, // Red
                 s11: { n: 'Presor Cen. S11', c: '#2ecc71' }, // Green
                 ug1: { n: 'Unión Guía UG1', c: '#2980b9' },
-                g1_1230: { n: 'Perfil G1-1230', c: '#c0c0c0' },
-                g1_1800: { n: 'Perfil G1-1800', c: '#c0c0c0' },
-                g1_2350: { n: 'Perfil G1-2350', c: '#E6E6FA' },
-                g1_550: { n: 'Perfil G1-550', c: '#c0c0c0' },
+                g1_1230: { n: 'Perfil G1-1230', c: '#3498db' }, // Blue
+                g1_1800: { n: 'Perfil G1-1800', c: '#95a5a6' },
+                g1_2350: { n: 'Perfil G1-2350', c: '#9b59b6' }, // Purple
+                g1_550: { n: 'Perfil G1-550', c: '#95a5a6' },
                 tapa: { n: 'Tapa G1', c: '#111111' },
                 s13: { n: 'Tornillería S13', c: '#ffffff' },
                 g_rail: { n: 'Perfil Genérico', c: '#c0c0c0' },
@@ -933,25 +933,53 @@
                     const railY = yPos + pHeight * factor;
                     const zOffset = 0.09;
 
-                    // Riel (Perfil) - Silver/Aluminum
-                    const railGeo = new THREE.BoxGeometry(railLen, 0.045, 0.045);
-                    const railMat = new THREE.MeshPhongMaterial({ color: 0xc0c0c0 });
-                    const rail = new THREE.Mesh(railGeo, railMat);
-                    rail.position.set(centerX, railY, zOffset);
-                    parentGroup.add(rail);
+                    // Riel (Perfil) - Dibujar por segmentos para diferenciar colores
 
-                    // Visualizar Uniones basados en segmentos reales
-                    if (!isSunfer && segments.length > 1) {
+                    // Colores por tipo de perfil
+                    const mat1230 = new THREE.MeshPhongMaterial({ color: 0x3498db }); // Blue
+                    const mat2350 = new THREE.MeshPhongMaterial({ color: 0x9b59b6 }); // Purple
+                    const matGeneric = new THREE.MeshPhongMaterial({ color: 0xc0c0c0 }); // Silver
+
+                    if (!isSunfer && segments.length > 0) {
                         const railStart = centerX - railLen / 2;
                         let currentX = railStart;
-                        for (let s = 0; s < segments.length - 1; s++) {
-                            currentX += segments[s];
-                            const gSpliceGeo = new THREE.BoxGeometry(0.1, 0.052, 0.052);
-                            const gSpliceMat = new THREE.MeshPhongMaterial({ color: 0x2980b9 });
-                            const gSplice = new THREE.Mesh(gSpliceGeo, gSpliceMat);
-                            gSplice.position.set(currentX, railY, zOffset);
-                            parentGroup.add(gSplice);
+
+                        segments.forEach(segLen => {
+                            const segGeo = new THREE.BoxGeometry(segLen - 0.005, 0.045, 0.045); // Gap visual
+                            let segMat = matGeneric;
+
+                            // Asignar color según longitud (aprox)
+                            if (Math.abs(segLen - 1.23) < 0.05) segMat = mat1230;
+                            else if (Math.abs(segLen - 2.35) < 0.05) segMat = mat2350;
+
+                            const segMesh = new THREE.Mesh(segGeo, segMat);
+                            segMesh.position.set(currentX + segLen / 2, railY, zOffset);
+                            parentGroup.add(segMesh);
+
+                            // Dibujar unión si no es el último
+                            currentX += segLen;
+                        });
+
+                        // Dibujar Uniones (Splices) entre segmentos
+                        if (segments.length > 1) {
+                            let spliceX = railStart;
+                            for (let s = 0; s < segments.length - 1; s++) {
+                                spliceX += segments[s];
+                                const gSpliceGeo = new THREE.BoxGeometry(0.1, 0.052, 0.052);
+                                const gSpliceMat = new THREE.MeshPhongMaterial({ color: 0x2c3e50 }); // Dark Blue for splice
+                                const gSplice = new THREE.Mesh(gSpliceGeo, gSpliceMat);
+                                gSplice.position.set(spliceX, railY, zOffset);
+                                parentGroup.add(gSplice);
+                            }
                         }
+
+                    } else {
+                        // Sunfer o fallback: bloque único
+                        const railGeo = new THREE.BoxGeometry(railLen, 0.045, 0.045);
+                        const railMat = new THREE.MeshPhongMaterial({ color: 0xc0c0c0 });
+                        const rail = new THREE.Mesh(railGeo, railMat);
+                        rail.position.set(centerX, railY, zOffset);
+                        parentGroup.add(rail);
                     }
 
                     // Tapa G1 (Black Caps on ends) - Aplicar a todos
