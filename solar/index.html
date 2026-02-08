@@ -276,7 +276,7 @@
         <h1
             style="text-align:center; color:#f1c40f; margin-bottom:15px; font-size:16px; border-bottom:1px solid #333; padding-bottom:10px;">
             Simulador Solar Pro
-            <span style="font-size:10px; color:#888; font-weight:normal; margin-left:5px;">v1.0.4</span>
+            <span style="font-size:10px; color:#888; font-weight:normal; margin-left:5px;">v1.0.5</span>
         </h1>
         <h2>1. Geometría del Tejado</h2>
         <div class="group">
@@ -1161,6 +1161,9 @@
         function focusCamera() {
             if (!panelsGroup || panelsGroup.children.length === 0) return;
 
+            // Ensure world matrices are up to date for accurate box calculation
+            panelsGroup.updateMatrixWorld(true);
+
             const box = new THREE.Box3().setFromObject(panelsGroup);
             if (box.isEmpty()) return;
 
@@ -1174,8 +1177,13 @@
 
             if (camera && controls) {
                 controls.target.copy(center);
-                const dist = Math.max(5, maxDim * 1.5);
-                camera.position.set(center.x, center.y + dist * 0.5, center.z + dist);
+                // Tighter zoom: 1.2 factor instead of 1.5
+                const dist = Math.max(3, maxDim * 1.2);
+
+                // Position camera nicely
+                // If it's a flat layout, we mostly care about Z distance
+                // We add a bit of Y offset for perspective
+                camera.position.set(center.x, center.y + dist * 0.3, center.z + dist);
                 controls.update();
             }
         }
