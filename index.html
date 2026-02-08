@@ -1,0 +1,523 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simulador Solar 3D - Optimización Trapecio</title>
+    <style>
+        body {
+            margin: 0;
+            overflow: hidden;
+            font-family: 'Segoe UI', sans-serif;
+            background-color: #080808;
+            color: white;
+        }
+
+        #ui-panel {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            background: rgba(20, 20, 20, 0.98);
+            padding: 20px;
+            border-radius: 14px;
+            box-shadow: 0 12px 50px rgba(0, 0, 0, 0.95);
+            width: 340px;
+            backdrop-filter: blur(20px);
+            border: 1px solid #444;
+            z-index: 100;
+            max-height: 92vh;
+            overflow-y: auto;
+        }
+
+        h2 {
+            margin: 15px 0 8px 0;
+            font-size: 11px;
+            color: #ffcc00;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            border-bottom: 1px solid #333;
+            padding-bottom: 5px;
+        }
+
+        h2:first-child {
+            margin-top: 0;
+        }
+
+        .control-group {
+            margin-bottom: 10px;
+        }
+
+        label {
+            display: block;
+            font-size: 10px;
+            color: #bbb;
+            margin-bottom: 4px;
+        }
+
+        input,
+        select {
+            width: 100%;
+            background: #111;
+            border: 1px solid #333;
+            color: white;
+            padding: 8px;
+            border-radius: 5px;
+            font-size: 13px;
+            outline: none;
+        }
+
+        input:focus {
+            border-color: #ffcc00;
+        }
+
+        .btn-main {
+            width: 100%;
+            background: #ffcc00;
+            color: #000;
+            border: none;
+            padding: 12px;
+            font-weight: 800;
+            border-radius: 6px;
+            cursor: pointer;
+            margin: 10px 0;
+            text-transform: uppercase;
+            font-size: 12px;
+            transition: 0.2s;
+        }
+
+        .btn-main:hover {
+            background: #ffd633;
+            transform: translateY(-1px);
+        }
+
+        .move-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 8px;
+            margin: 10px 0;
+        }
+
+        .move-btn {
+            background: #222;
+            border: 1px solid #444;
+            color: white;
+            height: 40px;
+            border-radius: 6px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .move-btn:hover {
+            border-color: #ffcc00;
+            color: #ffcc00;
+        }
+
+        .toggle-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin: 15px 0;
+        }
+
+        .check-item {
+            display: flex;
+            align-items: center;
+            font-size: 11px;
+            cursor: pointer;
+            color: #ddd;
+        }
+
+        .check-item input {
+            width: auto;
+            margin-right: 8px;
+        }
+
+        #stats {
+            margin-top: 15px;
+            padding: 12px;
+            background: rgba(255, 204, 0, 0.05);
+            border: 1px solid rgba(255, 204, 0, 0.2);
+            border-radius: 8px;
+            font-size: 12px;
+        }
+
+        .stat-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 4px;
+        }
+
+        .stat-val {
+            color: #ffcc00;
+            font-weight: bold;
+        }
+
+        .alert {
+            color: #ff4444;
+            font-size: 11px;
+            text-align: center;
+            margin-top: 8px;
+            background: rgba(255, 0, 0, 0.1);
+            padding: 8px;
+            border-radius: 6px;
+            display: none;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div id="ui-panel">
+        <div
+            style="font-size: 10px; font-weight: bold; background: #e67e22; color: white; padding: 3px 10px; border-radius: 4px; display: inline-block; margin-bottom: 15px;">
+            SUNFER 02.3V - OPTIMIZADOR PRO
+        </div>
+        <div style="margin-bottom: 15px;">
+            <a href="configurador.html"
+                style="text-decoration: none; color: #ffcc00; font-size: 11px; border: 1px solid #ffcc00; padding: 6px 12px; border-radius: 4px; display: inline-block;">
+                &rarr; Ir a Configurador de Tejado
+            </a>
+        </div>
+
+        <h2>Dimensiones Panel (mm)</h2>
+        <div class="control-group" style="display: flex; gap: 10px;">
+            <div style="flex: 1;"><label>Largo</label><input type="number" id="pLength" value="1909"></div>
+            <div style="flex: 1;"><label>Ancho</label><input type="number" id="pWidth" value="1134"></div>
+        </div>
+
+        <h2>Configuración Estructura</h2>
+        <div class="control-group">
+            <label>Orientación Paneles</label>
+            <select id="pOrientation" onchange="autoAdjustRails();">
+                <option value="vertical">Vertical (Retrato)</option>
+                <option value="horizontal">Horizontal (Paisaje)</option>
+            </select>
+        </div>
+
+        <div class="control-group">
+            <label>Dirección Perfiles G1</label>
+            <select id="railDir" onchange="updateSimulation()">
+                <option value="parallel">Paralelos a Cumbrera</option>
+                <option value="perpendicular">Perpendiculares</option>
+            </select>
+        </div>
+
+        <button class="btn-main" onclick="optimizeFull()">Maximizar en Trapecio</button>
+
+        <h2>Posicionamiento Manual</h2>
+        <div class="control-group">
+            <label>Número de Paneles</label>
+            <input type="number" id="pCount" value="5" min="1" max="12" onchange="resetPosition()">
+        </div>
+        <div class="move-grid">
+            <div></div><button class="move-btn" onclick="moveStructure(0, 0.05)">▲</button>
+            <div></div>
+            <button class="move-btn" onclick="moveStructure(-0.1, 0)">◀</button>
+            <button class="move-btn" onclick="resetPosition()">C</button>
+            <button class="move-btn" onclick="moveStructure(0.1, 0)">▶</button>
+            <div></div><button class="move-btn" onclick="moveStructure(0, -0.05)">▼</button>
+            <div></div>
+        </div>
+        <div id="moveAlert" class="alert">Límite alcanzado o zona sin tejas</div>
+
+        <h2>Visualización</h2>
+        <div class="toggle-grid">
+            <label class="check-item"><input type="checkbox" id="showPanels" checked onchange="updateSimulation()">
+                Paneles</label>
+            <label class="check-item"><input type="checkbox" id="showRails" checked onchange="updateSimulation()">
+                Raíles G1</label>
+            <label class="check-item"><input type="checkbox" id="showFixings" checked onchange="updateSimulation()">
+                Salvatejas</label>
+            <label class="check-item"><input type="checkbox" id="showTiles" checked onchange="updateSimulation()">
+                Tejas</label>
+        </div>
+
+        <div id="stats">
+            <div class="stat-row"><span>Total Paneles:</span> <span id="countDisplay" class="stat-val">0</span></div>
+            <div class="stat-row"><span>Potencia Est:</span> <span id="powerEst" class="stat-val">0</span> Wp</div>
+            <div class="stat-row"><span>Anclajes S02.3:</span> <span id="fixCount" class="stat-val">0</span> uds</div>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+
+    <script>
+        let scene, camera, renderer, controls;
+        let houseGroup, panelGroup, railGroup, fixingGroup, tileGroup;
+
+        // Geometría del tejado: Trapecio Rectangular
+        const TEJADO_BASE_INF = 8.0;
+        const TEJADO_BASE_SUP = 4.5;
+        const TEJADO_ALTURA = 2.5;
+        const TEJADO_PENDIENTE = (TEJADO_BASE_INF - TEJADO_BASE_SUP) / TEJADO_ALTURA;
+        const GAP = 0.02;
+        const SAFETY = 0.08;
+
+        let currentX = 0.2;
+        let currentY = 0.2;
+        let autoLayout = [];
+        let isAuto = false;
+
+        // Función auxiliar para obtener valores de forma segura
+        function getSafeValue(id, defaultValue) {
+            const el = document.getElementById(id);
+            return el ? el.value : defaultValue;
+        }
+
+        function init() {
+            scene = new THREE.Scene();
+            scene.background = new THREE.Color(0x050505);
+            camera = new THREE.PerspectiveCamera(40, window.innerWidth / window.innerHeight, 0.1, 1000);
+            camera.position.set(12, 12, 18);
+
+            renderer = new THREE.WebGLRenderer({ antialias: true });
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            document.body.appendChild(renderer.domElement);
+
+            scene.add(new THREE.AmbientLight(0xffffff, 0.4));
+            const light = new THREE.DirectionalLight(0xffffff, 1);
+            light.position.set(10, 20, 15);
+            scene.add(light);
+
+            houseGroup = new THREE.Group();
+            panelGroup = new THREE.Group();
+            railGroup = new THREE.Group();
+            fixingGroup = new THREE.Group();
+            tileGroup = new THREE.Group();
+
+            scene.add(houseGroup, panelGroup, railGroup, fixingGroup, tileGroup);
+
+            createHouse();
+            controls = new THREE.OrbitControls(camera, renderer.domElement);
+
+            // Verificamos si los elementos están listos antes de la primera simulación
+            if (document.getElementById('pLength')) {
+                updateSimulation();
+            }
+
+            animate();
+        }
+
+        function createHouse() {
+            const body = new THREE.Mesh(new THREE.BoxGeometry(8, 4, 6), new THREE.MeshPhongMaterial({ color: 0xeeeeee }));
+            body.position.y = 2;
+            houseGroup.add(body);
+
+            const tower = new THREE.Mesh(new THREE.BoxGeometry(2.5, 6, 2.5), new THREE.MeshPhongMaterial({ color: 0xffffff }));
+            tower.position.set(-2.75, 3, -1.8);
+            houseGroup.add(tower);
+        }
+
+        function autoAdjustRails() {
+            const orientSelect = document.getElementById('pOrientation');
+            const railSelect = document.getElementById('railDir');
+            if (orientSelect && railSelect) {
+                const isV = orientSelect.value === 'vertical';
+                railSelect.value = isV ? 'parallel' : 'perpendicular';
+            }
+            resetPosition();
+        }
+
+        function isSafe(x, y, w, h) {
+            const points = [
+                { x: x, y: y }, { x: x + w, y: y },
+                { x: x, y: y + h }, { x: x + w, y: y + h }
+            ];
+            for (let p of points) {
+                if (p.x < SAFETY || p.y < SAFETY || p.y > TEJADO_ALTURA - SAFETY) return false;
+                let xMax = TEJADO_BASE_INF - (TEJADO_PENDIENTE * p.y) - SAFETY;
+                if (p.x > xMax) return false;
+            }
+            return true;
+        }
+
+        function optimizeFull() {
+            isAuto = true;
+            autoLayout = [];
+            const pL = parseFloat(getSafeValue('pLength', 1909)) / 1000;
+            const pW = parseFloat(getSafeValue('pWidth', 1134)) / 1000;
+            const orient = getSafeValue('pOrientation', 'vertical');
+
+            const w = (orient === 'vertical') ? pW : pL;
+            const h = (orient === 'vertical') ? pL : pW;
+
+            for (let y = SAFETY; y < TEJADO_ALTURA - SAFETY;) {
+                let rowAdded = false;
+                let maxYInRow = 0;
+                for (let x = SAFETY; x < TEJADO_BASE_INF;) {
+                    if (isSafe(x, y, w, h)) {
+                        autoLayout.push({ x, y, w, h });
+                        x += w + GAP;
+                        rowAdded = true;
+                        maxYInRow = Math.max(maxYInRow, h);
+                    } else {
+                        x += 0.05;
+                    }
+                }
+                if (rowAdded) y += maxYInRow + GAP;
+                else y += 0.1;
+            }
+            updateSimulation();
+        }
+
+        function moveStructure(dx, dy) {
+            isAuto = false;
+            const pL = parseFloat(getSafeValue('pLength', 1909)) / 1000;
+            const pW = parseFloat(getSafeValue('pWidth', 1134)) / 1000;
+            const orient = getSafeValue('pOrientation', 'vertical');
+            const n = parseInt(getSafeValue('pCount', 5));
+
+            const w = (orient === 'vertical') ? pW : pL;
+            const h = (orient === 'vertical') ? pL : pW;
+            const totalW = (w * n) + (GAP * (n - 1));
+
+            if (isSafe(currentX + dx, currentY + dy, totalW, h)) {
+                currentX += dx;
+                currentY += dy;
+                const alert = document.getElementById('moveAlert');
+                if (alert) alert.style.display = 'none';
+                updateSimulation();
+            } else {
+                const alert = document.getElementById('moveAlert');
+                if (alert) {
+                    alert.style.display = 'block';
+                    setTimeout(() => alert.style.display = 'none', 1500);
+                }
+            }
+        }
+
+        function resetPosition() {
+            isAuto = false;
+            currentX = 0.2; currentY = 0.2;
+            updateSimulation();
+        }
+
+        function drawTiles() {
+            tileGroup.clear();
+            const toggle = document.getElementById('showTiles');
+            if (!toggle || !toggle.checked) return;
+            const tW = 0.28; const tH = 0.45;
+            const mat = new THREE.MeshPhongMaterial({ color: 0x8b4513 });
+            for (let y = 0; y < TEJADO_ALTURA + 0.4; y += tH * 0.8) {
+                for (let x = 0; x < TEJADO_BASE_INF; x += tW) {
+                    if (x < (TEJADO_BASE_INF - (TEJADO_PENDIENTE * y) + 0.1)) {
+                        const tile = new THREE.Mesh(new THREE.CylinderGeometry(0.12, 0.14, tH, 8, 1, true, 0, Math.PI), mat);
+                        tile.rotation.set(-Math.PI / 6, 0, Math.PI / 2);
+                        tile.position.set(x - 4 + tW / 2, 4.08 + (y * 0.866), 2.0 - (y * 0.5));
+                        tileGroup.add(tile);
+                    }
+                }
+            }
+        }
+
+        function updateSimulation() {
+            // Protección contra llamadas prematuras
+            const elLength = document.getElementById('pLength');
+            if (!elLength) return;
+
+            panelGroup.clear(); railGroup.clear(); fixingGroup.clear();
+            drawTiles();
+
+            const pL = parseFloat(elLength.value) / 1000;
+            const pW = parseFloat(getSafeValue('pWidth', 1134)) / 1000;
+            const orient = getSafeValue('pOrientation', 'vertical');
+            const railDir = getSafeValue('railDir', 'parallel');
+            const nManual = parseInt(getSafeValue('pCount', 5));
+
+            const w = (orient === 'vertical') ? pW : pL;
+            const h = (orient === 'vertical') ? pL : pW;
+
+            let panels = [];
+            if (isAuto) {
+                panels = autoLayout;
+            } else {
+                for (let i = 0; i < nManual; i++) {
+                    panels.push({ x: currentX + (i * (w + GAP)), y: currentY, w, h });
+                }
+            }
+
+            const showP = document.getElementById('showPanels');
+            panels.forEach(p => {
+                if (showP && showP.checked) renderPanel(p);
+                renderStructure(p, railDir);
+            });
+
+            const countDisplay = document.getElementById('countDisplay');
+            const powerEst = document.getElementById('powerEst');
+            const fixCount = document.getElementById('fixCount');
+
+            if (countDisplay) countDisplay.innerText = panels.length;
+            if (powerEst) powerEst.innerText = panels.length * 500;
+            if (fixCount) fixCount.innerText = panels.length * 4;
+        }
+
+        function renderPanel(p) {
+            const pivot = new THREE.Group();
+            pivot.position.set(-4, 4.05, 2.05);
+            pivot.rotation.x = -Math.PI / 6;
+
+            const mesh = new THREE.Mesh(new THREE.PlaneGeometry(p.w, p.h), new THREE.MeshPhongMaterial({ color: 0x1a1a2e }));
+            mesh.position.set(p.x + p.w / 2, p.y + p.h / 2, 0.25);
+            mesh.add(new THREE.LineSegments(new THREE.EdgesGeometry(new THREE.PlaneGeometry(p.w, p.h)), new THREE.LineBasicMaterial({ color: 0x000000 })));
+            pivot.add(mesh);
+            panelGroup.add(pivot);
+        }
+
+        function renderStructure(p, dir) {
+            const pivot = new THREE.Group();
+            pivot.position.set(-4, 4.05, 2.05);
+            pivot.rotation.x = -Math.PI / 6;
+
+            const showR = document.getElementById('showRails');
+            if (showR && showR.checked) {
+                const railMat = new THREE.MeshPhongMaterial({ color: 0xcccccc });
+                if (dir === 'parallel') {
+                    [0.2, 0.8].forEach(ry => {
+                        const r = new THREE.Mesh(new THREE.BoxGeometry(p.w + 0.05, 0.04, 0.02), railMat);
+                        r.position.set(p.x + p.w / 2, p.y + p.h * ry, 0.15);
+                        pivot.add(r);
+                    });
+                } else {
+                    [0.25, 0.75].forEach(rx => {
+                        const r = new THREE.Mesh(new THREE.BoxGeometry(0.04, p.h + 0.05, 0.02), railMat);
+                        r.position.set(p.x + p.w * rx, p.y + p.h / 2, 0.15);
+                        pivot.add(r);
+                    });
+                }
+                railGroup.add(pivot);
+            }
+
+            const showF = document.getElementById('showFixings');
+            if (showF && showF.checked) {
+                const hookMat = new THREE.MeshPhongMaterial({ color: 0xff4400 });
+                [[0.2, 0.2], [0.8, 0.2], [0.2, 0.8], [0.8, 0.8]].forEach(pos => {
+                    const h = new THREE.Mesh(new THREE.BoxGeometry(0.04, 0.12, 0.06), hookMat);
+                    h.position.set(p.x + p.w * pos[0], p.y + p.h * pos[1], 0.05);
+                    pivot.add(h);
+                });
+                fixingGroup.add(pivot);
+            }
+        }
+
+        function animate() {
+            requestAnimationFrame(animate);
+            if (controls) controls.update();
+            if (renderer && scene && camera) renderer.render(scene, camera);
+        }
+
+        window.onload = init;
+        window.onresize = () => {
+            if (camera) {
+                camera.aspect = window.innerWidth / window.innerHeight;
+                camera.updateProjectionMatrix();
+            }
+            if (renderer) renderer.setSize(window.innerWidth, window.innerHeight);
+        };
+    </script>
+</body>
+
+</html>
