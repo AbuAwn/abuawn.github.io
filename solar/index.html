@@ -678,50 +678,58 @@
                     // BOM
                     for (let k in d.bom) totalBom[k] += d.bom[k];
 
-                } else if (isManual) {
-                    // Lógica Manual: Distribución Simétrica Óptima por Número de Anclajes
-                    let numAnc = parseInt(numAnchorsEl.value) || 2;
-                    if (numAnc < 2) numAnc = 2;
-                    if (numAnc % 2 !== 0) numAnc += 1; // Forzar par
+                } else {
+                    // Lógica Ingenieril (Manual o Genérico)
+                    // "Regla de Oro": Prioridad Voladizo (0.35-0.45m) y Vano Máximo (1.75m)
+                    const CANTILEVER = 0.40; // 40cm desde el borde del riel
+                    const MAX_SPAN = 1.75;   // Distancia máxima entre anclajes
 
-                    // Visual override to prevent endless loop on input change
-                    if (document.activeElement !== numAnchorsEl) numAnchorsEl.value = numAnc;
-
+                    // Longitud total del riel: PanelSpan + 10cm extra (5cm por lado)
                     railLen = panelSpan + 0.1;
-                    const optimalSpacing = railLen / numAnc;
-                    const edgeDist = optimalSpacing / 2; // Classic Uniform Load Distribution (Edge = Spacing/2)
 
-                    startX = centerX - railLen / 2;
-
-                    for (let k = 0; k < numAnc; k++) {
-                        anchorsCoords.push(startX + edgeDist + k * optimalSpacing);
+                    // Distancia útil entre el primer y último anclaje
+                    let distBetweenExtremes = railLen - (2 * CANTILEVER);
+                    if (distBetweenExtremes <= 0) {
+                        // Caso borde: riel muy corto, usar mínimo lógico
+                        distBetweenExtremes = railLen - 0.2;
                     }
 
-                    // BOM Manual
-                    const railsNeeded = Math.ceil(panelSpan / (parseFloat(genRailEl.value) || 2.35));
+                    let numAnc = 2;
+
+                    if (isManual) {
+                        numAnc = parseInt(numAnchorsEl.value) || 2;
+                        if (numAnc < 2) numAnc = 2;
+                        // Ya no forzamos paridad, priorizamos rigidez
+                    }
+
+                    // Verificación de Flexión (Max Span)
+                    // Calcular cuántos espacios necesitamos
+                    let span = distBetweenExtremes / Math.max(1, numAnc - 1);
+
+                    while (span > MAX_SPAN) {
+                        numAnc++;
+                        span = distBetweenExtremes / (numAnc - 1);
+                    }
+
+                    // Actualizar UI si es manual y cambió el número (feedback visual de corrección)
+                    if (isManual && document.activeElement !== numAnchorsEl) {
+                        numAnchorsEl.value = numAnc;
+                    }
+
+                    // Generar Coordenadas
+                    // Inicio: borde riel + cantilever
+                    const startAnc = (centerX - railLen / 2) + CANTILEVER;
+
+                    for (let k = 0; k < numAnc; k++) {
+                        anchorsCoords.push(startAnc + k * span);
+                    }
+
+                    // BOM Genérico
+                    const railUnit = parseFloat(genRailEl.value) || 2.35;
+                    const railsNeeded = Math.ceil(panelSpan / railUnit);
                     totalBom.g_rail += railsNeeded * 2;
                     totalBom.g_anc += numAnc * 2;
                     totalBom.g_union += Math.max(0, railsNeeded - 1) * 2;
-
-                } else {
-                    // Lógica Genérica (Auto Spacing)
-                    const railUnit = parseFloat(genRailEl.value) || 2.35;
-                    const maxSpace = parseFloat(genSpaceEl.value) || 1.4;
-
-                    const railsNeeded = Math.ceil(panelSpan / railUnit);
-                    totalBom.g_rail += railsNeeded * 2;
-                    totalBom.g_union += Math.max(0, railsNeeded - 1) * 2;
-
-                    railLen = panelSpan + 0.1;
-                    startX = centerX - railLen / 2;
-
-                    const anchorCount = Math.max(2, Math.ceil(railLen / maxSpace) + 1);
-                    const step = (railLen - 0.4) / (anchorCount - 1);
-
-                    for (let k = 0; k < anchorCount; k++) {
-                        anchorsCoords.push(startX + 0.2 + k * step);
-                    }
-                    totalBom.g_anc += anchorCount * 2;
                 }
 
                 // Dibujar 2 rieles 
