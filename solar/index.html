@@ -374,6 +374,15 @@
             <div class="stat-row"><span>Paneles Reales:</span> <span id="st-count" class="stat-val">0</span></div>
         </div>
         <div id="safety-msg" class="warning ok">DISEÑO CORRECTO</div>
+
+        <h2>7. Gestión de Proyecto</h2>
+        <div class="flex-row">
+            <button class="flex-item btn-action" style="background:#2ecc71; color:black;" onclick="saveProject()">💾
+                Guardar</button>
+            <button class="flex-item btn-action" style="background:#3498db; color:black;"
+                onclick="document.getElementById('file-input').click()">📂 Cargar</button>
+            <input type="file" id="file-input" style="display:none" accept=".json" onchange="loadProject(this)">
+        </div>
     </div>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
@@ -1172,6 +1181,89 @@
             const sprite = new THREE.Sprite(spriteMat);
             sprite.scale.set(0.4 * (canvas.width / 100), 0.4 * (canvas.height / 100), 1);
             return sprite;
+        }
+
+        function saveProject() {
+            const data = {
+                inputs: {},
+                bomPrices: bomPrices,
+                moveTarget: moveTarget
+            };
+
+            // Save Inputs
+            document.querySelectorAll('input, select').forEach(el => {
+                if (el.id && el.id !== 'file-input') {
+                    if (el.type === 'checkbox') data.inputs[el.id] = el.checked;
+                    else data.inputs[el.id] = el.value;
+                }
+            });
+
+            // Save Panels (Positions)
+            data.panels = panels.map(p => ({
+                id: p.id, row: p.row, x: p.x, y: p.y, w: p.w, h: p.h
+            }));
+
+            const jsonStr = JSON.stringify(data, null, 2);
+            const blob = new Blob([jsonStr], { type: "application/json" });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = "config_solar.json";
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
+
+        function loadProject(input) {
+            const file = input.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = function (e) {
+                try {
+                    const data = JSON.parse(e.target.result);
+
+                    // Restore Inputs
+                    if (data.inputs) {
+                        for (const id in data.inputs) {
+                            const el = document.getElementById(id);
+                            if (el) {
+                                if (el.type === 'checkbox') el.checked = data.inputs[id];
+                                else el.value = data.inputs[id];
+                            }
+                        }
+                    }
+
+                    // Restore State
+                    if (data.bomPrices) bomPrices = data.bomPrices;
+                    if (data.moveTarget) setMoveTarget(data.moveTarget);
+
+                    // Restore Layout Logic
+                    // 1. Sync Roof
+                    syncFromStandard();
+
+                    // 2. Sync Presets (Enables/Disables inputs)
+                    applyPanelPreset();
+                    applyInverterPreset();
+
+                    // 3. Restore Panels (Position Override)
+                    if (data.panels && Array.isArray(data.panels)) {
+                        panels = data.panels;
+                    } else {
+                        generateLayout();
+                    }
+
+                    // 4. Render
+                    renderStructureWrapper(); // Calls renderPanels + updateBOM
+
+                } catch (err) {
+                    console.error(err);
+                    alert("Error al cargar el archivo de configuración.");
+                }
+            };
+            reader.readAsText(file);
+            input.value = ''; // Reset for next load
         }
 
         function animate() { requestAnimationFrame(animate); if (controls) controls.update(); if (renderer && scene && camera) renderer.render(scene, camera); }
