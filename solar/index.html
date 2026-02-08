@@ -683,7 +683,14 @@
                     // "Regla de Oro": Prioridad Voladizo (Cantilever) y Límite de Flexión (Max Span)
 
                     const CANTILEVER = 0.40;   // Voladizo fijo para bordes (seguridad viento)
-                    const MAX_SPAN = 1.75;      // Distancia máxima permitida entre anclajes
+
+                    // Definir MAX_SPAN:
+                    // - Si es Genérico: Usar el valor 'Sep. Máx' del input (ej: 0.8m o 1.4m según perfil)
+                    // - Si es Manual: Usar el límite estructural de seguridad (1.75m)
+                    let MAX_SPAN = 1.75;
+                    if (mode.startsWith('generic')) {
+                        MAX_SPAN = parseFloat(genSpaceEl.value) || 1.75;
+                    }
 
                     // Longitud total del riel: PanelSpan + 10cm extra (5cm por lado)
                     railLen = panelSpan + 0.1;
