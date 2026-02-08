@@ -229,16 +229,16 @@
             <label>Tipo de Cubierta</label>
             <select id="roofPreset" onchange="syncFromStandard()">
                 <option value="trapecio">Trapecio Isósceles</option>
-                <option value="trapecio_recto">Trapecio Rectángulo</option>
+                <option value="trapecio_recto" selected>Trapecio Rectángulo</option>
                 <option value="rectangulo">Rectángulo</option>
             </select>
         </div>
 
         <div id="standard-dims">
             <div class="flex-row">
-                <div class="flex-item group"><label>Base Inferior (m)</label><input type="number" id="roofB" value="7.0"
+                <div class="flex-item group"><label>Base Inferior (m)</label><input type="number" id="roofB" value="8.3"
                         step="0.1" onchange="syncFromStandard()"></div>
-                <div class="flex-item group"><label>Base Superior (m)</label><input type="number" id="roofT" value="4.5"
+                <div class="flex-item group"><label>Base Superior (m)</label><input type="number" id="roofT" value="5.8"
                         step="0.1" onchange="syncFromStandard()"></div>
             </div>
             <div class="flex-row">
@@ -254,7 +254,7 @@
             <label>Modelo del Panel</label>
             <select id="panelPreset" onchange="applyPanelPreset()">
                 <option value="ja450">JA Solar 450W (Voc 39.4V)</option>
-                <option value="tensite">Tensite 500W (Voc 43.1V)</option>
+                <option value="tensite" selected>Tensite 500W (Voc 43.1V)</option>
                 <option value="trina">Trina Vertex S+ (Voc 52.9V)</option>
                 <option value="tongwei">Tongwei 435W (Voc 43.8V)</option>
                 <option value="custom">-- MANUAL / PERSONALIZADO --</option>
@@ -262,7 +262,7 @@
         </div>
 
         <div class="flex-row">
-            <div class="flex-item group"><label>Largo (mm)</label><input type="number" id="pLength" value="1762"
+            <div class="flex-item group"><label>Largo (mm)</label><input type="number" id="pLength" value="1961"
                     onchange="updateView()" disabled></div>
             <div class="flex-item group"><label>Ancho (mm)</label><input type="number" id="pWidth" value="1134"
                     onchange="updateView()" disabled></div>
@@ -270,9 +270,9 @@
 
         <div class="flex-row">
             <div class="flex-item group"><label title="Voltaje de Circuito Abierto">Voc (V)</label><input type="number"
-                    id="pVoc" value="39.4" step="0.1" onchange="renderPanels()" disabled></div>
+                    id="pVoc" value="43.1" step="0.1" onchange="renderPanels()" disabled></div>
             <div class="flex-item group"><label title="Voltaje Vmp a 70°C">Vmp Calor (V)</label><input type="number"
-                    id="pVmpH" value="28.3" step="0.1" onchange="renderPanels()" disabled></div>
+                    id="pVmpH" value="31.0" step="0.1" onchange="renderPanels()" disabled></div>
         </div>
 
         <h2>3. Inversor (Umbrales)</h2>
@@ -295,16 +295,16 @@
 
         <h2>4. Generador de Instalación</h2>
         <div class="flex-row">
-            <div class="flex-item group"><label>Filas</label><input type="number" id="genRows" value="2" min="1"
+            <div class="flex-item group"><label>Filas</label><input type="number" id="genRows" value="1" min="1"
                     max="4"></div>
-            <div class="flex-item group"><label>Paneles/Fila</label><input type="number" id="genCols" value="3" min="1"
+            <div class="flex-item group"><label>Paneles/Fila</label><input type="number" id="genCols" value="5" min="1"
                     max="8"></div>
         </div>
         <div class="group">
             <label>Orientación Inicial</label>
             <select id="genOrient">
-                <option value="v">Vertical (Portrait)</option>
-                <option value="h" selected>Horizontal (Landscape)</option>
+                <option value="v" selected>Vertical (Portrait)</option>
+                <option value="h">Horizontal (Landscape)</option>
             </select>
         </div>
         <button class="btn-action" onclick="generateLayout()">Generar Nueva Matriz</button>
@@ -313,9 +313,9 @@
 
         <h2>5. Ajuste de Posición</h2>
         <div class="row-selector">
-            <div class="row-opt" onclick="setMoveTarget('all')" id="tgt-all">Todo</div>
+            <div class="row-opt active" onclick="setMoveTarget('all')" id="tgt-all">Todo</div>
             <div class="row-opt" onclick="setMoveTarget(0)" id="tgt-0">Fila 1</div>
-            <div class="row-opt active" onclick="setMoveTarget(1)" id="tgt-1">Fila 2</div>
+            <div class="row-opt" onclick="setMoveTarget(1)" id="tgt-1">Fila 2</div>
         </div>
 
         <div class="move-grid">
@@ -378,7 +378,7 @@
 
         let vertices = [];
         let panels = [];
-        let moveTarget = 1;
+        let moveTarget = 'all';
 
         // Constantes globales de instalación
         const P_GAP = 0.02; // Separación de 20mm exacta para presores intermedios Sunfer
