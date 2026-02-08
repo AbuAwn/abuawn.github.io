@@ -405,8 +405,16 @@
 
         <div id="generic-options" style="display:none; margin-top:5px; border-top:1px solid #333; padding-top:5px;">
             <div class="flex-row">
-                <div class="flex-item group"><label>Largo Perfil (m)</label><input type="number" id="genRailLen"
-                        value="2.35" step="0.05" onchange="renderStructureWrapper()"></div>
+                <div class="flex-item group">
+                    <label>Perfil (m)</label>
+                    <select id="manualProfileSelect" onchange="syncManualProfile()"
+                        style="width:100%; margin-bottom:5px;">
+                        <option value="2.35">Estándar 2.35m</option>
+                        <option value="1.23">Corto 1.23m</option>
+                        <option value="custom">Personalizado</option>
+                    </select>
+                    <input type="number" id="genRailLen" value="2.35" step="0.05" onchange="renderStructureWrapper()">
+                </div>
                 <div class="flex-item group" id="grp-spacing"><label>Sep. Máx (m)</label><input type="number"
                         id="genSpacing" value="1.4" step="0.05" onchange="renderStructureWrapper()"></div>
                 <div class="flex-item group" id="grp-anchors" style="display:none;"><label>Num. Anclajes</label><input
@@ -415,6 +423,19 @@
             <div id="manual-tip" style="display:none; color:#888; font-size:9px; margin-top:2px;">* Ajuste automático
                 por seguridad (Voladizo 0.40m/Max 1.75m).</div>
         </div>
+        <script>
+            function syncManualProfile() {
+                const sel = document.getElementById('manualProfileSelect');
+                const inp = document.getElementById('genRailLen');
+                if (sel.value !== 'custom') {
+                    inp.value = sel.value;
+                    // inp.disabled = true; // Optional: disable if strictly preset
+                } else {
+                    // inp.disabled = false;
+                }
+                renderStructureWrapper();
+            }
+        </script>
 
         <h3>Desglose de Materiales</h3>
         <div id="bom-container"
@@ -638,8 +659,8 @@
 
             const labels = {
                 s02_3: { n: 'Soporte S02.3', c: '#ff4500' },
-                s10: { n: 'Presor Lat. S10', c: '#7f8c8d' },
-                s11: { n: 'Presor Cen. S11', c: '#ecf0f1' },
+                s10: { n: 'Presor Lat. S10', c: '#e74c3c' }, // Red
+                s11: { n: 'Presor Cen. S11', c: '#2ecc71' }, // Green
                 ug1: { n: 'Unión Guía UG1', c: '#2980b9' },
                 g1_1230: { n: 'Perfil G1-1230', c: '#c0c0c0' },
                 g1_1800: { n: 'Perfil G1-1800', c: '#c0c0c0' },
@@ -1036,9 +1057,9 @@
 
                 // Dibujar Clamps (Presores) - Spot Clamps aligned with rails
                 const clampZ = 0.125;
-                // Colores distintos para diferenciar S10 y S11
-                const matS10 = new THREE.MeshPhongMaterial({ color: 0x7f8c8d }); // Slate/Dark Gray for S10
-                const matS11 = new THREE.MeshPhongMaterial({ color: 0xecf0f1 }); // Bright Silver for S11
+                // Colores distintos y llamativos
+                const matS10 = new THREE.MeshPhongMaterial({ color: 0xe74c3c }); // Bright Red
+                const matS11 = new THREE.MeshPhongMaterial({ color: 0x2ecc71 }); // Bright Green
 
                 [0.25, 0.75].forEach(factor => {
                     const railY = yPos + pHeight * factor;
