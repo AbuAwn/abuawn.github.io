@@ -775,6 +775,7 @@
                     totalBom.g_rail += railsNeeded * 2;
                     totalBom.g_anc += numAnc * 2;
                     totalBom.g_union += Math.max(0, railsNeeded - 1) * 2;
+                    totalBom.tapa += railsNeeded * 2;
                 }
 
                 // Dibujar 2 rieles 
@@ -807,19 +808,19 @@
                         }
                     }
 
-                    // Tapa G1 (Black Caps on ends)
+                    // Tapa G1 (Black Caps on ends) - Aplicar a todos
+                    const capGeo = new THREE.BoxGeometry(0.01, 0.048, 0.048);
+                    const capMat = new THREE.MeshPhongMaterial({ color: 0x111111 });
+
+                    const capL = new THREE.Mesh(capGeo, capMat);
+                    capL.position.set(centerX - railLen / 2 - 0.005, railY, zOffset);
+                    parentGroup.add(capL);
+
+                    const capR = new THREE.Mesh(capGeo, capMat);
+                    capR.position.set(centerX + railLen / 2 + 0.005, railY, zOffset);
+                    parentGroup.add(capR);
+
                     if (isSunfer) {
-                        const capGeo = new THREE.BoxGeometry(0.01, 0.048, 0.048);
-                        const capMat = new THREE.MeshPhongMaterial({ color: 0x111111 });
-
-                        const capL = new THREE.Mesh(capGeo, capMat);
-                        capL.position.set(centerX - railLen / 2 - 0.005, railY, zOffset);
-                        parentGroup.add(capL);
-
-                        const capR = new THREE.Mesh(capGeo, capMat);
-                        capR.position.set(centerX + railLen / 2 + 0.005, railY, zOffset);
-                        parentGroup.add(capR);
-
                         // Visualizar Uniones (Splices) - UG1
                         const d = sunferData[n];
                         if (d && d.bom && d.bom.ug1 > 0) {
