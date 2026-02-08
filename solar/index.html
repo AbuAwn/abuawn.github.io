@@ -550,20 +550,34 @@
                 container.innerHTML = '<div style="color:#666; font-style:italic;">Sin datos.</div>';
                 return;
             }
-            let html = '<table style="width:100%; border-collapse:collapse; color:#ddd; font-family:monospace;">';
+            let html = '<table style="width:100%; border-collapse:collapse; color:#ddd; font-family:monospace; font-size:12px;">';
 
             const labels = {
-                s02_3: 'Soporte S02.3', s10: 'Presor Lat. S10', s11: 'Presor Cen. S11',
-                ug1: 'Unión Guía UG1', g1_1230: 'Perfil G1-1230', g1_1800: 'Perfil G1-1800',
-                g1_550: 'Perfil G1-550', tapa: 'Tapa G1', s13: 'Tornillería S13',
-                // Generic labels
-                g_rail: 'Perfil Genérico', g_anc: 'Anclaje Genérico', g_union: 'Unión Perfil'
+                s02_3: { n: 'Soporte S02.3', c: '#ff4500' },
+                s10: { n: 'Presor Lat. S10', c: '#bdc3c7' },
+                s11: { n: 'Presor Cen. S11', c: '#95a5a6' },
+                ug1: { n: 'Unión Guía UG1', c: '#2980b9' },
+                g1_1230: { n: 'Perfil G1-1230', c: '#c0c0c0' },
+                g1_1800: { n: 'Perfil G1-1800', c: '#c0c0c0' },
+                g1_550: { n: 'Perfil G1-550', c: '#c0c0c0' },
+                tapa: { n: 'Tapa G1', c: '#333333' },
+                s13: { n: 'Tornillería S13', c: '#ffffff' },
+                g_rail: { n: 'Perfil Genérico', c: '#c0c0c0' },
+                g_anc: { n: 'Anclaje Genérico', c: '#3498db' },
+                g_union: { n: 'Unión Perfil', c: '#2980b9' }
             };
 
             for (const k in totalBom) {
                 if (totalBom[k] > 0) {
-                    const name = labels[k] || k;
-                    html += `<tr style="border-bottom:1px solid #222;"><td style="padding:2px 0;">${name}</td><td style="text-align:right; font-weight:bold; color:#ffcc00;">${totalBom[k]}</td></tr>`;
+                    const item = labels[k] || { n: k, c: '#fff' };
+                    html += `
+                    <tr style="border-bottom:1px solid #222;">
+                        <td style="padding:4px 0;">
+                            <span style="display:inline-block; width:10px; height:10px; background-color:${item.c}; margin-right:5px; border-radius:2px;"></span>
+                            ${item.n}
+                        </td>
+                        <td style="text-align:right; font-weight:bold; color:#ffcc00;">${totalBom[k]}</td>
+                    </tr>`;
                 }
             }
             html += '</table>';
@@ -712,20 +726,22 @@
                     // Dibujar anclajes (HOOKS)
                     anchorsCoords.forEach(ax => {
                         const ancGroup = new THREE.Group();
-                        // Base part (under rail) - Bigger and Brighter Red
-                        const ancGeo = new THREE.BoxGeometry(0.08, 0.16, 0.03);
+
+                        // Base part (under rail) - Bigger
+                        const ancGeo = new THREE.BoxGeometry(0.1, 0.18, 0.04);
                         const ancMat = new THREE.MeshPhongMaterial({ color: isSunfer ? 0xff4500 : 0x3498db });
                         const anc = new THREE.Mesh(ancGeo, ancMat);
                         anc.position.set(0, 0, 0);
                         ancGroup.add(anc);
 
-                        // Vertical part (to roof)
-                        const legGeo = new THREE.BoxGeometry(0.05, 0.05, 0.12);
+                        // Vertical part (to roof) - Long Leg (Salvatajas)
+                        const legGeo = new THREE.BoxGeometry(0.05, 0.05, 0.25); // 25cm height (very tall)
                         const leg = new THREE.Mesh(legGeo, ancMat);
-                        leg.position.set(0, 0.06, -0.06);
+                        leg.position.set(0, 0.08, -0.12); // Reaching down
                         ancGroup.add(leg);
 
-                        ancGroup.position.set(ax, railY, 0.02); // Just under rail
+                        // Position just under the rail
+                        ancGroup.position.set(ax, railY, 0.05);
                         parentGroup.add(ancGroup);
                     });
                 });
