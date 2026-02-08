@@ -736,6 +736,24 @@
                     rail.position.set(centerX, railY, zOffset);
                     parentGroup.add(rail);
 
+                    // Visualizar Uniones Genéricas (Generic Splices)
+                    if (!isSunfer) {
+                        const rUnit = parseFloat(genRailEl.value) || 2.35;
+                        const railStart = centerX - railLen / 2;
+                        const maxSplices = Math.floor(railLen / rUnit);
+
+                        for (let s = 1; s <= maxSplices; s++) {
+                            const spliceX = railStart + s * rUnit;
+                            if (spliceX >= centerX + railLen / 2 - 0.05) continue;
+
+                            const gSpliceGeo = new THREE.BoxGeometry(0.1, 0.052, 0.052);
+                            const gSpliceMat = new THREE.MeshPhongMaterial({ color: 0x2980b9 });
+                            const gSplice = new THREE.Mesh(gSpliceGeo, gSpliceMat);
+                            gSplice.position.set(spliceX, railY, zOffset);
+                            parentGroup.add(gSplice);
+                        }
+                    }
+
                     // Tapa G1 (Black Caps on ends)
                     if (isSunfer) {
                         const capGeo = new THREE.BoxGeometry(0.01, 0.048, 0.048);
