@@ -224,6 +224,11 @@
 <body>
 
     <div id="ui-panel">
+        <h1
+            style="text-align:center; color:#f1c40f; margin-bottom:15px; font-size:16px; border-bottom:1px solid #333; padding-bottom:10px;">
+            Simulador Solar Pro
+            <span style="font-size:10px; color:#888; font-weight:normal; margin-left:5px;">v1.0.0</span>
+        </h1>
         <h2>1. Geometría del Tejado</h2>
         <div class="group">
             <label>Tipo de Cubierta</label>
@@ -808,13 +813,20 @@
                             const totalL = lenSoFar + j * 1.23;
                             const waste = totalL - railLen;
 
-                            if (waste < bestWaste && waste >= 0) {
+                            if (waste < bestWaste && waste >= -0.001) {
                                 bestWaste = waste;
                                 bestCombo = [];
                                 for (let k = 0; k < i; k++) bestCombo.push(2.35);
                                 for (let k = 0; k < j; k++) bestCombo.push(1.23);
                             }
                         }
+
+                        // Fallback safety
+                        if (bestCombo.length === 0) {
+                            const needed = Math.ceil(railLen / 2.35);
+                            for (let k = 0; k < needed; k++) bestCombo.push(2.35);
+                        }
+
                         segments = bestCombo;
                         // Add to BOM
                         segments.forEach(s => {
