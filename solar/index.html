@@ -218,10 +218,59 @@
             border-radius: 4px;
             border: 1px dashed #444;
         }
+
+        #toggle-btn {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            z-index: 2000;
+            background: var(--accent);
+            color: black;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 20px;
+            font-weight: bold;
+            cursor: pointer;
+            display: none;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.5);
+        }
+
+        @media (max-width: 768px) {
+            #ui-panel {
+                left: -110%;
+                /* Start hidden */
+                transition: left 0.3s ease;
+                z-index: 3000;
+                height: 100vh;
+                top: 0;
+                width: 85%;
+                max-width: 320px;
+                border-radius: 0;
+                border-right: 1px solid #444;
+            }
+
+            #ui-panel.open {
+                left: 0;
+            }
+
+            #toggle-btn {
+                display: block;
+            }
+
+            /* Adjust generic rail input width for small screens */
+            .flex-row {
+                flex-wrap: wrap;
+            }
+
+            .flex-item {
+                min-width: 45%;
+            }
+        }
     </style>
 </head>
 
 <body>
+    <button id="toggle-btn" onclick="toggleUI()">☰ Opciones</button>
 
     <div id="ui-panel">
         <h1
@@ -1052,12 +1101,39 @@
                 }
             }
             updateView();
-            // Reset Camera on Generation
+            focusCamera(); // Auto-center 
+        }
+
+        function focusCamera() {
+            if (panels.length === 0) return;
+            let minX = Infinity, maxX = -Infinity, minY = Infinity, maxY = -Infinity;
+            panels.forEach(p => {
+                minX = Math.min(minX, p.x);
+                maxX = Math.max(maxX, p.x + p.w);
+                minY = Math.min(minY, p.y);
+                maxY = Math.max(maxY, p.y + p.h);
+            });
+            const cx = (minX + maxX) / 2;
+            const cy = (minY + maxY) / 2;
+            const sizeX = maxX - minX;
+            const sizeY = maxY - minY;
+            const maxDim = Math.max(sizeX, sizeY);
+
+            // Smart Zoom
             if (camera && controls) {
-                camera.position.set(12, 10, 15);
-                controls.target.set(0, 0, 0);
+                controls.target.set(cx, cy, 0);
+                const dist = Math.max(5, maxDim * 1.2);
+                // Position: Centered X, Below Y (to look up at roof), Up Z
+                camera.position.set(cx, cy - dist * 0.8, dist * 0.8);
                 controls.update();
             }
+        }
+
+        function toggleUI() {
+            const ui = document.getElementById('ui-panel');
+            ui.classList.toggle('open');
+            const btn = document.getElementById('toggle-btn');
+            btn.innerHTML = ui.classList.contains('open') ? '✕ Cerrar' : '☰ Opciones';
         }
 
         function updateView() {
