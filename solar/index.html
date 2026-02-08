@@ -922,6 +922,7 @@
                     // Presores Genéricos (Reutilizamos S10 para Laterales, S11 para Intermedios)
                     const pCount = rowPanels.length;
                     totalBom.tapa += 4;
+                    totalBom.s02_3 += numAnc * 2; // Fijaciones S02.3 por defecto (2 rieles)
                     if (pCount > 0) {
                         totalBom.s10 += 4; // 2 rails * 2 ends
                         totalBom.s11 += Math.max(0, pCount - 1) * 2;
@@ -1018,7 +1019,7 @@
 
                         // Base part (under rail) - Bigger
                         const ancGeo = new THREE.BoxGeometry(0.1, 0.18, 0.04);
-                        const ancMat = new THREE.MeshPhongMaterial({ color: isSunfer ? 0xff4500 : 0x3498db });
+                        const ancMat = new THREE.MeshPhongMaterial({ color: 0xff4500 }); // Always use Orange (S02.3)
                         const anc = new THREE.Mesh(ancGeo, ancMat);
                         anc.position.set(0, 0, 0);
                         ancGroup.add(anc);
