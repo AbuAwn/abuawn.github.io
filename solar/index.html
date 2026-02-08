@@ -276,7 +276,7 @@
         <h1
             style="text-align:center; color:#f1c40f; margin-bottom:15px; font-size:16px; border-bottom:1px solid #333; padding-bottom:10px;">
             Simulador Solar Pro
-            <span style="font-size:10px; color:#888; font-weight:normal; margin-left:5px;">v1.0.6</span>
+            <span style="font-size:10px; color:#888; font-weight:normal; margin-left:5px;">v1.0.7</span>
         </h1>
         <h2>1. Geometría del Tejado</h2>
         <div class="group">
@@ -1496,40 +1496,95 @@
 
             const doc = new jsPDF();
             doc.setFontSize(18);
-            doc.text("Presupuesto Estructura Solar", 14, 20);
-            doc.setFontSize(10);
-            doc.text("Fecha: " + new Date().toLocaleDateString(), 14, 28);
+            doc.text("Presupuesto Estructura Solar", 105, 20, null, null, "center");
 
+            doc.setFontSize(10);
+            const dateStr = new Date().toLocaleDateString();
+            doc.text("Fecha: " + dateStr, 105, 28, null, null, "center");
+
+            // 1. Capture 3D Scene
+            if (renderer && scene && camera) {
+                // Ensure render is fresh
+                renderer.render(scene, camera);
+                const imgData = renderer.domElement.toDataURL("image/jpeg", 0.9);
+
+                // Add Image (Fit to width)
+                const imgProps = doc.getImageProperties(imgData);
+                const pdfWidth = doc.internal.pageSize.getWidth();
+                const margin = 15;
+                const imgWidth = pdfWidth - (margin * 2);
+                const imgHeight = (imgProps.height * imgWidth) / imgProps.width;
+
+                doc.addImage(imgData, 'JPEG', margin, 35, imgWidth, imgHeight);
+
+                // Move cursor down for table
+                var finalY = 35 + imgHeight + 10;
+            } else {
+                var finalY = 40;
+            }
+
+            // 2. Add BOM Table
             const table = document.querySelector('#bom-container table');
             if (!table) { alert("Genere la estructura primero."); return; }
 
+            // Extract Headers
             let head = [];
-            table.querySelectorAll('thead tr th').forEach(th => head.push(th.innerText));
+            const ths = table.querySelectorAll('thead tr th');
+            if (ths.length > 0) {
+                let rowHead = [];
+                ths.forEach(th => rowHead.push(th.innerText));
+                head.push(rowHead);
+            }
 
+            // Extract Body
             let body = [];
             table.querySelectorAll('tbody tr').forEach(tr => {
                 let row = [];
                 tr.querySelectorAll('td').forEach(td => {
-                    if (td.querySelector('input')) row.push(td.querySelector('input').value + ' €');
-                    else row.push(td.innerText);
+                    const input = td.querySelector('input');
+                    if (input) row.push(input.value + ' €');
+                    else row.push(td.innerText.replace('€', '').trim() + ' €');
                 });
                 body.push(row);
             });
 
-            const footVal = document.getElementById('bom-total') ? document.getElementById('bom-total').innerText : '';
-            if (footVal) {
-                body.push(['', '', 'TOTAL:', footVal]);
-            }
+            // Footer (Total) logic if not in table body
+            // (Assuming existing code might calculate total elsewhere, but let's check BOM total manually or via DOM)
+            // Grand total is usually in the last col of rows, but let's recalculate or just take what's there.
 
             doc.autoTable({
-                head: [head],
+                head: head,
                 body: body,
-                startY: 35,
+                startY: finalY,
                 theme: 'grid',
-                headStyles: { fillColor: [41, 128, 185] },
+                headStyles: { fillColor: [41, 128, 185], halign: 'center' },
+                columnStyles: {
+                    0: { halign: 'left' },
+                    1: { halign: 'center' },
+                    2: { halign: 'right' },
+                    3: { halign: 'right', fontStyle: 'bold' }
+                },
+                foot: [['', '', 'TOTAL:', '']] // Placeholder if needed
             });
 
-            doc.save("presupuesto_solar.pdf");
+            // Calculate total from data if needed to put in footer
+            // But usually the user wants to see what's on screen.
+            // Let's add the Project Summary text if available (Voc/Vmp)
+
+            const voc = document.getElementById('st-voc')?.innerText || '';
+            const vmp = document.getElementById('st-vmp')?.innerText || '';
+            const panelsCount = document.getElementById('st-count')?.innerText || '';
+
+            let finalYTable = doc.lastAutoTable.finalY + 10;
+
+            doc.setFontSize(10);
+            doc.text(`Resumen Técnico:`, 14, finalYTable);
+            doc.setFontSize(9);
+            doc.text(`- Paneles: ${panelsCount}`, 14, finalYTable + 6);
+            doc.text(`- Voc Total: ${voc}`, 14, finalYTable + 11);
+            doc.text(`- Vmp Total: ${vmp}`, 14, finalYTable + 16);
+
+            doc.save("presupuesto_solar_v1.0.7.pdf");
         }
 
         function animate() { requestAnimationFrame(animate); if (controls) controls.update(); if (renderer && scene && camera) renderer.render(scene, camera); }
