@@ -679,52 +679,44 @@
                     for (let k in d.bom) totalBom[k] += d.bom[k];
 
                 } else {
-                    // Lógica Ingenieril (Manual o Genérico)
-                    // "Regla de Oro": Prioridad Voladizo (0.35-0.45m) y Vano Máximo (1.75m)
-                    const CANTILEVER = 0.40; // 40cm desde el borde del riel
-                    const MAX_SPAN = 1.75;   // Distancia máxima entre anclajes
+                    // --- LÓGICA DE INGENIERÍA MEJORADA (Manual y Genérico) ---
+                    // "Regla de Oro": Prioridad Voladizo (Cantilever) y Límite de Flexión (Max Span)
+
+                    const CANTILEVER = 0.40;   // Voladizo fijo para bordes (seguridad viento)
+                    const MAX_SPAN = 1.75;      // Distancia máxima permitida entre anclajes
 
                     // Longitud total del riel: PanelSpan + 10cm extra (5cm por lado)
                     railLen = panelSpan + 0.1;
 
-                    // Distancia útil entre el primer y último anclaje
+                    // Distancia útil entre anclajes extremos
                     let distBetweenExtremes = railLen - (2 * CANTILEVER);
-                    if (distBetweenExtremes <= 0) {
-                        // Caso borde: riel muy corto, usar mínimo lógico
-                        distBetweenExtremes = railLen - 0.2;
-                    }
+                    if (distBetweenExtremes <= 0) distBetweenExtremes = railLen - 0.2; // Fallback para rieles muy cortos
 
-                    let numAnc = 2;
+                    // Número inicial de anclajes
+                    // Si es manual, cogemos el input (min 2). Si es genérico, empezamos con 2 y el algoritmo corrige.
+                    let numAnc = (mode === 'manual') ? (parseInt(numAnchorsEl.value) || 2) : 2;
+                    if (numAnc < 2) numAnc = 2;
 
-                    if (isManual) {
-                        numAnc = parseInt(numAnchorsEl.value) || 2;
-                        if (numAnc < 2) numAnc = 2;
-                        // Ya no forzamos paridad, priorizamos rigidez
-                    }
-
-                    // Verificación de Flexión (Max Span)
-                    // Calcular cuántos espacios necesitamos
-                    let span = distBetweenExtremes / Math.max(1, numAnc - 1);
-
-                    while (span > MAX_SPAN) {
+                    // Auto-corrección de seguridad: Añadir anclajes si el vano supera 1.75m
+                    let currentSpan = distBetweenExtremes / Math.max(1, numAnc - 1);
+                    while (currentSpan > MAX_SPAN) {
                         numAnc++;
-                        span = distBetweenExtremes / (numAnc - 1);
+                        currentSpan = distBetweenExtremes / (numAnc - 1);
                     }
 
-                    // Actualizar UI si es manual y cambió el número (feedback visual de corrección)
-                    if (isManual && document.activeElement !== numAnchorsEl) {
+                    // UI Inteligente: Actualizar el input si el cálculo de ingeniería requirió más anclajes
+                    if (isManual && document.activeElement !== numAnchorsEl && numAnchorsEl) {
                         numAnchorsEl.value = numAnc;
                     }
 
                     // Generar Coordenadas
-                    // Inicio: borde riel + cantilever
                     const startAnc = (centerX - railLen / 2) + CANTILEVER;
 
                     for (let k = 0; k < numAnc; k++) {
-                        anchorsCoords.push(startAnc + k * span);
+                        anchorsCoords.push(startAnc + k * currentSpan);
                     }
 
-                    // BOM Genérico
+                    // BOM Genérico (Calculado)
                     const railUnit = parseFloat(genRailEl.value) || 2.35;
                     const railsNeeded = Math.ceil(panelSpan / railUnit);
                     totalBom.g_rail += railsNeeded * 2;
@@ -735,12 +727,13 @@
                 // Dibujar 2 rieles 
                 [0.25, 0.75].forEach(factor => {
                     const railY = yPos + pHeight * factor;
+                    const zOffset = 0.09; // Adjusted Z position for rails to be slightly above panel
 
                     // Riel (Perfil) - Silver/Aluminum
                     const railGeo = new THREE.BoxGeometry(railLen, 0.045, 0.045);
                     const railMat = new THREE.MeshPhongMaterial({ color: 0xc0c0c0 });
                     const rail = new THREE.Mesh(railGeo, railMat);
-                    rail.position.set(centerX, railY, railZ);
+                    rail.position.set(centerX, railY, zOffset);
                     parentGroup.add(rail);
 
                     // Tapa G1 (Black Caps on ends)
@@ -749,11 +742,11 @@
                         const capMat = new THREE.MeshPhongMaterial({ color: 0x111111 });
 
                         const capL = new THREE.Mesh(capGeo, capMat);
-                        capL.position.set(centerX - railLen / 2 - 0.005, railY, railZ);
+                        capL.position.set(centerX - railLen / 2 - 0.005, railY, zOffset);
                         parentGroup.add(capL);
 
                         const capR = new THREE.Mesh(capGeo, capMat);
-                        capR.position.set(centerX + railLen / 2 + 0.005, railY, railZ);
+                        capR.position.set(centerX + railLen / 2 + 0.005, railY, zOffset);
                         parentGroup.add(capR);
 
                         // Visualizar Uniones (Splices) - UG1
@@ -767,7 +760,7 @@
                                     const spliceGeo = new THREE.BoxGeometry(0.15, 0.055, 0.055);
                                     const spliceMat = new THREE.MeshPhongMaterial({ color: 0x2980b9 });
                                     const spliceMesh = new THREE.Mesh(spliceGeo, spliceMat);
-                                    spliceMesh.position.set(sx, railY, railZ);
+                                    spliceMesh.position.set(sx, railY, zOffset);
                                     parentGroup.add(spliceMesh);
                                 }
                             }
