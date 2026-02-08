@@ -834,6 +834,11 @@
 
                         totalBom.g_union += Math.max(0, needed - 1) * 2;
                     }
+
+                    // BOM Tapas (Siempre 4 por fila de paneles: 2 rieles x 2 extremos)
+                    if (!isSunfer) {
+                        totalBom.tapa += 4;
+                    }
                 }
 
                 // Dibujar 2 rieles 
