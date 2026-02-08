@@ -581,6 +581,7 @@
                 ug1: { n: 'Unión Guía UG1', c: '#2980b9' },
                 g1_1230: { n: 'Perfil G1-1230', c: '#c0c0c0' },
                 g1_1800: { n: 'Perfil G1-1800', c: '#c0c0c0' },
+                g1_2350: { n: 'Perfil G1-2350', c: '#E6E6FA' },
                 g1_550: { n: 'Perfil G1-550', c: '#c0c0c0' },
                 tapa: { n: 'Tapa G1', c: '#111111' },
                 s13: { n: 'Tornillería S13', c: '#ffffff' },
@@ -707,6 +708,7 @@
                 // Definir geometría del riel y anclajes
                 let railLen = panelSpan, startX = minX;
                 let anchorsCoords = [];
+                let segments = [];
                 let isSunfer = (mode === 'sunfer');
 
                 if (isSunfer && sunferData[n]) {
@@ -778,19 +780,58 @@
                         anchorsCoords.push(startAnc + k * currentSpan);
                     }
 
-                    // BOM Genérico (Calculado)
+                    // GENERACIÓN DE RIELES Y UNIONES (Optimizado)
                     const railUnit = parseFloat(genRailEl.value) || 2.35;
-                    const railsNeeded = Math.ceil(panelSpan / railUnit);
-                    totalBom.g_rail += railsNeeded * 2;
-                    totalBom.g_anc += numAnc * 2;
-                    totalBom.g_union += Math.max(0, railsNeeded - 1) * 2;
-                    totalBom.tapa += railsNeeded * 2;
+                    segments = [];
+
+                    if (!isSunfer && Math.abs(railUnit - 2.35) < 0.05) {
+                        // Optimización de Combinación (2350 + 1230)
+                        // Buscar la mejor combinación que cubra railLen con mínimo desperdicio
+                        let bestWaste = Infinity;
+                        let bestCombo = []; // Array of lengths
+
+                        const max2350 = Math.ceil(railLen / 2.35);
+
+                        for (let i = max2350; i >= 0; i--) {
+                            const lenSoFar = i * 2.35;
+                            const remainder = Math.max(0, railLen - lenSoFar);
+                            const j = Math.ceil(remainder / 1.23);
+
+                            const totalL = lenSoFar + j * 1.23;
+                            const waste = totalL - railLen;
+
+                            if (waste < bestWaste && waste >= 0) {
+                                bestWaste = waste;
+                                bestCombo = [];
+                                for (let k = 0; k < i; k++) bestCombo.push(2.35);
+                                for (let k = 0; k < j; k++) bestCombo.push(1.23);
+                            }
+                        }
+                        segments = bestCombo;
+                        // Add to BOM
+                        segments.forEach(s => {
+                            if (s > 2.0) totalBom.g1_2350 += 2; // x2 rails
+                            else totalBom.g1_1230 += 2;
+                        });
+                        totalBom.g_union += Math.max(0, segments.length - 1) * 2;
+
+                    } else if (!isSunfer) {
+                        // Lógica Estándar (Sin optimización mixta)
+                        const needed = Math.floor(railLen / railUnit) + (railLen % railUnit > 0.01 ? 1 : 0);
+                        for (let k = 0; k < needed; k++) segments.push(railUnit);
+
+                        // BOM Genérico
+                        if (Math.abs(railUnit - 1.23) < 0.05) totalBom.g1_1230 += needed * 2;
+                        else totalBom.g_rail += needed * 2;
+
+                        totalBom.g_union += Math.max(0, needed - 1) * 2;
+                    }
                 }
 
                 // Dibujar 2 rieles 
                 [0.25, 0.75].forEach(factor => {
                     const railY = yPos + pHeight * factor;
-                    const zOffset = 0.09; // Adjusted Z position for rails to be slightly above panel
+                    const zOffset = 0.09;
 
                     // Riel (Perfil) - Silver/Aluminum
                     const railGeo = new THREE.BoxGeometry(railLen, 0.045, 0.045);
@@ -799,20 +840,16 @@
                     rail.position.set(centerX, railY, zOffset);
                     parentGroup.add(rail);
 
-                    // Visualizar Uniones Genéricas (Generic Splices)
-                    if (!isSunfer) {
-                        const rUnit = parseFloat(genRailEl.value) || 2.35;
+                    // Visualizar Uniones basados en segmentos reales
+                    if (!isSunfer && segments.length > 1) {
                         const railStart = centerX - railLen / 2;
-                        const maxSplices = Math.floor(railLen / rUnit);
-
-                        for (let s = 1; s <= maxSplices; s++) {
-                            const spliceX = railStart + s * rUnit;
-                            if (spliceX >= centerX + railLen / 2 - 0.05) continue;
-
+                        let currentX = railStart;
+                        for (let s = 0; s < segments.length - 1; s++) {
+                            currentX += segments[s];
                             const gSpliceGeo = new THREE.BoxGeometry(0.1, 0.052, 0.052);
                             const gSpliceMat = new THREE.MeshPhongMaterial({ color: 0x2980b9 });
                             const gSplice = new THREE.Mesh(gSpliceGeo, gSpliceMat);
-                            gSplice.position.set(spliceX, railY, zOffset);
+                            gSplice.position.set(currentX, railY, zOffset);
                             parentGroup.add(gSplice);
                         }
                     }
@@ -820,7 +857,6 @@
                     // Tapa G1 (Black Caps on ends) - Aplicar a todos
                     const capGeo = new THREE.BoxGeometry(0.01, 0.048, 0.048);
                     const capMat = new THREE.MeshPhongMaterial({ color: 0x111111 });
-
                     const capL = new THREE.Mesh(capGeo, capMat);
                     capL.position.set(centerX - railLen / 2 - 0.005, railY, zOffset);
                     parentGroup.add(capL);
