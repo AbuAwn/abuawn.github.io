@@ -322,7 +322,7 @@
         <h1
             style="text-align:center; color:#f1c40f; margin-bottom:15px; font-size:16px; border-bottom:1px solid #333; padding-bottom:10px;">
             Simulador Solar Pro
-            <span style="font-size:10px; color:#888; font-weight:normal; margin-left:5px;">v1.0.7</span>
+            <span style="font-size:10px; color:#888; font-weight:normal; margin-left:5px;">v1.0.8</span>
         </h1>
         <h2>1. Geometría del Tejado</h2>
         <div class="group">
@@ -570,12 +570,53 @@
             window.addEventListener('mousemove', onMouseMove);
             window.addEventListener('dblclick', onPanelDelete);
 
+            // Mobile Detection & Click Outside Listener
+            window.addEventListener('resize', updateUIState);
+            document.addEventListener('click', (e) => {
+                const ui = document.getElementById('ui-panel');
+                const btn = document.getElementById('toggle-btn');
+                const isMobile = window.innerWidth <= 1024;
+
+                // Close if clicking outside on mobile (and panel is open)
+                if (isMobile && ui.classList.contains('mobile-view-open')) {
+                    if (!ui.contains(e.target) && !btn.contains(e.target)) {
+                        toggleUI();
+                    }
+                }
+            });
+
             syncFromStandard();
             generateLayout();
             animate();
+
+            // Normalize UI state on load
+            updateUIState();
         }
 
+        function updateUIState() {
+            const ui = document.getElementById('ui-panel');
+            const btn = document.getElementById('toggle-btn');
+            const isMobile = window.innerWidth <= 1024;
 
+            let isOpen = false;
+
+            if (isMobile) {
+                // Mobile Mode
+                isOpen = ui.classList.contains('mobile-view-open');
+                // Ensure desktop class is removed to avoid conflicts
+                ui.classList.remove('hidden');
+            } else {
+                // Desktop Mode
+                // Check if hidden (collapsed)
+                const isHidden = ui.classList.contains('hidden');
+                ui.classList.remove('mobile-view-open');
+                isOpen = !isHidden;
+            }
+
+            btn.innerHTML = isOpen
+                ? `<span style="font-size:16px;">✕</span> CERRAR`
+                : `<span style="font-size:16px;">☰</span> OPCIONES`;
+        }
 
         function applyPanelPreset() {
             const p = document.getElementById('panelPreset').value;
@@ -612,6 +653,13 @@
         }
 
         function onMouseMove(event) {
+            // Prevent raycasting if hovering over UI or other elements
+            if (event.target.tagName !== 'CANVAS') {
+                if (hoveredPanel) resetHighlight(hoveredPanel);
+                hoveredPanel = null;
+                return;
+            }
+
             mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
             mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
 
@@ -808,7 +856,7 @@
             if (genSpaceEl) genSpaceEl.disabled = isManual; // Disable spacing calc input if manual anchors used
 
             const totalBom = { s02_3: 0, s10: 0, s11: 0, ug1: 0, g1_1230: 0, g1_1800: 0, g1_2350: 0, g1_550: 0, tapa: 0, s13: 0, g_rail: 0, g_anc: 0, g_union: 0 };
-
+            const verticalRailPositions = new Set();
             const rows = {};
             panels.forEach(p => {
                 if (!rows[p.row]) rows[p.row] = [];
@@ -980,6 +1028,7 @@
                 // Dibujar 2 rieles 
                 [0.25, 0.75].forEach(factor => {
                     const railY = yPos + pHeight * factor;
+                    verticalRailPositions.add(railY);
                     const zOffset = 0.09;
 
                     // Riel (Perfil) - Dibujar por segmentos para diferenciar colores
@@ -1087,48 +1136,33 @@
                     if (document.getElementById('viewDimensions')?.checked) {
                         const startRailX = centerX - railLen / 2;
                         const endRailX = centerX + railLen / 2;
-                        // Helper function defined below
-                        // Pass sorted points: start, anchors..., end
-                        const points = [startRailX, ...anchorsCoords, endRailX].sort((a, b) => a - b);
 
-                        const lineMat = new THREE.LineBasicMaterial({ color: 0xffff00 });
-                        const dimY = railY - 0.15; // Below rail
-                        const dimZ = 0.2; // Above panel so visible? Or on Scale? 
-                        // Panel is Z=0.1. Rail Z=0.05 (inside panel pivot). Wait, pivot Z?
-                        // Pivot is added to scene. Panel Mesh Z=0.1.
-                        // Rail Z=0.05.
-                        // Let's put text at Z=0.25 to be safe on top.
+                        // Calculate exact intersection of rail line with roof edges (for trapezoid accuracy)
+                        let rowLeftX = Math.min(...vertices.map(v => v.x));
+                        let rowRightX = Math.max(...vertices.map(v => v.x));
 
-                        for (let i = 0; i < points.length - 1; i++) {
-                            const p1 = points[i];
-                            const p2 = points[i + 1];
-                            const dist = p2 - p1;
-                            if (dist < 0.005) continue;
-
-                            // Line
-                            const geometry = new THREE.BufferGeometry().setFromPoints([
-                                new THREE.Vector3(p1, dimY, dimZ),
-                                new THREE.Vector3(p2, dimY, dimZ)
-                            ]);
-                            const line = new THREE.Line(geometry, lineMat);
-                            parentGroup.add(line);
-
-                            // Ticks
-                            const tH = 0.04;
-                            const t1 = new THREE.Line(new THREE.BufferGeometry().setFromPoints([
-                                new THREE.Vector3(p1, dimY - tH, dimZ), new THREE.Vector3(p1, dimY + tH, dimZ)
-                            ]), lineMat);
-                            const t2 = new THREE.Line(new THREE.BufferGeometry().setFromPoints([
-                                new THREE.Vector3(p2, dimY - tH, dimZ), new THREE.Vector3(p2, dimY + tH, dimZ)
-                            ]), lineMat);
-                            parentGroup.add(t1); parentGroup.add(t2);
-
-                            // Text
-                            const mid = (p1 + p2) / 2;
-                            const lbl = makeTextSprite(dist.toFixed(2) + 'm');
-                            lbl.position.set(mid, dimY - 0.05, dimZ + 0.05);
-                            parentGroup.add(lbl);
+                        // Find intersection of y=railY with roof edges
+                        const xIntersections = [];
+                        for (let k = 0; k < vertices.length; k++) {
+                            const v1 = vertices[k], v2 = vertices[(k + 1) % vertices.length];
+                            if ((v1.y <= railY && v2.y > railY) || (v1.y > railY && v2.y <= railY)) {
+                                const t = (railY - v1.y) / (v2.y - v1.y);
+                                xIntersections.push(v1.x + t * (v2.x - v1.x));
+                            }
                         }
+                        if (xIntersections.length >= 2) {
+                            xIntersections.sort((a, b) => a - b);
+                            rowLeftX = xIntersections[0];
+                            rowRightX = xIntersections[xIntersections.length - 1];
+                        }
+
+                        // Horizontal dimensions line: RoofLeft -> RailStart -> Anchors -> RailEnd -> RoofRight
+                        const dimY = railY - 0.25;
+                        const dimZ = 0.25;
+
+                        // Pass key points with exact roof edges
+                        const keyPoints = [startRailX, ...anchorsCoords, endRailX];
+                        drawDimensions(parentGroup, rowLeftX, rowRightX, keyPoints, dimY, dimZ);
                     }
                 });
 
@@ -1171,9 +1205,55 @@
             });
 
             updateBOM(totalBom);
+            drawVerticalDimensions(parentGroup, Array.from(verticalRailPositions));
         }
 
+        function drawVerticalDimensions(group, yPositions) {
+            const show = document.getElementById('viewDimensions')?.checked;
+            if (!show || yPositions.length === 0) return;
 
+            yPositions.sort((a, b) => a - b);
+
+            // Draw on the left side of the roof geometry
+            const roofMinX = Math.min(...vertices.map(v => v.x));
+            const xPos = roofMinX - 0.4;
+            const zPos = 0.2;
+            const color = "rgba(0, 255, 255, 1.0)"; // Cyan for vertical dims
+            const lineMat = new THREE.LineBasicMaterial({ color: 0x00ffff });
+
+            // Include 0 (Bottom) and Top (Height) to measure full vertical usage
+            const roofHeight = Math.max(...vertices.map(v => v.y));
+            const points = [0, ...yPositions, roofHeight];
+
+            for (let i = 0; i < points.length - 1; i++) {
+                const y1 = points[i];
+                const y2 = points[i + 1];
+                const dist = y2 - y1;
+
+                // Draw Vertical Line Segment
+                const geo = new THREE.BufferGeometry().setFromPoints([
+                    new THREE.Vector3(xPos, y1, zPos),
+                    new THREE.Vector3(xPos, y2, zPos)
+                ]);
+                group.add(new THREE.Line(geo, lineMat));
+
+                // Ticks
+                const tLen = 0.1;
+                const t1 = new THREE.Line(new THREE.BufferGeometry().setFromPoints([
+                    new THREE.Vector3(xPos - tLen, y1, zPos), new THREE.Vector3(xPos + tLen, y1, zPos)
+                ]), lineMat);
+                const t2 = new THREE.Line(new THREE.BufferGeometry().setFromPoints([
+                    new THREE.Vector3(xPos - tLen, y2, zPos), new THREE.Vector3(xPos + tLen, y2, zPos)
+                ]), lineMat);
+                group.add(t1); group.add(t2);
+
+                // Text
+                const midY = (y1 + y2) / 2;
+                const lbl = makeTextSprite(dist.toFixed(2) + 'm', color);
+                lbl.position.set(xPos - 0.4, midY, zPos);
+                group.add(lbl);
+            }
+        }
 
         function generateLayout() {
             const rIn = document.getElementById('genRows'), cIn = document.getElementById('genCols');
@@ -1241,9 +1321,14 @@
 
         function toggleUI() {
             const ui = document.getElementById('ui-panel');
-            ui.classList.toggle('open');
-            const btn = document.getElementById('toggle-btn');
-            btn.innerHTML = ui.classList.contains('open') ? '✕ Cerrar' : '☰ Opciones';
+            const isMobile = window.innerWidth <= 1024;
+
+            if (isMobile) {
+                ui.classList.toggle('mobile-view-open');
+            } else {
+                ui.classList.toggle('hidden');
+            }
+            updateUIState();
         }
 
         function updateView() {
@@ -1404,7 +1489,7 @@
             }
         }
 
-        function makeTextSprite(message) {
+        function makeTextSprite(message, colorStr = "rgba(255, 255, 0, 1.0)") {
             const canvas = document.createElement('canvas');
             const context = canvas.getContext('2d');
             const fontSize = 48;
@@ -1419,7 +1504,7 @@
             context.fillRect(0, 0, canvas.width, canvas.height); // Background
 
             context.font = "Bold " + fontSize + "px Arial";
-            context.fillStyle = "rgba(255, 255, 0, 1.0)";
+            context.fillStyle = colorStr;
             context.fillText(message, 10, fontSize);
 
             const texture = new THREE.Texture(canvas);
@@ -1634,7 +1719,7 @@
             doc.text(`- Voc Total: ${voc}`, 14, finalYTable + 11);
             doc.text(`- Vmp Total: ${vmp}`, 14, finalYTable + 16);
 
-            doc.save("presupuesto_solar_v1.0.7.pdf");
+            doc.save("presupuesto_solar_v1.0.8.pdf");
         }
 
         function animate() { requestAnimationFrame(animate); if (controls) controls.update(); if (renderer && scene && camera) renderer.render(scene, camera); }
