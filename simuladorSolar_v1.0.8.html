@@ -1269,8 +1269,15 @@
 
                 // Text
                 const midY = (y1 + y2) / 2;
-                const lbl = makeTextSprite(dist.toFixed(2) + 'm', color);
-                lbl.position.set(xPos - 0.4, midY, zPos);
+                // Smart formatting
+                let msg = dist.toFixed(2) + 'm';
+                if (dist < 1.0) msg = Math.round(dist * 100) + 'cm';
+
+                const lbl = makeTextSprite(msg, color);
+                // Stagger vertical dims too if needed? Usually vertical spacing is larger (rails).
+                // But for safety:
+                const staggerX = (i % 2 === 1) ? -0.15 : 0;
+                lbl.position.set(xPos - 0.3 + staggerX, midY, zPos);
                 group.add(lbl);
             }
         }
@@ -1504,8 +1511,17 @@
 
                 // Draw Text
                 const mid = (p1 + p2) / 2;
-                const label = makeTextSprite(dist.toFixed(2) + 'm');
-                label.position.set(mid, y - 0.1, z);
+
+                // Smart formatting (cm if small)
+                let msg = dist.toFixed(2) + 'm';
+                if (dist < 1.0) msg = Math.round(dist * 100) + 'cm';
+
+                const label = makeTextSprite(msg);
+
+                // Stagger labels to avoid overlap (Zigzag)
+                // Base Y offset is -0.1. We alternate adding -0.15 more.
+                const stagger = (i % 2 === 1) ? -0.12 : 0;
+                label.position.set(mid, y - 0.1 + stagger, z);
                 group.add(label);
             }
         }
@@ -1532,7 +1548,8 @@
             texture.needsUpdate = true;
             const spriteMat = new THREE.SpriteMaterial({ map: texture, transparent: true });
             const sprite = new THREE.Sprite(spriteMat);
-            sprite.scale.set(0.4 * (canvas.width / 100), 0.4 * (canvas.height / 100), 1);
+            // Reduced scale from 0.4 to 0.25 for smaller labels
+            sprite.scale.set(0.25 * (canvas.width / 100), 0.25 * (canvas.height / 100), 1);
             return sprite;
         }
 
