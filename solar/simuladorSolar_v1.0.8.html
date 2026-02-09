@@ -1136,16 +1136,33 @@
                     if (document.getElementById('viewDimensions')?.checked) {
                         const startRailX = centerX - railLen / 2;
                         const endRailX = centerX + railLen / 2;
-                        const roofMinX = Math.min(...vertices.map(v => v.x));
-                        const roofMaxX = Math.max(...vertices.map(v => v.x));
+
+                        // Calculate exact intersection of rail line with roof edges (for trapezoid accuracy)
+                        let rowLeftX = Math.min(...vertices.map(v => v.x));
+                        let rowRightX = Math.max(...vertices.map(v => v.x));
+
+                        // Find intersection of y=railY with roof edges
+                        const xIntersections = [];
+                        for (let k = 0; k < vertices.length; k++) {
+                            const v1 = vertices[k], v2 = vertices[(k + 1) % vertices.length];
+                            if ((v1.y <= railY && v2.y > railY) || (v1.y > railY && v2.y <= railY)) {
+                                const t = (railY - v1.y) / (v2.y - v1.y);
+                                xIntersections.push(v1.x + t * (v2.x - v1.x));
+                            }
+                        }
+                        if (xIntersections.length >= 2) {
+                            xIntersections.sort((a, b) => a - b);
+                            rowLeftX = xIntersections[0];
+                            rowRightX = xIntersections[xIntersections.length - 1];
+                        }
 
                         // Horizontal dimensions line: RoofLeft -> RailStart -> Anchors -> RailEnd -> RoofRight
                         const dimY = railY - 0.25;
                         const dimZ = 0.25;
 
-                        // Pass all key points for horizontal chain dimensioning
+                        // Pass key points with exact roof edges
                         const keyPoints = [startRailX, ...anchorsCoords, endRailX];
-                        drawDimensions(parentGroup, roofMinX, roofMaxX, keyPoints, dimY, dimZ);
+                        drawDimensions(parentGroup, rowLeftX, rowRightX, keyPoints, dimY, dimZ);
                     }
                 });
 
