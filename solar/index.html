@@ -419,7 +419,8 @@
         </div>
 
         <div class="move-grid">
-            <div></div><button class="move-btn" onclick="movePanel(0, 0.05)">▲</button>
+            <button class="move-btn" onclick="undo()" title="Deshacer" style="background:#555;">↶</button><button
+                class="move-btn" onclick="movePanel(0, 0.05)">▲</button>
             <div></div>
             <button class="move-btn" onclick="movePanel(-0.1, 0)">◀</button>
             <button class="move-btn" onclick="generateLayout()">C</button>
@@ -545,6 +546,25 @@
             fronius: { vstart: 80, vmin: 80 },
             sma: { vstart: 100, vmin: 100 }
         };
+
+        // Undo System
+        let historyStack = [];
+
+        function saveState() {
+            if (historyStack.length > 50) historyStack.shift();
+            historyStack.push(JSON.stringify(panels));
+        }
+
+        function undo() {
+            if (historyStack.length === 0) return;
+            try {
+                const prev = historyStack.pop();
+                panels = JSON.parse(prev);
+                updateView(); // Rerender
+            } catch (e) {
+                console.error("Undo error", e);
+            }
+        }
 
         function init() {
             scene = new THREE.Scene();
@@ -1445,6 +1465,7 @@
         }
 
         function movePanel(dx, dy) {
+            saveState(); // Save before move
             panels.forEach(p => { if (moveTarget === 'all' || p.row === moveTarget) { p.x += dx; p.y += dy; } });
             renderPanels();
         }
