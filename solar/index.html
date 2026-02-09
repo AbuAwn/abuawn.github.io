@@ -1,0 +1,1821 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Configurador Solar Pro - Ingeniería Sunfer</title>
+    <style>
+        :root {
+            --accent: #ffcc00;
+            --bg: #0a0a0a;
+            --panel: rgba(20, 20, 20, 0.95);
+        }
+
+        body {
+            margin: 0;
+            overflow: hidden;
+            font-family: 'Inter', 'Segoe UI', sans-serif;
+            background-color: var(--bg);
+            color: white;
+            /* Prevent pull-to-refresh on mobile */
+            overscroll-behavior: none;
+        }
+
+        /* UI Panel - Desktop Default */
+        #ui-panel {
+            position: absolute;
+            top: 60px;
+            /* Space for toggle button */
+            left: 15px;
+            background: var(--panel);
+            padding: 18px;
+            border-radius: 12px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+            width: 320px;
+            backdrop-filter: blur(12px);
+            border: 1px solid #333;
+            z-index: 100;
+            max-height: calc(100vh - 80px);
+            overflow-y: auto;
+            scrollbar-width: thin;
+            transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.3s ease;
+            transform: translateX(0);
+            opacity: 1;
+        }
+
+        /* Hiding state for Desktop and Mobile */
+        #ui-panel.hidden {
+            transform: translateX(-150%);
+            opacity: 0;
+            /* Helps performance/clicks */
+            pointer-events: none;
+        }
+
+        /* Toggle Button - Always Visible */
+        #toggle-btn {
+            position: absolute;
+            top: 15px;
+            left: 15px;
+            z-index: 2000;
+            background: var(--accent);
+            color: black;
+            border: none;
+            padding: 10px 16px;
+            border-radius: 8px;
+            font-weight: 800;
+            font-size: 13px;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.2s ease;
+        }
+
+        #toggle-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(255, 204, 0, 0.3);
+        }
+
+        #toggle-btn:active {
+            transform: translateY(0);
+        }
+
+        h2 {
+            margin: 15px 0 8px 0;
+            font-size: 11px;
+            color: var(--accent);
+            text-transform: uppercase;
+            letter-spacing: 1.2px;
+            border-bottom: 1px solid #333;
+            padding-bottom: 5px;
+        }
+
+        h2:first-child {
+            margin-top: 0;
+        }
+
+        .group {
+            margin-bottom: 12px;
+        }
+
+        label {
+            display: block;
+            font-size: 10px;
+            color: #888;
+            margin-bottom: 4px;
+            font-weight: 600;
+        }
+
+        input,
+        select {
+            width: 100%;
+            background: #1a1a1a;
+            border: 1px solid #333;
+            color: white;
+            padding: 8px;
+            border-radius: 6px;
+            font-size: 12px;
+            outline: none;
+            transition: 0.2s;
+            box-sizing: border-box;
+            /* Fix padding issues */
+        }
+
+        input:focus,
+        select:focus {
+            border-color: var(--accent);
+            background: #222;
+        }
+
+        input:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .flex-row {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 8px;
+        }
+
+        .flex-item {
+            flex: 1;
+            min-width: 0;
+        }
+
+        /* min-width fix for flex */
+
+        .btn-action {
+            background: var(--accent);
+            color: black;
+            border: none;
+            padding: 10px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 800;
+            font-size: 11px;
+            width: 100%;
+            text-transform: uppercase;
+            margin-top: 5px;
+        }
+
+        .btn-action:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(255, 204, 0, 0.3);
+        }
+
+        .move-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 6px;
+            margin: 10px 0;
+        }
+
+        .move-btn {
+            background: #252525;
+            border: 1px solid #444;
+            color: white;
+            height: 35px;
+            border-radius: 6px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .move-btn:hover {
+            border-color: var(--accent);
+            color: var(--accent);
+        }
+
+        .stat-box {
+            background: rgba(255, 204, 0, 0.05);
+            padding: 12px;
+            border-radius: 8px;
+            border: 1px solid rgba(255, 204, 0, 0.2);
+            font-size: 11px;
+            margin-top: 15px;
+        }
+
+        .stat-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 4px;
+        }
+
+        .stat-val {
+            color: var(--accent);
+            font-weight: bold;
+        }
+
+        .warning {
+            padding: 8px;
+            border-radius: 6px;
+            font-size: 10px;
+            margin-top: 10px;
+            text-align: center;
+            font-weight: bold;
+        }
+
+        .ok {
+            background: rgba(46, 204, 113, 0.15);
+            color: #2ecc71;
+            border: 1px solid #2ecc71;
+        }
+
+        .err {
+            background: rgba(231, 76, 60, 0.15);
+            color: #e74c3c;
+            border: 1px solid #e74c3c;
+        }
+
+        .row-selector {
+            display: flex;
+            gap: 4px;
+            background: #111;
+            padding: 4px;
+            border-radius: 8px;
+            margin: 8px 0;
+        }
+
+        .row-opt {
+            flex: 1;
+            text-align: center;
+            font-size: 9px;
+            padding: 6px 2px;
+            border-radius: 6px;
+            cursor: pointer;
+            background: #222;
+            border: 1px solid #333;
+            color: #888;
+        }
+
+        .row-opt.active {
+            background: var(--accent);
+            color: black;
+            font-weight: bold;
+        }
+
+        #help-tip {
+            font-size: 9px;
+            color: #aaa;
+            margin-top: 8px;
+            text-align: center;
+            padding: 5px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 4px;
+            border: 1px dashed #444;
+        }
+
+        /* Mobile / Tablet Responsive styles */
+        @media (max-width: 1024px) {
+            #ui-panel {
+                top: 0;
+                left: 0;
+                width: 85%;
+                max-width: 340px;
+                height: 100vh;
+                max-height: 100vh;
+                border-radius: 0;
+                border-right: 1px solid #444;
+                box-shadow: 10px 0 50px rgba(0, 0, 0, 0.8);
+
+                /* Start hidden on mobile */
+                transform: translateX(-150%);
+            }
+
+            #ui-panel.mobile-view-open {
+                transform: translateX(0);
+                opacity: 1;
+            }
+
+            /* Increase touch targets */
+            .btn-action,
+            .move-btn,
+            input,
+            select {
+                min-height: 44px;
+                /* Mobile friendly */
+            }
+
+            label {
+                font-size: 11px;
+                margin-bottom: 6px;
+            }
+
+            #toggle-btn {
+                top: 15px;
+                left: 15px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <button id="toggle-btn" onclick="toggleUI()">☰ Opciones</button>
+
+    <div id="ui-panel">
+        <h1
+            style="text-align:center; color:#f1c40f; margin-bottom:15px; font-size:16px; border-bottom:1px solid #333; padding-bottom:10px;">
+            Simulador Solar Pro
+            <span style="font-size:10px; color:#888; font-weight:normal; margin-left:5px;">v1.0.9</span>
+        </h1>
+        <h2>1. Geometría del Tejado</h2>
+        <div class="group">
+            <label>Tipo de Cubierta</label>
+            <select id="roofPreset" onchange="syncFromStandard()">
+                <option value="trapecio">Trapecio Isósceles</option>
+                <option value="trapecio_recto" selected>Trapecio Rectángulo</option>
+                <option value="rectangulo">Rectángulo</option>
+            </select>
+        </div>
+
+        <div id="standard-dims">
+            <div class="flex-row">
+                <div class="flex-item group"><label>Base Inferior (m)</label><input type="number" id="roofB" value="8.3"
+                        step="0.1" onchange="syncFromStandard()"></div>
+                <div class="flex-item group"><label>Base Superior (m)</label><input type="number" id="roofT" value="5.8"
+                        step="0.1" onchange="syncFromStandard()"></div>
+            </div>
+            <div class="flex-row">
+                <div class="flex-item group"><label>Altura (m)</label><input type="number" id="roofH" value="2.5"
+                        step="0.1" onchange="syncFromStandard()"></div>
+                <div class="flex-item group"><label>Pendiente (º)</label><input type="number" id="roofSlope" value="30"
+                        onchange="updateView()"></div>
+            </div>
+        </div>
+
+        <h2>2. Lista de Paneles</h2>
+        <div class="group">
+            <label>Modelo del Panel</label>
+            <select id="panelPreset" onchange="applyPanelPreset()">
+                <option value="ja450">JA Solar 450W (Voc 39.4V)</option>
+                <option value="tensite" selected>Tensite 500W (Voc 43.1V)</option>
+                <option value="trina">Trina Vertex S+ (Voc 52.9V)</option>
+                <option value="tongwei">Tongwei 435W (Voc 43.8V)</option>
+                <option value="custom">-- MANUAL / PERSONALIZADO --</option>
+            </select>
+        </div>
+
+        <div class="flex-row">
+            <div class="flex-item group"><label>Largo (mm)</label><input type="number" id="pLength" value="1961"
+                    onchange="updateView()" disabled></div>
+            <div class="flex-item group"><label>Ancho (mm)</label><input type="number" id="pWidth" value="1134"
+                    onchange="updateView()" disabled></div>
+        </div>
+
+        <div class="flex-row">
+            <div class="flex-item group"><label title="Voltaje de Circuito Abierto">Voc (V)</label><input type="number"
+                    id="pVoc" value="43.1" step="0.1" onchange="renderPanels()" disabled></div>
+            <div class="flex-item group"><label title="Voltaje Vmp a 70°C">Vmp Calor (V)</label><input type="number"
+                    id="pVmpH" value="31.0" step="0.1" onchange="renderPanels()" disabled></div>
+        </div>
+
+        <h2>3. Inversor (Umbrales)</h2>
+        <div class="group">
+            <label>Modelo de Inversor</label>
+            <select id="invPreset" onchange="applyInverterPreset()">
+                <option value="hoymiles">Hoymiles HYS-6.0LV (Híbrido)</option>
+                <option value="goodwe">GoodWe Serie EH / BH</option>
+                <option value="fronius">Fronius Primo Gen24</option>
+                <option value="sma">SMA Sunny Boy</option>
+                <option value="custom">-- MANUAL / OTRO --</option>
+            </select>
+        </div>
+        <div class="flex-row">
+            <div class="flex-item group"><label title="Voltaje mínimo para arrancar">V. Arranque (V)</label><input
+                    type="number" id="invVstart" value="150" step="1" onchange="renderPanels()" disabled></div>
+            <div class="flex-item group"><label title="Voltaje mínimo de operación">V. Mín Producción (V)</label><input
+                    type="number" id="invVmin" value="125" step="1" onchange="renderPanels()" disabled></div>
+        </div>
+
+        <h2>4. Generador de Instalación</h2>
+        <div class="flex-row">
+            <div class="flex-item group"><label>Filas</label><input type="number" id="genRows" value="1" min="1"
+                    max="4"></div>
+            <div class="flex-item group"><label>Paneles/Fila</label><input type="number" id="genCols" value="5" min="1"
+                    max="8"></div>
+        </div>
+        <div class="group">
+            <label>Orientación Inicial</label>
+            <select id="genOrient">
+                <option value="v" selected>Vertical (Portrait)</option>
+                <option value="h">Horizontal (Landscape)</option>
+            </select>
+        </div>
+        <button class="btn-action" onclick="generateLayout()">Generar Nueva Matriz</button>
+        <div id="help-tip">🎯 <b>Presor Intermedio:</b> 20mm respetados.<br><b>Doble clic</b> para eliminar un panel.
+        </div>
+
+        <h2>5. Ajuste de Posición</h2>
+        <div class="row-selector">
+            <div class="row-opt active" onclick="setMoveTarget('all')" id="tgt-all">Todo</div>
+            <div class="row-opt" onclick="setMoveTarget(0)" id="tgt-0">Fila 1</div>
+            <div class="row-opt" onclick="setMoveTarget(1)" id="tgt-1">Fila 2</div>
+        </div>
+
+        <div class="move-grid">
+            <button class="move-btn" onclick="undo()" title="Deshacer" style="background:#555;">↶</button><button
+                class="move-btn" onclick="movePanel(0, 0.05)">▲</button>
+            <div></div>
+            <button class="move-btn" onclick="movePanel(-0.1, 0)">◀</button>
+            <button class="move-btn" onclick="generateLayout()">C</button>
+            <button class="move-btn" onclick="movePanel(0.1, 0)">▶</button>
+            <div></div><button class="move-btn" onclick="movePanel(0, -0.05)">▼</button>
+            <div></div>
+        </div>
+
+        <h2>6. Estructura y Anclajes</h2>
+        <div class="group">
+            <label>Sistema de Anclaje</label>
+            <select id="structPreset" onchange="renderStructureWrapper()">
+                <option value="sunfer">Sunfer 02.3V (Coplanar Vertical)</option>
+                <option value="generic_1230">Genérico (Perfil 1230mm)</option>
+                <option value="generic_2350">Genérico (Perfil 2350mm)</option>
+                <option value="manual">Manual / Personalizado</option>
+            </select>
+            <label style="display:flex; align-items:center; cursor:pointer; color:#eee; margin-top:10px;">
+                <input type="checkbox" id="viewStructureOnly" onchange="renderStructureWrapper()"
+                    style="width:auto; margin-right:8px;">
+                Ocultar Paneles (Ver Estructura)
+            </label>
+            <label style="display:flex; align-items:center; cursor:pointer; color:#eee; margin-top:5px;">
+                <input type="checkbox" id="viewDimensions" onchange="renderStructureWrapper()"
+                    style="width:auto; margin-right:8px;">
+                Ver Cotas (Distancias)
+            </label>
+        </div>
+
+        <div id="generic-options" style="display:none; margin-top:5px; border-top:1px solid #333; padding-top:5px;">
+            <div class="flex-row">
+                <div class="flex-item group">
+                    <label>Perfil (m)</label>
+                    <select id="manualProfileSelect" onchange="syncManualProfile()"
+                        style="width:100%; margin-bottom:5px;">
+                        <option value="2.35">Estándar 2.35m</option>
+                        <option value="1.23">Corto 1.23m</option>
+                        <option value="custom">Personalizado</option>
+                    </select>
+                    <input type="number" id="genRailLen" value="2.35" step="0.05" onchange="renderStructureWrapper()">
+                </div>
+                <div class="flex-item group" id="grp-spacing"><label>Sep. Máx (m)</label><input type="number"
+                        id="genSpacing" value="1.4" step="0.05" onchange="renderStructureWrapper()"></div>
+                <div class="flex-item group" id="grp-anchors" style="display:none;"><label>Num. Anclajes</label><input
+                        type="number" id="numAnchors" value="4" min="2" onchange="renderStructureWrapper()"></div>
+            </div>
+            <div id="manual-tip" style="display:none; color:#888; font-size:9px; margin-top:2px;">* Ajuste automático
+                por seguridad (Voladizo 0.40m/Max 1.75m).</div>
+        </div>
+        <script>
+            function syncManualProfile() {
+                const sel = document.getElementById('manualProfileSelect');
+                const inp = document.getElementById('genRailLen');
+                if (sel.value !== 'custom') {
+                    inp.value = sel.value;
+                    // inp.disabled = true; // Optional: disable if strictly preset
+                } else {
+                    // inp.disabled = false;
+                }
+                renderStructureWrapper();
+            }
+        </script>
+
+        <h3>Desglose de Materiales</h3>
+        <div id="bom-container"
+            style="background:rgba(255,255,255,0.05); padding:8px; border-radius:6px; font-size:10px; margin-bottom:15px; border:1px dashed #444;">
+            <div style="color:#888; font-style:italic;">Genere una matriz para ver componentes.</div>
+        </div>
+
+        <div class="stat-box">
+            <div class="stat-row"><span>Voc (Arranque):</span> <span id="st-voc" class="stat-val">0 V</span></div>
+            <div class="stat-row"><span>Vmp (Calor):</span> <span id="st-vmp" class="stat-val">0 V</span></div>
+            <div class="stat-row"><span>Paneles Reales:</span> <span id="st-count" class="stat-val">0</span></div>
+        </div>
+        <div id="safety-msg" class="warning ok">DISEÑO CORRECTO</div>
+
+        <h2>7. Gestión de Proyecto</h2>
+        <div class="flex-row">
+            <button class="flex-item btn-action" style="background:#2ecc71; color:black;" onclick="saveProject()">💾
+                Guardar</button>
+            <button class="flex-item btn-action" style="background:#3498db; color:black;"
+                onclick="document.getElementById('file-input').click()">📂 Cargar</button>
+            <input type="file" id="file-input" style="display:none" accept=".json" onchange="loadProject(this)">
+        </div>
+        <div class="flex-row" style="margin-top:5px;">
+            <button class="flex-item btn-action" style="background:#e67e22; color:white;" onclick="exportCSV()">📊
+                Excel/CSV</button>
+            <button class="flex-item btn-action" style="background:#c0392b; color:white;" onclick="exportPDF()">📄
+                PDF</button>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+
+    <script>
+        let scene, camera, renderer, controls, roofMesh, panelsGroup;
+        let raycaster = new THREE.Raycaster();
+        let mouse = new THREE.Vector2();
+        let hoveredPanel = null;
+
+        let vertices = [];
+        let panels = [];
+        let moveTarget = 'all';
+        let bomPrices = {};
+
+        // Constantes globales de instalación
+        const P_GAP = 0.02; // Separación de 20mm exacta para presores intermedios Sunfer
+        const P_SAFE = 0.08; // Margen de seguridad para anclajes (m)
+
+        const panelPresets = {
+            ja450: { l: 1762, w: 1134, voc: 39.4, vmpH: 28.3 },
+            tensite: { l: 1961, w: 1134, voc: 43.1, vmpH: 31.0 },
+            trina: { l: 1762, w: 1134, voc: 52.9, vmpH: 38.3 },
+            tongwei: { l: 1899, w: 1096, voc: 43.8, vmpH: 31.1 }
+        };
+
+        const inverterPresets = {
+            hoymiles: { vstart: 150, vmin: 125 },
+            goodwe: { vstart: 100, vmin: 80 },
+            fronius: { vstart: 80, vmin: 80 },
+            sma: { vstart: 100, vmin: 100 }
+        };
+
+        // Undo System
+        let historyStack = [];
+
+        function saveState() {
+            if (historyStack.length > 50) historyStack.shift();
+            historyStack.push(JSON.stringify(panels));
+        }
+
+        function undo() {
+            if (historyStack.length === 0) return;
+            try {
+                const prev = historyStack.pop();
+                panels = JSON.parse(prev);
+                updateView(); // Rerender
+            } catch (e) {
+                console.error("Undo error", e);
+            }
+        }
+
+        function init() {
+            scene = new THREE.Scene();
+            scene.background = new THREE.Color(0x050505);
+            camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 1000);
+            camera.position.set(12, 10, 15);
+
+            renderer = new THREE.WebGLRenderer({ antialias: true });
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            document.body.appendChild(renderer.domElement);
+
+            scene.add(new THREE.AmbientLight(0xffffff, 0.8));
+            const sun = new THREE.DirectionalLight(0xffffff, 0.6);
+            sun.position.set(5, 20, 10);
+            scene.add(sun);
+
+            panelsGroup = new THREE.Group();
+            scene.add(panelsGroup);
+
+            controls = new THREE.OrbitControls(camera, renderer.domElement);
+            controls.enableDamping = true;
+
+            window.addEventListener('mousemove', onMouseMove);
+            window.addEventListener('dblclick', onPanelDelete);
+
+            // Mobile Detection & Click Outside Listener
+            window.addEventListener('resize', updateUIState);
+            document.addEventListener('click', (e) => {
+                const ui = document.getElementById('ui-panel');
+                const btn = document.getElementById('toggle-btn');
+                const isMobile = window.innerWidth <= 1024;
+
+                // Close if clicking outside on mobile (and panel is open)
+                if (isMobile && ui.classList.contains('mobile-view-open')) {
+                    if (!ui.contains(e.target) && !btn.contains(e.target)) {
+                        toggleUI();
+                    }
+                }
+            });
+
+            syncFromStandard();
+            generateLayout();
+            animate();
+
+            // Normalize UI state on load
+            updateUIState();
+        }
+
+        function updateUIState() {
+            const ui = document.getElementById('ui-panel');
+            const btn = document.getElementById('toggle-btn');
+            const isMobile = window.innerWidth <= 1024;
+
+            let isOpen = false;
+
+            if (isMobile) {
+                // Mobile Mode
+                isOpen = ui.classList.contains('mobile-view-open');
+                // Ensure desktop class is removed to avoid conflicts
+                ui.classList.remove('hidden');
+            } else {
+                // Desktop Mode
+                // Check if hidden (collapsed)
+                const isHidden = ui.classList.contains('hidden');
+                ui.classList.remove('mobile-view-open');
+                isOpen = !isHidden;
+            }
+
+            btn.innerHTML = isOpen
+                ? `<span style="font-size:16px;">✕</span> CERRAR`
+                : `<span style="font-size:16px;">☰</span> OPCIONES`;
+        }
+
+        function applyPanelPreset() {
+            const p = document.getElementById('panelPreset').value;
+            const custom = p === 'custom';
+            ['pLength', 'pWidth', 'pVoc', 'pVmpH'].forEach(id => {
+                const el = document.getElementById(id);
+                if (el) el.disabled = !custom;
+            });
+
+            if (!custom) {
+                const data = panelPresets[p];
+                document.getElementById('pLength').value = data.l;
+                document.getElementById('pWidth').value = data.w;
+                document.getElementById('pVoc').value = data.voc;
+                document.getElementById('pVmpH').value = data.vmpH;
+            }
+            updateView();
+        }
+
+        function applyInverterPreset() {
+            const i = document.getElementById('invPreset').value;
+            const custom = i === 'custom';
+            ['invVstart', 'invVmin'].forEach(id => {
+                const el = document.getElementById(id);
+                if (el) el.disabled = !custom;
+            });
+
+            if (!custom) {
+                const data = inverterPresets[i];
+                document.getElementById('invVstart').value = data.vstart;
+                document.getElementById('invVmin').value = data.vmin;
+            }
+            renderPanels();
+        }
+
+        function onMouseMove(event) {
+            // Prevent raycasting if hovering over UI or other elements
+            if (event.target.tagName !== 'CANVAS') {
+                if (hoveredPanel) resetHighlight(hoveredPanel);
+                hoveredPanel = null;
+                return;
+            }
+
+            mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+            mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
+
+            raycaster.setFromCamera(mouse, camera);
+            const intersects = raycaster.intersectObjects(panelsGroup.children, true);
+
+            if (intersects.length > 0) {
+                let obj = intersects[0].object;
+                while (obj.parent && !obj.userData.id) obj = obj.parent;
+
+                if (hoveredPanel !== obj) {
+                    if (hoveredPanel) resetHighlight(hoveredPanel);
+                    hoveredPanel = obj;
+                    highlightPanel(hoveredPanel);
+                }
+            } else {
+                if (hoveredPanel) resetHighlight(hoveredPanel);
+                hoveredPanel = null;
+            }
+        }
+
+        function highlightPanel(obj) {
+            obj.children.forEach(child => {
+                if (child instanceof THREE.LineSegments) child.material.color.set(0xffffff);
+            });
+        }
+
+        function resetHighlight(obj) {
+            obj.children.forEach(child => {
+                if (child instanceof THREE.LineSegments) child.material.color.set(0x444444);
+            });
+        }
+
+        function onPanelDelete() {
+            if (hoveredPanel && hoveredPanel.userData.id) {
+                panels = panels.filter(p => p.id !== hoveredPanel.userData.id);
+                renderPanels();
+                hoveredPanel = null;
+            }
+        }
+
+        function isPointInPoly(pt, poly) {
+            let inside = false;
+            for (let i = 0, j = poly.length - 1; i < poly.length; j = i++) {
+                let xi = poly[i].x, yi = poly[i].y;
+                let xj = poly[j].x, yj = poly[j].y;
+                let intersect = ((yi > pt.y) != (yj > pt.y)) && (pt.x < (xj - xi) * (pt.y - yi) / (yj - yi) + xi);
+                if (intersect) inside = !inside;
+            }
+            return inside;
+        }
+
+        function checkSafety(p) {
+            const corners = [
+                { x: p.x, y: p.y }, { x: p.x + p.w, y: p.y },
+                { x: p.x, y: p.y + p.h }, { x: p.x + p.w, y: p.y + p.h }
+            ];
+            const anchors = [
+                { x: p.x + p.w * 0.2, y: p.y + p.h * 0.25 }, { x: p.x + p.w * 0.8, y: p.y + p.h * 0.25 },
+                { x: p.x + p.w * 0.2, y: p.y + p.h * 0.75 }, { x: p.x + p.w * 0.8, y: p.y + p.h * 0.75 }
+            ];
+            const allCornersIn = corners.every(c => isPointInPoly(c, vertices));
+            const allAnchorsIn = anchors.every(a => isPointInPoly(a, vertices));
+            if (allCornersIn) return 'ok';
+            if (allAnchorsIn) return 'warn';
+            return 'err';
+        }
+
+        // Datos oficiales SUNFER 02.3V
+        const sunferData = {
+            1: { anchors: 2, railLen: 1230, spacings: [800], edge: 215, bom: { s02_3: 4, s10: 4, s11: 0, ug1: 0, g1_1230: 2, g1_1800: 0, g1_550: 0, tapa: 4, s13: 4 } },
+            2: { anchors: 2, railLen: 2460, spacings: [1400], edge: 530, bom: { s02_3: 4, s10: 4, s11: 2, ug1: 2, g1_1230: 4, g1_1800: 0, g1_550: 0, tapa: 4, s13: 6 } },
+            3: { anchors: 3, railLen: 3600, spacings: [1400, 1400], edge: [300, 500], bom: { s02_3: 6, s10: 4, s11: 4, ug1: 2, g1_1230: 0, g1_1800: 4, g1_550: 0, tapa: 4, s13: 8 } },
+            4: { anchors: 3, railLen: 4830, spacings: [1770, 1770], edge: 645, bom: { s02_3: 6, s10: 4, s11: 6, ug1: 4, g1_1230: 2, g1_1800: 4, g1_550: 0, tapa: 4, s13: 10 } },
+            5: { anchors: 4, railLen: 5950, spacings: [1700, 1700, 1700], edge: 425, bom: { s02_3: 8, s10: 4, s11: 8, ug1: 6, g1_1230: 0, g1_1800: 6, g1_550: 2, tapa: 4, s13: 12 } },
+            6: { anchors: 5, railLen: 7200, spacings: [1600, 1500, 1700, 1600], edge: 400, bom: { s02_3: 10, s10: 4, s11: 10, ug1: 6, g1_1230: 0, g1_1800: 8, g1_550: 0, tapa: 4, s13: 14 } }
+        };
+
+        function renderStructureWrapper() {
+            renderPanels();
+        }
+
+
+        function updateBOM(totalBom) {
+            const container = document.getElementById('bom-container');
+            if (!totalBom) {
+                container.innerHTML = '<div style="color:#666; font-style:italic;">Sin datos.</div>';
+                return;
+            }
+            let html = '<table style="width:100%; border-collapse:collapse; color:#ddd; font-family:monospace; font-size:11px;">';
+            html += '<thead style="color:#888; border-bottom:1px solid #444;"><tr><th style="text-align:left; padding-bottom:4px;">Concepto</th><th style="text-align:right;">Cant.</th><th style="text-align:right;">Precio/Ud</th><th style="text-align:right;">Total</th></tr></thead>';
+            html += '<tbody>';
+
+            const labels = {
+                s02_3: { n: 'Soporte S02.3', c: '#ff4500' },
+                s10: { n: 'Presor Lat. S10', c: '#e74c3c' }, // Red
+                s11: { n: 'Presor Cen. S11', c: '#2ecc71' }, // Green
+                ug1: { n: 'Unión Guía UG1', c: '#2980b9' },
+                g1_1230: { n: 'Perfil G1-1230', c: '#3498db' }, // Blue
+                g1_1800: { n: 'Perfil G1-1800', c: '#95a5a6' },
+                g1_2350: { n: 'Perfil G1-2350', c: '#9b59b6' }, // Purple
+                g1_550: { n: 'Perfil G1-550', c: '#95a5a6' },
+                tapa: { n: 'Tapa G1', c: '#111111' },
+                s13: { n: 'Tornillería S13', c: '#ffffff' },
+                g_rail: { n: 'Perfil Genérico', c: '#c0c0c0' },
+                g_anc: { n: 'Anclaje Genérico', c: '#3498db' },
+                g_union: { n: 'Unión Perfil', c: '#2980b9' }
+            };
+
+            let grandTotal = 0;
+
+            for (const k in totalBom) {
+                if (totalBom[k] > 0) {
+                    const item = labels[k] || { n: k, c: '#fff' };
+                    const qty = totalBom[k];
+                    const price = bomPrices[k] || 0;
+                    const sub = qty * price;
+                    grandTotal += sub;
+
+                    html += `
+                            <tr style="border-bottom:1px solid #222;">
+                                <td style="padding:6px 0;">
+                                    <span style="display:inline-block; width:8px; height:8px; background-color:${item.c}; margin-right:5px; border-radius:2px;"></span>
+                                    ${item.n}
+                                </td>
+                                <td style="text-align:right; font-weight:bold; color:#ffcc00;">${qty}</td>
+                                <td style="text-align:right;">
+                                    <input type="number" step="0.01" placeholder="0.00" value="${price > 0 ? price : ''}" 
+                                        style="width:50px; background:#222; border:1px solid #444; color:white; padding:2px 4px; border-radius:4px; text-align:right; font-size:11px;"
+                                        onchange="updateBomPrice('${k}', this.value, ${qty})"> €
+                                </td>
+                                <td style="text-align:right; font-weight:bold;" id="sub-${k}">
+                                    ${sub > 0 ? sub.toFixed(2) : '0.00'} €
+                                </td>
+                            </tr>`;
+                }
+            }
+            html += '</tbody>';
+            html += `<tfoot style="border-top:2px solid #444;">
+                        <tr>
+                            <td colspan="3" style="text-align:right; padding-top:8px; color:#aaa;">TOTAL PRESUPUESTO:</td>
+                            <td style="text-align:right; padding-top:8px; color:#2ecc71; font-weight:bold; font-size:13px;" id="bom-total">
+                                ${grandTotal.toFixed(2)} €
+                            </td>
+                        </tr>
+                     </tfoot>`;
+            html += '</table>';
+            container.innerHTML = html;
+        }
+
+        function updateBomPrice(key, val, qty) {
+            const price = parseFloat(val) || 0;
+            bomPrices[key] = price;
+
+            // Subtotal
+            const sub = price * qty;
+            const subEl = document.getElementById('sub-' + key);
+            if (subEl) subEl.innerHTML = sub.toFixed(2) + ' €';
+
+            // Grand Total
+            let sum = 0;
+            document.querySelectorAll('[id^="sub-"]').forEach(el => {
+                const t = parseFloat(el.innerText.replace(' €', '')) || 0;
+                sum += t;
+            });
+            const totEl = document.getElementById('bom-total');
+            if (totEl) totEl.innerHTML = sum.toFixed(2) + ' €';
+        }
+
+        function renderStructure(parentGroup) {
+            const modeEl = document.getElementById('structPreset');
+            const genRailEl = document.getElementById('genRailLen');
+            const genSpaceEl = document.getElementById('genSpacing');
+            const numAnchorsEl = document.getElementById('numAnchors');
+            const grpSpacing = document.getElementById('grp-spacing');
+            const grpAnchors = document.getElementById('grp-anchors');
+            const tipEl = document.getElementById('manual-tip');
+            const optsDiv = document.getElementById('generic-options');
+
+            if (!modeEl) return;
+            const mode = modeEl.value;
+            const isManual = (mode === 'manual');
+
+            // Mostrar opciones manuales solo si es custom
+            if (optsDiv) optsDiv.style.display = (mode.startsWith('generic') || isManual) ? 'block' : 'none';
+            if (grpSpacing) grpSpacing.style.display = isManual ? 'none' : 'block';
+            if (grpAnchors) grpAnchors.style.display = isManual ? 'block' : 'none';
+            if (tipEl) tipEl.style.display = isManual ? 'block' : 'none';
+
+            if (mode === 'generic_1230' && document.activeElement !== genRailEl) { genRailEl.value = 1.23; genSpaceEl.value = 0.8; }
+            if (mode === 'generic_2350' && document.activeElement !== genRailEl) { genRailEl.value = 2.35; genSpaceEl.value = 1.4; }
+
+            if (genRailEl) genRailEl.disabled = false; // Always enabled for manual tweaking? Or just for manual? Keeping consistent with previous logic
+            if (genSpaceEl) genSpaceEl.disabled = isManual; // Disable spacing calc input if manual anchors used
+
+            const totalBom = { s02_3: 0, s10: 0, s11: 0, ug1: 0, g1_1230: 0, g1_1800: 0, g1_2350: 0, g1_550: 0, tapa: 0, s13: 0, g_rail: 0, g_anc: 0, g_union: 0 };
+            const verticalRailPositions = new Set();
+            const rows = {};
+            panels.forEach(p => {
+                if (!rows[p.row]) rows[p.row] = [];
+                rows[p.row].push(p);
+            });
+
+            Object.keys(rows).forEach(rKey => {
+                const rowPanels = rows[rKey];
+                const n = rowPanels.length;
+                if (n === 0) return;
+
+                // Sort panels by x position to find gaps accurately
+                rowPanels.sort((a, b) => a.x - b.x);
+
+                let minX = Infinity, maxX = -Infinity;
+                let yPos = rowPanels[0].y;
+                let pHeight = rowPanels[0].h;
+
+                rowPanels.forEach(p => {
+                    minX = Math.min(minX, p.x);
+                    maxX = Math.max(maxX, p.x + p.w);
+                });
+
+                const panelSpan = maxX - minX;
+                const centerX = (minX + maxX) / 2;
+                const railZ = 0.05;
+
+                // Definir geometría del riel y anclajes
+                let railLen = panelSpan, startX = minX;
+                let anchorsCoords = [];
+                let segments = [];
+                let isSunfer = (mode === 'sunfer');
+
+                if (isSunfer && sunferData[n]) {
+                    const d = sunferData[n];
+                    railLen = d.railLen / 1000;
+                    startX = centerX - railLen / 2;
+
+                    let cx = startX;
+                    if (Array.isArray(d.edge)) {
+                        cx += d.edge[0] / 1000;
+                    } else {
+                        cx += d.edge / 1000;
+                    }
+
+                    // Primer anclaje
+                    anchorsCoords.push(cx);
+
+                    // Resto de anclajes
+                    for (let i = 0; i < d.spacings.length; i++) {
+                        cx += d.spacings[i] / 1000;
+                        anchorsCoords.push(cx);
+                    }
+
+                    // BOM
+                    for (let k in d.bom) totalBom[k] += d.bom[k];
+
+                } else {
+                    // --- LÓGICA DE INGENIERÍA MEJORADA (Manual y Genérico) ---
+                    // "Regla de Oro": Prioridad Voladizo (Cantilever) y Límite de Flexión (Max Span)
+
+                    const CANTILEVER = 0.40;   // Voladizo fijo para bordes (seguridad viento)
+
+                    // Definir MAX_SPAN:
+                    // - Si es Genérico: Usar el valor 'Sep. Máx' del input (ej: 0.8m o 1.4m según perfil)
+                    // - Si es Manual: Usar el límite estructural de seguridad (1.75m)
+                    let MAX_SPAN = 1.75;
+                    if (mode.startsWith('generic')) {
+                        MAX_SPAN = parseFloat(genSpaceEl.value) || 1.75;
+                    }
+
+                    // Longitud total del riel: PanelSpan + 10cm extra (5cm por lado)
+                    railLen = panelSpan + 0.1;
+
+                    // Distancia útil entre anclajes extremos
+                    let distBetweenExtremes = railLen - (2 * CANTILEVER);
+                    if (distBetweenExtremes <= 0) distBetweenExtremes = railLen - 0.2; // Fallback para rieles muy cortos
+
+                    // Número inicial de anclajes
+                    // Si es manual, cogemos el input (min 2). Si es genérico, empezamos con 2 y el algoritmo corrige.
+                    let numAnc = (mode === 'manual') ? (parseInt(numAnchorsEl.value) || 2) : 2;
+                    if (numAnc < 2) numAnc = 2;
+
+                    // Auto-corrección de seguridad: Añadir anclajes si el vano supera 1.75m
+                    let currentSpan = distBetweenExtremes / Math.max(1, numAnc - 1);
+                    while (currentSpan > MAX_SPAN) {
+                        numAnc++;
+                        currentSpan = distBetweenExtremes / (numAnc - 1);
+                    }
+
+                    // UI Inteligente: Actualizar el input si el cálculo de ingeniería requirió más anclajes
+                    if (isManual && document.activeElement !== numAnchorsEl && numAnchorsEl) {
+                        numAnchorsEl.value = numAnc;
+                    }
+
+                    // Generar Coordenadas
+                    const startAnc = (centerX - railLen / 2) + CANTILEVER;
+
+                    for (let k = 0; k < numAnc; k++) {
+                        anchorsCoords.push(startAnc + k * currentSpan);
+                    }
+
+                    // GENERACIÓN DE RIELES Y UNIONES (Optimizado con Anti-Colisión de Presores)
+                    const railUnit = parseFloat(genRailEl.value) || 2.35;
+                    segments = [];
+
+                    // 1. Calcular posiciones relativas de los presores (Clamps)
+                    // Se asume que el riel comienza en startX = centerX - railLen / 2
+                    // Los presores están entre paneles.
+                    let clampRelPositions = [];
+                    // El ancho de la zona "prohibida" para una unión es aprox el ancho del presor + margen
+                    // Presor = 2cm a 4cm. Unión = 10cm. 
+                    // Si el centro de la unión cae a menos de X cm del centro del presor, colisión.
+                    const COLLISION_THRESHOLD = 0.12; // 12cm de margen total (6cm por lado)
+
+                    for (let i = 0; i < n - 1; i++) {
+                        const pCur = rowPanels[i];
+                        const pNext = rowPanels[i + 1];
+                        const midX = (pCur.x + pCur.w + pNext.x) / 2;
+                        const relX = midX - (centerX - railLen / 2);
+                        clampRelPositions.push(relX);
+                    }
+
+                    // 2. Algoritmo de Corte Inteligente (Smart Cut)
+                    // Probamos recortar el primer riel desde 0cm hasta 50cm en pasos de 5cm
+                    // para desplazar las uniones y evitar colisiones.
+                    let bestStartCut = 0;
+                    let solutionFound = false;
+
+                    // Estrategia: Solo probamos cortes si NO es Sunfer (Sunfer tiene medidas fijas predefinidas)
+                    if (!isSunfer) {
+                        for (let cut = 0; cut <= 1.5; cut += 0.05) { // Probamos hasta 1.5m de desplazamiento
+                            let tempSegments = [];
+                            let currentPos = 0;
+                            let first = true;
+
+                            // Simular distribución con este corte inicial
+                            let remainingLen = railLen;
+
+                            while (remainingLen > 0.01) {
+                                let segLen = railUnit;
+                                if (first) {
+                                    segLen -= cut;
+                                    if (segLen < 0.1) segLen = 0.1; // Mínimo constructivo
+                                    first = false;
+                                }
+
+                                // Si es el último trozo y es pequeño, se ajusta
+                                if (remainingLen <= segLen) {
+                                    segLen = remainingLen;
+                                }
+
+                                tempSegments.push(segLen);
+                                currentPos += segLen;
+                                remainingLen -= segLen;
+
+                                // Verificar colisión de la unión (currentPos)
+                                // La última posición es el final del riel, no lleva unión.
+                                if (remainingLen > 0.01) {
+                                    // Check collision
+                                    const isCollision = clampRelPositions.some(cx => Math.abs(cx - currentPos) < COLLISION_THRESHOLD);
+                                    if (isCollision) {
+                                        // Invalid configuration
+                                        tempSegments = null;
+                                        break;
+                                    }
+                                }
+                            }
+
+                            if (tempSegments !== null) {
+                                segments = tempSegments;
+                                bestStartCut = cut;
+                                solutionFound = true;
+                                break;
+                            }
+                        }
+                    }
+
+                    // Si no se encuentra solución o es Sunfer, usar lógica estándar (con posible colisión)
+                    if (!solutionFound && segments.length === 0) {
+                        const needed = Math.floor(railLen / railUnit) + (railLen % railUnit > 0.01 ? 1 : 0);
+                        for (let k = 0; k < needed; k++) segments.push(railUnit);
+                        // Ajustar el último
+                        const currentTotal = segments.reduce((a, b) => a + b, 0);
+                        if (currentTotal > railLen) segments[segments.length - 1] -= (currentTotal - railLen);
+                    }
+
+                    // 3. Recalcular BOM basado en los segmentos reales
+                    if (!isSunfer) {
+                        let rowG1_2350 = 0;
+                        let rowG1_1230 = 0;
+                        let rowUnions = 0;
+
+                        segments.forEach(seg => {
+                            if (Math.abs(railUnit - 2.35) < 0.05) rowG1_2350 += 2; // 2 rails
+                            else rowG1_1230 += 2; // 2 rails
+                        });
+                        rowUnions = Math.max(0, segments.length - 1) * 2;
+
+                        totalBom.g1_2350 += rowG1_2350;
+                        totalBom.g1_1230 += rowG1_1230;
+                        totalBom.g_union += rowUnions;
+                    }
+
+                    // BOM Tapas y Presores (Genérico) stays same
+                    const pCount = rowPanels.length;
+                    totalBom.tapa += 4;
+                    totalBom.s02_3 += numAnc * 2;
+                    if (pCount > 0) {
+                        totalBom.s10 += 4;
+                        totalBom.s11 += Math.max(0, pCount - 1) * 2;
+                    }
+                }
+
+                // Dibujar 2 rieles 
+                [0.25, 0.75].forEach(factor => {
+                    const railY = yPos + pHeight * factor;
+                    verticalRailPositions.add(railY);
+                    const zOffset = 0.09;
+
+                    // Riel (Perfil) - Dibujar por segmentos para diferenciar colores
+
+                    // Colores por tipo de perfil
+                    const mat1230 = new THREE.MeshPhongMaterial({ color: 0x3498db }); // Blue
+                    const mat2350 = new THREE.MeshPhongMaterial({ color: 0x9b59b6 }); // Purple
+                    const matGeneric = new THREE.MeshPhongMaterial({ color: 0xc0c0c0 }); // Silver
+
+                    if (!isSunfer && segments.length > 0) {
+                        const railStart = centerX - railLen / 2;
+                        let currentX = railStart;
+
+                        segments.forEach(segLen => {
+                            const segGeo = new THREE.BoxGeometry(segLen - 0.005, 0.045, 0.045); // Gap visual
+                            let segMat = matGeneric;
+
+                            // Asignar color según longitud (aprox)
+                            if (Math.abs(segLen - 1.23) < 0.05) segMat = mat1230;
+                            else if (Math.abs(segLen - 2.35) < 0.05) segMat = mat2350;
+
+                            const segMesh = new THREE.Mesh(segGeo, segMat);
+                            segMesh.position.set(currentX + segLen / 2, railY, zOffset);
+                            parentGroup.add(segMesh);
+
+                            // Dibujar unión si no es el último
+                            currentX += segLen;
+                        });
+
+                        // Dibujar Uniones (Splices) entre segmentos
+                        if (segments.length > 1) {
+                            let spliceX = railStart;
+                            for (let s = 0; s < segments.length - 1; s++) {
+                                spliceX += segments[s];
+                                const gSpliceGeo = new THREE.BoxGeometry(0.1, 0.052, 0.052);
+                                const gSpliceMat = new THREE.MeshPhongMaterial({ color: 0x2c3e50 }); // Dark Blue for splice
+                                const gSplice = new THREE.Mesh(gSpliceGeo, gSpliceMat);
+                                gSplice.position.set(spliceX, railY, zOffset);
+                                parentGroup.add(gSplice);
+                            }
+                        }
+
+                    } else {
+                        // Sunfer o fallback: bloque único
+                        const railGeo = new THREE.BoxGeometry(railLen, 0.045, 0.045);
+                        const railMat = new THREE.MeshPhongMaterial({ color: 0xc0c0c0 });
+                        const rail = new THREE.Mesh(railGeo, railMat);
+                        rail.position.set(centerX, railY, zOffset);
+                        parentGroup.add(rail);
+                    }
+
+                    // Tapa G1 (Black Caps on ends) - Aplicar a todos
+                    const capGeo = new THREE.BoxGeometry(0.01, 0.048, 0.048);
+                    const capMat = new THREE.MeshPhongMaterial({ color: 0x111111 });
+                    const capL = new THREE.Mesh(capGeo, capMat);
+                    capL.position.set(centerX - railLen / 2 - 0.005, railY, zOffset);
+                    parentGroup.add(capL);
+
+                    const capR = new THREE.Mesh(capGeo, capMat);
+                    capR.position.set(centerX + railLen / 2 + 0.005, railY, zOffset);
+                    parentGroup.add(capR);
+
+                    if (isSunfer) {
+                        // Visualizar Uniones (Splices) - UG1
+                        const d = sunferData[n];
+                        if (d && d.bom && d.bom.ug1 > 0) {
+                            const splicesPerLine = d.bom.ug1 / 2;
+                            if (splicesPerLine >= 1) {
+                                const segmentLen = railLen / (splicesPerLine + 1);
+                                for (let s = 1; s <= splicesPerLine; s++) {
+                                    const sx = (centerX - railLen / 2) + segmentLen * s;
+                                    const spliceGeo = new THREE.BoxGeometry(0.15, 0.055, 0.055);
+                                    const spliceMat = new THREE.MeshPhongMaterial({ color: 0x2980b9 });
+                                    const spliceMesh = new THREE.Mesh(spliceGeo, spliceMat);
+                                    spliceMesh.position.set(sx, railY, zOffset);
+                                    parentGroup.add(spliceMesh);
+                                }
+                            }
+                        }
+                    }
+
+                    // Dibujar anclajes (HOOKS)
+                    anchorsCoords.forEach(ax => {
+                        const ancGroup = new THREE.Group();
+
+                        // Base part (under rail) - Bigger
+                        const ancGeo = new THREE.BoxGeometry(0.1, 0.18, 0.04);
+                        const ancMat = new THREE.MeshPhongMaterial({ color: 0xff4500 }); // Always use Orange (S02.3)
+                        const anc = new THREE.Mesh(ancGeo, ancMat);
+                        anc.position.set(0, 0, 0);
+                        ancGroup.add(anc);
+
+                        // Vertical part (to roof) - Long Leg (Salvatajas)
+                        const legGeo = new THREE.BoxGeometry(0.05, 0.05, 0.25); // 25cm height (very tall)
+                        const leg = new THREE.Mesh(legGeo, ancMat);
+                        leg.position.set(0, 0.08, -0.12); // Reaching down
+                        ancGroup.add(leg);
+
+                        // Position just under the rail
+                        ancGroup.position.set(ax, railY, 0.05);
+                        parentGroup.add(ancGroup);
+                    });
+
+                    // Draw dimensions if enabled
+                    if (document.getElementById('viewDimensions')?.checked) {
+                        const startRailX = centerX - railLen / 2;
+                        const endRailX = centerX + railLen / 2;
+
+                        // Calculate exact intersection of rail line with roof edges (for trapezoid accuracy)
+                        let rowLeftX = Math.min(...vertices.map(v => v.x));
+                        let rowRightX = Math.max(...vertices.map(v => v.x));
+
+                        // Find intersection of y=railY with roof edges
+                        const xIntersections = [];
+                        for (let k = 0; k < vertices.length; k++) {
+                            const v1 = vertices[k], v2 = vertices[(k + 1) % vertices.length];
+                            if ((v1.y <= railY && v2.y > railY) || (v1.y > railY && v2.y <= railY)) {
+                                const t = (railY - v1.y) / (v2.y - v1.y);
+                                xIntersections.push(v1.x + t * (v2.x - v1.x));
+                            }
+                        }
+                        if (xIntersections.length >= 2) {
+                            xIntersections.sort((a, b) => a - b);
+                            rowLeftX = xIntersections[0];
+                            rowRightX = xIntersections[xIntersections.length - 1];
+                        }
+
+                        // Horizontal dimensions line: RoofLeft -> RailStart -> Anchors -> RailEnd -> RoofRight
+                        const dimY = railY - 0.25;
+                        const dimZ = 0.25;
+
+                        // Pass key points with exact roof edges
+                        const keyPoints = [startRailX, ...anchorsCoords, endRailX];
+                        drawDimensions(parentGroup, rowLeftX, rowRightX, keyPoints, dimY, dimZ);
+                    }
+                });
+
+                // Dibujar Clamps (Presores) - Spot Clamps aligned with rails
+                const clampZ = 0.125;
+                // Colores distintos y llamativos
+                const matS10 = new THREE.MeshPhongMaterial({ color: 0xe74c3c }); // Bright Red
+                const matS11 = new THREE.MeshPhongMaterial({ color: 0x2ecc71 }); // Bright Green
+
+                [0.25, 0.75].forEach(factor => {
+                    const railY = yPos + pHeight * factor;
+
+                    // S10 Laterales (End Clamps) - 60mm length
+                    const geoS10 = new THREE.BoxGeometry(0.04, 0.06, 0.03);
+
+                    // Left End S10
+                    const s10L = new THREE.Mesh(geoS10, matS10);
+                    s10L.position.set(minX - 0.015, railY, clampZ);
+                    parentGroup.add(s10L);
+
+                    // Right End S10
+                    const s10R = new THREE.Mesh(geoS10, matS10);
+                    s10R.position.set(maxX + 0.015, railY, clampZ);
+                    parentGroup.add(s10R);
+
+                    // S11 Centrales (Inter Clamps)
+                    const geoS11 = new THREE.BoxGeometry(0.02, 0.06, 0.035); // Slightly taller
+
+                    for (let i = 0; i < n - 1; i++) {
+                        const pCur = rowPanels[i];
+                        const pNext = rowPanels[i + 1];
+                        const midX = (pCur.x + pCur.w + pNext.x) / 2;
+
+                        const s11 = new THREE.Mesh(geoS11, matS11);
+                        s11.position.set(midX, railY, clampZ);
+                        parentGroup.add(s11);
+                    }
+                });
+
+            });
+
+            updateBOM(totalBom);
+            drawVerticalDimensions(parentGroup, Array.from(verticalRailPositions));
+        }
+
+        function drawVerticalDimensions(group, yPositions) {
+            const show = document.getElementById('viewDimensions')?.checked;
+            if (!show || yPositions.length === 0) return;
+
+            yPositions.sort((a, b) => a - b);
+
+            // Draw on the left side of the roof geometry
+            const roofMinX = Math.min(...vertices.map(v => v.x));
+            const xPos = roofMinX - 0.4;
+            const zPos = 0.2;
+            const color = "rgba(0, 255, 255, 1.0)"; // Cyan for vertical dims
+            const lineMat = new THREE.LineBasicMaterial({ color: 0x00ffff });
+
+            // Include 0 (Bottom) and Top (Height) to measure full vertical usage
+            const roofHeight = Math.max(...vertices.map(v => v.y));
+            const points = [0, ...yPositions, roofHeight];
+
+            for (let i = 0; i < points.length - 1; i++) {
+                const y1 = points[i];
+                const y2 = points[i + 1];
+                const dist = y2 - y1;
+
+                // Draw Vertical Line Segment
+                const geo = new THREE.BufferGeometry().setFromPoints([
+                    new THREE.Vector3(xPos, y1, zPos),
+                    new THREE.Vector3(xPos, y2, zPos)
+                ]);
+                group.add(new THREE.Line(geo, lineMat));
+
+                // Ticks
+                const tLen = 0.1;
+                const t1 = new THREE.Line(new THREE.BufferGeometry().setFromPoints([
+                    new THREE.Vector3(xPos - tLen, y1, zPos), new THREE.Vector3(xPos + tLen, y1, zPos)
+                ]), lineMat);
+                const t2 = new THREE.Line(new THREE.BufferGeometry().setFromPoints([
+                    new THREE.Vector3(xPos - tLen, y2, zPos), new THREE.Vector3(xPos + tLen, y2, zPos)
+                ]), lineMat);
+                group.add(t1); group.add(t2);
+
+                // Text
+                const midY = (y1 + y2) / 2;
+                // Smart formatting
+                let msg = dist.toFixed(2) + 'm';
+                if (dist < 1.0) msg = Math.round(dist * 100) + 'cm';
+
+                const lbl = makeTextSprite(msg, color);
+                // Stagger vertical dims too if needed? Usually vertical spacing is larger (rails).
+                // But for safety:
+                const staggerX = (i % 2 === 1) ? -0.15 : 0;
+                lbl.position.set(xPos - 0.3 + staggerX, midY, zPos);
+                group.add(lbl);
+            }
+        }
+
+        function generateLayout() {
+            const rIn = document.getElementById('genRows'), cIn = document.getElementById('genCols');
+            const oIn = document.getElementById('genOrient'), lIn = document.getElementById('pLength'), wIn = document.getElementById('pWidth');
+
+            if (!rIn || !cIn || !oIn || !lIn || !wIn) return;
+
+            const rows = parseInt(rIn.value), cols = parseInt(cIn.value), orient = oIn.value;
+            const pL = parseFloat(lIn.value) / 1000, pW = parseFloat(wIn.value) / 1000;
+
+            const w = orient === 'v' ? pW : pL;
+            const h = orient === 'v' ? pL : pW;
+
+            panels = [];
+            let minX = Math.min(...vertices.map(v => v.x)), maxX = Math.max(...vertices.map(v => v.x));
+
+            // Cálculo milimétrico de ancho total: paneles + (gaps entre paneles)
+            const totalW = cols * w + (Math.max(0, cols - 1) * P_GAP);
+            const startX = (maxX - minX - totalW) / 2;
+
+            for (let r = 0; r < rows; r++) {
+                for (let c = 0; c < cols; c++) {
+                    panels.push({
+                        id: 'p_' + Math.random().toString(36).substr(2, 9),
+                        row: r,
+                        x: startX + c * (w + P_GAP),
+                        y: 0.1 + r * (h + P_GAP),
+                        w: w, h: h
+                    });
+                }
+            }
+            updateView();
+            focusCamera(); // Auto-center 
+        }
+
+        function focusCamera() {
+            if (!panelsGroup || panelsGroup.children.length === 0) return;
+
+            // Ensure world matrices are up to date for accurate box calculation
+            panelsGroup.updateMatrixWorld(true);
+
+            const box = new THREE.Box3().setFromObject(panelsGroup);
+            if (box.isEmpty()) return;
+
+            const center = new THREE.Vector3();
+            box.getCenter(center);
+
+            const size = new THREE.Vector3();
+            box.getSize(size);
+
+            const maxDim = Math.max(size.x, size.y, size.z);
+
+            if (camera && controls) {
+                controls.target.copy(center);
+                // Tighter zoom: 1.2 factor instead of 1.5
+                const dist = Math.max(3, maxDim * 1.2);
+
+                // Position camera nicely
+                // If it's a flat layout, we mostly care about Z distance
+                // We add a bit of Y offset for perspective
+                camera.position.set(center.x, center.y + dist * 0.3, center.z + dist);
+                controls.update();
+            }
+        }
+
+        function toggleUI() {
+            const ui = document.getElementById('ui-panel');
+            const isMobile = window.innerWidth <= 1024;
+
+            if (isMobile) {
+                ui.classList.toggle('mobile-view-open');
+            } else {
+                ui.classList.toggle('hidden');
+            }
+            updateUIState();
+        }
+
+        function updateView() {
+            if (roofMesh) scene.remove(roofMesh);
+            const shape = new THREE.Shape();
+            if (vertices.length < 3) return;
+
+            shape.moveTo(vertices[0].x, vertices[0].y);
+            for (let i = 1; i < vertices.length; i++) shape.lineTo(vertices[i].x, vertices[i].y);
+            shape.lineTo(vertices[0].x, vertices[0].y);
+
+            const slopeInput = document.getElementById('roofSlope');
+            if (!slopeInput) return;
+
+            const slope = parseFloat(slopeInput.value);
+            roofMesh = new THREE.Mesh(new THREE.ExtrudeGeometry(shape, { depth: 0.05, bevelEnabled: false }),
+                new THREE.MeshPhongMaterial({ color: 0x8b4513, transparent: true, opacity: 0.7, side: THREE.DoubleSide }));
+            let minX = Math.min(...vertices.map(v => v.x)), maxX = Math.max(...vertices.map(v => v.x));
+            roofMesh.position.set(-(minX + maxX) / 2, 4.05, 3.0);
+            roofMesh.rotation.x = -Math.PI / 2 + (slope * Math.PI / 180);
+            scene.add(roofMesh);
+            renderPanels();
+        }
+
+        function renderPanels() {
+            if (!panelsGroup) return;
+            panelsGroup.clear();
+
+            const sIn = document.getElementById('roofSlope'), vIn = document.getElementById('pVoc'), mIn = document.getElementById('pVmpH');
+            const vsIn = document.getElementById('invVstart'), vmIn = document.getElementById('invVmin');
+
+            if (!sIn || !vIn || !mIn || !vsIn || !vmIn) return;
+
+            const slope = parseFloat(sIn.value), pVoc = parseFloat(vIn.value), pVmpH = parseFloat(mIn.value);
+            const vStartLimit = parseFloat(vsIn.value), vMinLimit = parseFloat(vmIn.value);
+
+            let minX = Math.min(...vertices.map(v => v.x)), maxX = Math.max(...vertices.map(v => v.x));
+            const pivot = new THREE.Group();
+            pivot.position.set(-(minX + maxX) / 2, 4.05, 3.0);
+            pivot.rotation.x = -Math.PI / 2 + (slope * Math.PI / 180);
+            let anyPositionError = false;
+
+            const hidePanels = document.getElementById('viewStructureOnly')?.checked;
+
+            panels.forEach(p => {
+                const status = checkSafety(p);
+                let color = 0x111122;
+                if (status === 'warn') color = 0x27ae60;
+                if (status === 'err') { color = 0xc0392b; anyPositionError = true; }
+                const m = new THREE.Mesh(new THREE.PlaneGeometry(p.w, p.h), new THREE.MeshPhongMaterial({ color: color, side: THREE.DoubleSide }));
+                m.position.set(p.x + p.w / 2, p.y + p.h / 2, 0.1);
+                m.userData.id = p.id;
+                m.add(new THREE.LineSegments(new THREE.EdgesGeometry(new THREE.PlaneGeometry(p.w, p.h)), new THREE.LineBasicMaterial({ color: 0x444444 })));
+
+                if (hidePanels) {
+                    m.visible = false;
+                }
+
+                pivot.add(m);
+            });
+
+            // Render Structure (New)
+            renderStructure(pivot);
+
+            panelsGroup.add(pivot);
+
+            const vTotalVoc = panels.length * pVoc;
+            const vTotalVmpH = panels.length * pVmpH;
+
+            const stVocEl = document.getElementById('st-voc'), stVmpEl = document.getElementById('st-vmp');
+            const stCountEl = document.getElementById('st-count'), msgEl = document.getElementById('safety-msg');
+
+            if (stVocEl) stVocEl.innerText = vTotalVoc.toFixed(1) + " V";
+            if (stVmpEl) stVmpEl.innerText = vTotalVmpH.toFixed(1) + " V";
+            if (stCountEl) stCountEl.innerText = panels.length;
+
+            if (msgEl) {
+                const voltageOk = vTotalVoc >= vStartLimit && vTotalVmpH >= vMinLimit;
+                if (!anyPositionError && voltageOk && panels.length > 0) {
+                    msgEl.innerText = "DISEÑO CORRECTO";
+                    msgEl.className = "warning ok";
+                } else if (!voltageOk && panels.length > 0) {
+                    msgEl.innerText = "¡ALERTA: VOLTAJE INSUFICIENTE!";
+                    msgEl.className = "warning err";
+                } else if (anyPositionError) {
+                    msgEl.innerText = "¡REVISAR POSICIÓN DE PANELES!";
+                    msgEl.className = "warning err";
+                } else {
+                    msgEl.innerText = "SIN PANELES INSTALADOS";
+                    msgEl.className = "warning";
+                }
+            }
+        }
+
+        function syncFromStandard() {
+            const bIn = document.getElementById('roofB'), tIn = document.getElementById('roofT');
+            const hIn = document.getElementById('roofH'), mIn = document.getElementById('roofPreset');
+
+            if (!bIn || !tIn || !hIn || !mIn) return;
+
+            const b = parseFloat(bIn.value), t = parseFloat(tIn.value), h = parseFloat(hIn.value), mode = mIn.value;
+
+            if (mode === 'rectangulo') vertices = [{ x: 0, y: 0 }, { x: b, y: 0 }, { x: b, y: h }, { x: 0, y: h }];
+            else if (mode === 'trapecio') { const off = (b - t) / 2; vertices = [{ x: 0, y: 0 }, { x: b, y: 0 }, { x: b - off, y: h }, { x: off, y: h }]; }
+            else vertices = [{ x: 0, y: 0 }, { x: b, y: 0 }, { x: t, y: h }, { x: 0, y: h }];
+            updateView();
+        }
+
+        function setMoveTarget(t) {
+            moveTarget = t;
+            document.querySelectorAll('.row-opt').forEach(el => el.classList.remove('active'));
+            const tgtEl = document.getElementById('tgt-' + t);
+            if (tgtEl) tgtEl.classList.add('active');
+        }
+
+        function movePanel(dx, dy) {
+            saveState(); // Save before move
+            panels.forEach(p => { if (moveTarget === 'all' || p.row === moveTarget) { p.x += dx; p.y += dy; } });
+            renderPanels();
+        }
+
+        function drawDimensions(group, startX, endX, anchors, y, z) {
+            const show = document.getElementById('viewDimensions')?.checked;
+            if (!show) return;
+
+            const points = [startX, ...anchors, endX].sort((a, b) => a - b);
+            const lineMat = new THREE.LineBasicMaterial({ color: 0xffff00 });
+
+            for (let i = 0; i < points.length - 1; i++) {
+                const p1 = points[i];
+                const p2 = points[i + 1];
+                const dist = p2 - p1;
+                if (dist < 0.01) continue;
+
+                // Draw Line
+                const geo = new THREE.BufferGeometry().setFromPoints([
+                    new THREE.Vector3(p1, y, z),
+                    new THREE.Vector3(p2, y, z)
+                ]);
+                const line = new THREE.Line(geo, lineMat);
+                group.add(line);
+
+                // Draw Ticks
+                const tickH = 0.05;
+                const t1 = new THREE.Line(new THREE.BufferGeometry().setFromPoints([
+                    new THREE.Vector3(p1, y - tickH, z), new THREE.Vector3(p1, y + tickH, z)
+                ]), lineMat);
+                const t2 = new THREE.Line(new THREE.BufferGeometry().setFromPoints([
+                    new THREE.Vector3(p2, y - tickH, z), new THREE.Vector3(p2, y + tickH, z)
+                ]), lineMat);
+                group.add(t1);
+                group.add(t2);
+
+                // Draw Text
+                const mid = (p1 + p2) / 2;
+
+                // Smart formatting (cm if small)
+                let msg = dist.toFixed(2) + 'm';
+                if (dist < 1.0) msg = Math.round(dist * 100) + 'cm';
+
+                const label = makeTextSprite(msg);
+
+                // Stagger labels to avoid overlap (Zigzag)
+                // Base Y offset is -0.1. We alternate adding -0.15 more.
+                const stagger = (i % 2 === 1) ? -0.12 : 0;
+                label.position.set(mid, y - 0.1 + stagger, z);
+                group.add(label);
+            }
+        }
+
+        function makeTextSprite(message, colorStr = "rgba(255, 255, 0, 1.0)") {
+            const canvas = document.createElement('canvas');
+            const context = canvas.getContext('2d');
+            const fontSize = 48;
+            context.font = "Bold " + fontSize + "px Arial";
+            const metrics = context.measureText(message);
+            const textWidth = metrics.width;
+
+            canvas.width = textWidth + 20;
+            canvas.height = fontSize + 20;
+
+            context.fillStyle = "rgba(0,0,0,0.6)";
+            context.fillRect(0, 0, canvas.width, canvas.height); // Background
+
+            context.font = "Bold " + fontSize + "px Arial";
+            context.fillStyle = colorStr;
+            context.fillText(message, 10, fontSize);
+
+            const texture = new THREE.Texture(canvas);
+            texture.needsUpdate = true;
+            const spriteMat = new THREE.SpriteMaterial({ map: texture, transparent: true });
+            const sprite = new THREE.Sprite(spriteMat);
+            // Reduced scale from 0.4 to 0.25 for smaller labels
+            sprite.scale.set(0.25 * (canvas.width / 100), 0.25 * (canvas.height / 100), 1);
+            return sprite;
+        }
+
+        function saveProject() {
+            const data = {
+                inputs: {},
+                bomPrices: bomPrices,
+                moveTarget: moveTarget
+            };
+
+            // Save Inputs
+            document.querySelectorAll('input, select').forEach(el => {
+                if (el.id && el.id !== 'file-input') {
+                    if (el.type === 'checkbox') data.inputs[el.id] = el.checked;
+                    else data.inputs[el.id] = el.value;
+                }
+            });
+
+            // Save Panels (Positions)
+            data.panels = panels.map(p => ({
+                id: p.id, row: p.row, x: p.x, y: p.y, w: p.w, h: p.h
+            }));
+
+            const jsonStr = JSON.stringify(data, null, 2);
+            const blob = new Blob([jsonStr], { type: "application/json" });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = "config_solar.json";
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
+
+        function loadProject(input) {
+            const file = input.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = function (e) {
+                try {
+                    const data = JSON.parse(e.target.result);
+
+                    // Restore Inputs
+                    if (data.inputs) {
+                        for (const id in data.inputs) {
+                            const el = document.getElementById(id);
+                            if (el) {
+                                if (el.type === 'checkbox') el.checked = data.inputs[id];
+                                else el.value = data.inputs[id];
+                            }
+                        }
+                    }
+
+                    // Restore State
+                    if (data.bomPrices) bomPrices = data.bomPrices;
+                    if (data.moveTarget) setMoveTarget(data.moveTarget);
+
+                    // Restore Layout Logic
+                    // 1. Sync Roof
+                    syncFromStandard();
+
+                    // 2. Sync Presets (Enables/Disables inputs)
+                    applyPanelPreset();
+                    applyInverterPreset();
+
+                    // 3. Restore Panels (Position Override)
+                    if (data.panels && Array.isArray(data.panels)) {
+                        panels = data.panels;
+                    } else {
+                        generateLayout();
+                    }
+
+                    // 4. Render
+                    renderStructureWrapper(); // Calls renderPanels + updateBOM
+
+                } catch (err) {
+                    console.error(err);
+                    alert("Error al cargar el archivo de configuración.");
+                }
+            };
+            reader.readAsText(file);
+            input.value = ''; // Reset for next load
+        }
+
+        function exportCSV() {
+            const rows = document.querySelectorAll('#bom-container tr');
+            if (rows.length === 0) { alert("Genere la estructura primero."); return; }
+
+            let csvContent = "\ufeff"; // BOM for Excel
+            rows.forEach(row => {
+                const cols = row.querySelectorAll('th, td');
+                let rowData = [];
+                cols.forEach(col => {
+                    let text = col.innerText.replace('\n', ' ').trim();
+                    const input = col.querySelector('input');
+                    if (input) text = input.value;
+                    rowData.push('"' + text + '"');
+                });
+                csvContent += rowData.join(";") + "\n";
+            });
+
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement("a");
+            link.href = url;
+            link.download = "presupuesto_solar.csv";
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+
+        async function exportPDF() {
+            const { jsPDF } = window.jspdf;
+            if (!jsPDF) { alert("Librería PDF no cargada. Recargue la página."); return; }
+
+            const doc = new jsPDF();
+            doc.setFontSize(18);
+            doc.text("Presupuesto Estructura Solar", 105, 20, null, null, "center");
+
+            doc.setFontSize(10);
+            const dateStr = new Date().toLocaleDateString();
+            doc.text("Fecha: " + dateStr, 105, 28, null, null, "center");
+
+            // 1. Capture 3D Scene
+            if (renderer && scene && camera) {
+                // Ensure render is fresh
+                renderer.render(scene, camera);
+                const imgData = renderer.domElement.toDataURL("image/jpeg", 0.9);
+
+                // Add Image (Fit to width)
+                const imgProps = doc.getImageProperties(imgData);
+                const pdfWidth = doc.internal.pageSize.getWidth();
+                const margin = 15;
+                const imgWidth = pdfWidth - (margin * 2);
+                const imgHeight = (imgProps.height * imgWidth) / imgProps.width;
+
+                doc.addImage(imgData, 'JPEG', margin, 35, imgWidth, imgHeight);
+
+                // Move cursor down for table
+                var finalY = 35 + imgHeight + 10;
+            } else {
+                var finalY = 40;
+            }
+
+            // 2. Add BOM Table
+            const table = document.querySelector('#bom-container table');
+            if (!table) { alert("Genere la estructura primero."); return; }
+
+            // Extract Headers
+            let head = [];
+            const ths = table.querySelectorAll('thead tr th');
+            if (ths.length > 0) {
+                let rowHead = [];
+                ths.forEach(th => rowHead.push(th.innerText));
+                head.push(rowHead);
+            }
+
+            // Extract Body
+            let body = [];
+            table.querySelectorAll('tbody tr').forEach(tr => {
+                let row = [];
+                tr.querySelectorAll('td').forEach(td => {
+                    const input = td.querySelector('input');
+                    if (input) row.push(input.value + ' €');
+                    else row.push(td.innerText.replace('€', '').trim() + ' €');
+                });
+                body.push(row);
+            });
+
+            // Footer (Total) logic if not in table body
+            // (Assuming existing code might calculate total elsewhere, but let's check BOM total manually or via DOM)
+            // Grand total is usually in the last col of rows, but let's recalculate or just take what's there.
+
+            doc.autoTable({
+                head: head,
+                body: body,
+                startY: finalY,
+                theme: 'grid',
+                headStyles: { fillColor: [41, 128, 185], halign: 'center' },
+                columnStyles: {
+                    0: { halign: 'left' },
+                    1: { halign: 'center' },
+                    2: { halign: 'right' },
+                    3: { halign: 'right', fontStyle: 'bold' }
+                },
+                foot: [['', '', 'TOTAL:', '']] // Placeholder if needed
+            });
+
+            // Calculate total from data if needed to put in footer
+            // But usually the user wants to see what's on screen.
+            // Let's add the Project Summary text if available (Voc/Vmp)
+
+            const voc = document.getElementById('st-voc')?.innerText || '';
+            const vmp = document.getElementById('st-vmp')?.innerText || '';
+            const panelsCount = document.getElementById('st-count')?.innerText || '';
+
+            let finalYTable = doc.lastAutoTable.finalY + 10;
+
+            doc.setFontSize(10);
+            doc.text(`Resumen Técnico:`, 14, finalYTable);
+            doc.setFontSize(9);
+            doc.text(`- Paneles: ${panelsCount}`, 14, finalYTable + 6);
+            doc.text(`- Voc Total: ${voc}`, 14, finalYTable + 11);
+            doc.text(`- Vmp Total: ${vmp}`, 14, finalYTable + 16);
+
+            doc.save("presupuesto_solar_v1.0.8.pdf");
+        }
+
+        function animate() { requestAnimationFrame(animate); if (controls) controls.update(); if (renderer && scene && camera) renderer.render(scene, camera); }
+        window.onload = init;
+        window.onresize = () => {
+            if (camera && renderer) {
+                camera.aspect = window.innerWidth / window.innerHeight;
+                camera.updateProjectionMatrix();
+                renderer.setSize(window.innerWidth, window.innerHeight);
+            }
+        };
+    </script>
+</body>
+
+</html>
