@@ -1112,9 +1112,10 @@
                             const segGeo = new THREE.BoxGeometry(segLen - 0.005, 0.045, 0.045); // Gap visual
                             let segMat = matGeneric;
 
-                            // Asignar color según longitud (aprox)
-                            if (Math.abs(segLen - 1.23) < 0.05) segMat = mat1230;
-                            else if (Math.abs(segLen - 2.35) < 0.05) segMat = mat2350;
+                            // Asignar color según el tipo de perfil seleccionado (railUnit), no la longitud del recorte
+                            // Para que visualmente coincida con la leyenda aunque esté cortado
+                            if (Math.abs(railUnit - 1.23) < 0.05) segMat = mat1230;
+                            else if (Math.abs(railUnit - 2.35) < 0.05) segMat = mat2350;
 
                             const segMesh = new THREE.Mesh(segGeo, segMat);
                             segMesh.position.set(currentX + segLen / 2, railY, zOffset);
