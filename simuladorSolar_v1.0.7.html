@@ -322,7 +322,7 @@
         <h1
             style="text-align:center; color:#f1c40f; margin-bottom:15px; font-size:16px; border-bottom:1px solid #333; padding-bottom:10px;">
             Simulador Solar Pro
-            <span style="font-size:10px; color:#888; font-weight:normal; margin-left:5px;">v1.0.9</span>
+            <span style="font-size:10px; color:#888; font-weight:normal; margin-left:5px;">v1.0.7</span>
         </h1>
         <h2>1. Geometría del Tejado</h2>
         <div class="group">
@@ -419,8 +419,7 @@
         </div>
 
         <div class="move-grid">
-            <button class="move-btn" onclick="undo()" title="Deshacer" style="background:#555;">↶</button><button
-                class="move-btn" onclick="movePanel(0, 0.05)">▲</button>
+            <div></div><button class="move-btn" onclick="movePanel(0, 0.05)">▲</button>
             <div></div>
             <button class="move-btn" onclick="movePanel(-0.1, 0)">◀</button>
             <button class="move-btn" onclick="generateLayout()">C</button>
@@ -547,25 +546,6 @@
             sma: { vstart: 100, vmin: 100 }
         };
 
-        // Undo System
-        let historyStack = [];
-
-        function saveState() {
-            if (historyStack.length > 50) historyStack.shift();
-            historyStack.push(JSON.stringify(panels));
-        }
-
-        function undo() {
-            if (historyStack.length === 0) return;
-            try {
-                const prev = historyStack.pop();
-                panels = JSON.parse(prev);
-                updateView(); // Rerender
-            } catch (e) {
-                console.error("Undo error", e);
-            }
-        }
-
         function init() {
             scene = new THREE.Scene();
             scene.background = new THREE.Color(0x050505);
@@ -590,53 +570,12 @@
             window.addEventListener('mousemove', onMouseMove);
             window.addEventListener('dblclick', onPanelDelete);
 
-            // Mobile Detection & Click Outside Listener
-            window.addEventListener('resize', updateUIState);
-            document.addEventListener('click', (e) => {
-                const ui = document.getElementById('ui-panel');
-                const btn = document.getElementById('toggle-btn');
-                const isMobile = window.innerWidth <= 1024;
-
-                // Close if clicking outside on mobile (and panel is open)
-                if (isMobile && ui.classList.contains('mobile-view-open')) {
-                    if (!ui.contains(e.target) && !btn.contains(e.target)) {
-                        toggleUI();
-                    }
-                }
-            });
-
             syncFromStandard();
             generateLayout();
             animate();
-
-            // Normalize UI state on load
-            updateUIState();
         }
 
-        function updateUIState() {
-            const ui = document.getElementById('ui-panel');
-            const btn = document.getElementById('toggle-btn');
-            const isMobile = window.innerWidth <= 1024;
 
-            let isOpen = false;
-
-            if (isMobile) {
-                // Mobile Mode
-                isOpen = ui.classList.contains('mobile-view-open');
-                // Ensure desktop class is removed to avoid conflicts
-                ui.classList.remove('hidden');
-            } else {
-                // Desktop Mode
-                // Check if hidden (collapsed)
-                const isHidden = ui.classList.contains('hidden');
-                ui.classList.remove('mobile-view-open');
-                isOpen = !isHidden;
-            }
-
-            btn.innerHTML = isOpen
-                ? `<span style="font-size:16px;">✕</span> CERRAR`
-                : `<span style="font-size:16px;">☰</span> OPCIONES`;
-        }
 
         function applyPanelPreset() {
             const p = document.getElementById('panelPreset').value;
@@ -673,13 +612,6 @@
         }
 
         function onMouseMove(event) {
-            // Prevent raycasting if hovering over UI or other elements
-            if (event.target.tagName !== 'CANVAS') {
-                if (hoveredPanel) resetHighlight(hoveredPanel);
-                hoveredPanel = null;
-                return;
-            }
-
             mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
             mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
 
@@ -876,7 +808,7 @@
             if (genSpaceEl) genSpaceEl.disabled = isManual; // Disable spacing calc input if manual anchors used
 
             const totalBom = { s02_3: 0, s10: 0, s11: 0, ug1: 0, g1_1230: 0, g1_1800: 0, g1_2350: 0, g1_550: 0, tapa: 0, s13: 0, g_rail: 0, g_anc: 0, g_union: 0 };
-            const verticalRailPositions = new Set();
+
             const rows = {};
             panels.forEach(p => {
                 if (!rows[p.row]) rows[p.row] = [];
@@ -979,114 +911,68 @@
                         anchorsCoords.push(startAnc + k * currentSpan);
                     }
 
-                    // GENERACIÓN DE RIELES Y UNIONES (Optimizado con Anti-Colisión de Presores)
+                    // GENERACIÓN DE RIELES Y UNIONES (Optimizado)
                     const railUnit = parseFloat(genRailEl.value) || 2.35;
                     segments = [];
 
-                    // 1. Calcular posiciones relativas de los presores (Clamps)
-                    // Se asume que el riel comienza en startX = centerX - railLen / 2
-                    // Los presores están entre paneles.
-                    let clampRelPositions = [];
-                    // El ancho de la zona "prohibida" para una unión es aprox el ancho del presor + margen
-                    // Presor = 2cm a 4cm. Unión = 10cm. 
-                    // Si el centro de la unión cae a menos de X cm del centro del presor, colisión.
-                    const COLLISION_THRESHOLD = 0.12; // 12cm de margen total (6cm por lado)
+                    if (!isSunfer && Math.abs(railUnit - 2.35) < 0.05) {
+                        // Optimización de Combinación (2350 + 1230)
+                        // Buscar la mejor combinación que cubra railLen con mínimo desperdicio
+                        let bestWaste = Infinity;
+                        let bestCombo = []; // Array of lengths
 
-                    for (let i = 0; i < n - 1; i++) {
-                        const pCur = rowPanels[i];
-                        const pNext = rowPanels[i + 1];
-                        const midX = (pCur.x + pCur.w + pNext.x) / 2;
-                        const relX = midX - (centerX - railLen / 2);
-                        clampRelPositions.push(relX);
-                    }
+                        const max2350 = Math.ceil(railLen / 2.35);
 
-                    // 2. Algoritmo de Corte Inteligente (Smart Cut)
-                    // Probamos recortar el primer riel desde 0cm hasta 50cm en pasos de 5cm
-                    // para desplazar las uniones y evitar colisiones.
-                    let bestStartCut = 0;
-                    let solutionFound = false;
+                        for (let i = max2350; i >= 0; i--) {
+                            const lenSoFar = i * 2.35;
+                            const remainder = Math.max(0, railLen - lenSoFar);
+                            const j = Math.ceil(remainder / 1.23);
 
-                    // Estrategia: Solo probamos cortes si NO es Sunfer (Sunfer tiene medidas fijas predefinidas)
-                    if (!isSunfer) {
-                        for (let cut = 0; cut <= 1.5; cut += 0.05) { // Probamos hasta 1.5m de desplazamiento
-                            let tempSegments = [];
-                            let currentPos = 0;
-                            let first = true;
+                            const totalL = lenSoFar + j * 1.23;
+                            const waste = totalL - railLen;
 
-                            // Simular distribución con este corte inicial
-                            let remainingLen = railLen;
-
-                            while (remainingLen > 0.01) {
-                                let segLen = railUnit;
-                                if (first) {
-                                    segLen -= cut;
-                                    if (segLen < 0.1) segLen = 0.1; // Mínimo constructivo
-                                    first = false;
-                                }
-
-                                // Si es el último trozo y es pequeño, se ajusta
-                                if (remainingLen <= segLen) {
-                                    segLen = remainingLen;
-                                }
-
-                                tempSegments.push(segLen);
-                                currentPos += segLen;
-                                remainingLen -= segLen;
-
-                                // Verificar colisión de la unión (currentPos)
-                                // La última posición es el final del riel, no lleva unión.
-                                if (remainingLen > 0.01) {
-                                    // Check collision
-                                    const isCollision = clampRelPositions.some(cx => Math.abs(cx - currentPos) < COLLISION_THRESHOLD);
-                                    if (isCollision) {
-                                        // Invalid configuration
-                                        tempSegments = null;
-                                        break;
-                                    }
-                                }
-                            }
-
-                            if (tempSegments !== null) {
-                                segments = tempSegments;
-                                bestStartCut = cut;
-                                solutionFound = true;
-                                break;
+                            if (waste < bestWaste && waste >= -0.001) {
+                                bestWaste = waste;
+                                bestCombo = [];
+                                for (let k = 0; k < i; k++) bestCombo.push(2.35);
+                                for (let k = 0; k < j; k++) bestCombo.push(1.23);
                             }
                         }
-                    }
 
-                    // Si no se encuentra solución o es Sunfer, usar lógica estándar (con posible colisión)
-                    if (!solutionFound && segments.length === 0) {
+                        // Fallback safety
+                        if (bestCombo.length === 0) {
+                            const needed = Math.ceil(railLen / 2.35);
+                            for (let k = 0; k < needed; k++) bestCombo.push(2.35);
+                        }
+
+                        segments = bestCombo;
+                        // Add to BOM
+                        segments.forEach(s => {
+                            if (s > 2.0) totalBom.g1_2350 += 2; // x2 rails
+                            else totalBom.g1_1230 += 2;
+                        });
+                        totalBom.g_union += Math.max(0, segments.length - 1) * 2;
+
+                    } else if (!isSunfer) {
+                        // Lógica Estándar (Sin optimización mixta)
                         const needed = Math.floor(railLen / railUnit) + (railLen % railUnit > 0.01 ? 1 : 0);
                         for (let k = 0; k < needed; k++) segments.push(railUnit);
-                        // Ajustar el último
-                        const currentTotal = segments.reduce((a, b) => a + b, 0);
-                        if (currentTotal > railLen) segments[segments.length - 1] -= (currentTotal - railLen);
+
+                        // BOM Genérico
+                        if (Math.abs(railUnit - 1.23) < 0.05) totalBom.g1_1230 += needed * 2;
+                        else totalBom.g_rail += needed * 2;
+
+                        totalBom.g_union += Math.max(0, needed - 1) * 2;
                     }
 
-                    // 3. Recalcular BOM basado en los segmentos reales
-                    if (!isSunfer) {
-                        let rowG1_2350 = 0;
-                        let rowG1_1230 = 0;
-                        let rowUnions = 0;
-
-                        segments.forEach(seg => {
-                            if (Math.abs(railUnit - 2.35) < 0.05) rowG1_2350 += 2; // 2 rails
-                            else rowG1_1230 += 2; // 2 rails
-                        });
-                        rowUnions = Math.max(0, segments.length - 1) * 2;
-
-                        totalBom.g1_2350 += rowG1_2350;
-                        totalBom.g1_1230 += rowG1_1230;
-                        totalBom.g_union += rowUnions;
-                    }
-
-                    // BOM Tapas y Presores (Genérico) stays same
+                    // BOM Tapas (Siempre 4 por fila de paneles: 2 rieles x 2 extremos)
+                    // BOM Tapas y Presores (Genérico)
+                    // Presores Genéricos (Reutilizamos S10 para Laterales, S11 para Intermedios)
                     const pCount = rowPanels.length;
                     totalBom.tapa += 4;
-                    totalBom.s02_3 += numAnc * 2;
+                    totalBom.s02_3 += numAnc * 2; // Fijaciones S02.3 por defecto (2 rieles)
                     if (pCount > 0) {
-                        totalBom.s10 += 4;
+                        totalBom.s10 += 4; // 2 rails * 2 ends
                         totalBom.s11 += Math.max(0, pCount - 1) * 2;
                     }
                 }
@@ -1094,7 +980,6 @@
                 // Dibujar 2 rieles 
                 [0.25, 0.75].forEach(factor => {
                     const railY = yPos + pHeight * factor;
-                    verticalRailPositions.add(railY);
                     const zOffset = 0.09;
 
                     // Riel (Perfil) - Dibujar por segmentos para diferenciar colores
@@ -1202,33 +1087,48 @@
                     if (document.getElementById('viewDimensions')?.checked) {
                         const startRailX = centerX - railLen / 2;
                         const endRailX = centerX + railLen / 2;
+                        // Helper function defined below
+                        // Pass sorted points: start, anchors..., end
+                        const points = [startRailX, ...anchorsCoords, endRailX].sort((a, b) => a - b);
 
-                        // Calculate exact intersection of rail line with roof edges (for trapezoid accuracy)
-                        let rowLeftX = Math.min(...vertices.map(v => v.x));
-                        let rowRightX = Math.max(...vertices.map(v => v.x));
+                        const lineMat = new THREE.LineBasicMaterial({ color: 0xffff00 });
+                        const dimY = railY - 0.15; // Below rail
+                        const dimZ = 0.2; // Above panel so visible? Or on Scale? 
+                        // Panel is Z=0.1. Rail Z=0.05 (inside panel pivot). Wait, pivot Z?
+                        // Pivot is added to scene. Panel Mesh Z=0.1.
+                        // Rail Z=0.05.
+                        // Let's put text at Z=0.25 to be safe on top.
 
-                        // Find intersection of y=railY with roof edges
-                        const xIntersections = [];
-                        for (let k = 0; k < vertices.length; k++) {
-                            const v1 = vertices[k], v2 = vertices[(k + 1) % vertices.length];
-                            if ((v1.y <= railY && v2.y > railY) || (v1.y > railY && v2.y <= railY)) {
-                                const t = (railY - v1.y) / (v2.y - v1.y);
-                                xIntersections.push(v1.x + t * (v2.x - v1.x));
-                            }
+                        for (let i = 0; i < points.length - 1; i++) {
+                            const p1 = points[i];
+                            const p2 = points[i + 1];
+                            const dist = p2 - p1;
+                            if (dist < 0.005) continue;
+
+                            // Line
+                            const geometry = new THREE.BufferGeometry().setFromPoints([
+                                new THREE.Vector3(p1, dimY, dimZ),
+                                new THREE.Vector3(p2, dimY, dimZ)
+                            ]);
+                            const line = new THREE.Line(geometry, lineMat);
+                            parentGroup.add(line);
+
+                            // Ticks
+                            const tH = 0.04;
+                            const t1 = new THREE.Line(new THREE.BufferGeometry().setFromPoints([
+                                new THREE.Vector3(p1, dimY - tH, dimZ), new THREE.Vector3(p1, dimY + tH, dimZ)
+                            ]), lineMat);
+                            const t2 = new THREE.Line(new THREE.BufferGeometry().setFromPoints([
+                                new THREE.Vector3(p2, dimY - tH, dimZ), new THREE.Vector3(p2, dimY + tH, dimZ)
+                            ]), lineMat);
+                            parentGroup.add(t1); parentGroup.add(t2);
+
+                            // Text
+                            const mid = (p1 + p2) / 2;
+                            const lbl = makeTextSprite(dist.toFixed(2) + 'm');
+                            lbl.position.set(mid, dimY - 0.05, dimZ + 0.05);
+                            parentGroup.add(lbl);
                         }
-                        if (xIntersections.length >= 2) {
-                            xIntersections.sort((a, b) => a - b);
-                            rowLeftX = xIntersections[0];
-                            rowRightX = xIntersections[xIntersections.length - 1];
-                        }
-
-                        // Horizontal dimensions line: RoofLeft -> RailStart -> Anchors -> RailEnd -> RoofRight
-                        const dimY = railY - 0.25;
-                        const dimZ = 0.25;
-
-                        // Pass key points with exact roof edges
-                        const keyPoints = [startRailX, ...anchorsCoords, endRailX];
-                        drawDimensions(parentGroup, rowLeftX, rowRightX, keyPoints, dimY, dimZ);
                     }
                 });
 
@@ -1271,62 +1171,9 @@
             });
 
             updateBOM(totalBom);
-            drawVerticalDimensions(parentGroup, Array.from(verticalRailPositions));
         }
 
-        function drawVerticalDimensions(group, yPositions) {
-            const show = document.getElementById('viewDimensions')?.checked;
-            if (!show || yPositions.length === 0) return;
 
-            yPositions.sort((a, b) => a - b);
-
-            // Draw on the left side of the roof geometry
-            const roofMinX = Math.min(...vertices.map(v => v.x));
-            const xPos = roofMinX - 0.4;
-            const zPos = 0.2;
-            const color = "rgba(0, 255, 255, 1.0)"; // Cyan for vertical dims
-            const lineMat = new THREE.LineBasicMaterial({ color: 0x00ffff });
-
-            // Include 0 (Bottom) and Top (Height) to measure full vertical usage
-            const roofHeight = Math.max(...vertices.map(v => v.y));
-            const points = [0, ...yPositions, roofHeight];
-
-            for (let i = 0; i < points.length - 1; i++) {
-                const y1 = points[i];
-                const y2 = points[i + 1];
-                const dist = y2 - y1;
-
-                // Draw Vertical Line Segment
-                const geo = new THREE.BufferGeometry().setFromPoints([
-                    new THREE.Vector3(xPos, y1, zPos),
-                    new THREE.Vector3(xPos, y2, zPos)
-                ]);
-                group.add(new THREE.Line(geo, lineMat));
-
-                // Ticks
-                const tLen = 0.1;
-                const t1 = new THREE.Line(new THREE.BufferGeometry().setFromPoints([
-                    new THREE.Vector3(xPos - tLen, y1, zPos), new THREE.Vector3(xPos + tLen, y1, zPos)
-                ]), lineMat);
-                const t2 = new THREE.Line(new THREE.BufferGeometry().setFromPoints([
-                    new THREE.Vector3(xPos - tLen, y2, zPos), new THREE.Vector3(xPos + tLen, y2, zPos)
-                ]), lineMat);
-                group.add(t1); group.add(t2);
-
-                // Text
-                const midY = (y1 + y2) / 2;
-                // Smart formatting
-                let msg = dist.toFixed(2) + 'm';
-                if (dist < 1.0) msg = Math.round(dist * 100) + 'cm';
-
-                const lbl = makeTextSprite(msg, color);
-                // Stagger vertical dims too if needed? Usually vertical spacing is larger (rails).
-                // But for safety:
-                const staggerX = (i % 2 === 1) ? -0.15 : 0;
-                lbl.position.set(xPos - 0.3 + staggerX, midY, zPos);
-                group.add(lbl);
-            }
-        }
 
         function generateLayout() {
             const rIn = document.getElementById('genRows'), cIn = document.getElementById('genCols');
@@ -1394,14 +1241,9 @@
 
         function toggleUI() {
             const ui = document.getElementById('ui-panel');
-            const isMobile = window.innerWidth <= 1024;
-
-            if (isMobile) {
-                ui.classList.toggle('mobile-view-open');
-            } else {
-                ui.classList.toggle('hidden');
-            }
-            updateUIState();
+            ui.classList.toggle('open');
+            const btn = document.getElementById('toggle-btn');
+            btn.innerHTML = ui.classList.contains('open') ? '✕ Cerrar' : '☰ Opciones';
         }
 
         function updateView() {
@@ -1518,7 +1360,6 @@
         }
 
         function movePanel(dx, dy) {
-            saveState(); // Save before move
             panels.forEach(p => { if (moveTarget === 'all' || p.row === moveTarget) { p.x += dx; p.y += dy; } });
             renderPanels();
         }
@@ -1557,22 +1398,13 @@
 
                 // Draw Text
                 const mid = (p1 + p2) / 2;
-
-                // Smart formatting (cm if small)
-                let msg = dist.toFixed(2) + 'm';
-                if (dist < 1.0) msg = Math.round(dist * 100) + 'cm';
-
-                const label = makeTextSprite(msg);
-
-                // Stagger labels to avoid overlap (Zigzag)
-                // Base Y offset is -0.1. We alternate adding -0.15 more.
-                const stagger = (i % 2 === 1) ? -0.12 : 0;
-                label.position.set(mid, y - 0.1 + stagger, z);
+                const label = makeTextSprite(dist.toFixed(2) + 'm');
+                label.position.set(mid, y - 0.1, z);
                 group.add(label);
             }
         }
 
-        function makeTextSprite(message, colorStr = "rgba(255, 255, 0, 1.0)") {
+        function makeTextSprite(message) {
             const canvas = document.createElement('canvas');
             const context = canvas.getContext('2d');
             const fontSize = 48;
@@ -1587,15 +1419,14 @@
             context.fillRect(0, 0, canvas.width, canvas.height); // Background
 
             context.font = "Bold " + fontSize + "px Arial";
-            context.fillStyle = colorStr;
+            context.fillStyle = "rgba(255, 255, 0, 1.0)";
             context.fillText(message, 10, fontSize);
 
             const texture = new THREE.Texture(canvas);
             texture.needsUpdate = true;
             const spriteMat = new THREE.SpriteMaterial({ map: texture, transparent: true });
             const sprite = new THREE.Sprite(spriteMat);
-            // Reduced scale from 0.4 to 0.25 for smaller labels
-            sprite.scale.set(0.25 * (canvas.width / 100), 0.25 * (canvas.height / 100), 1);
+            sprite.scale.set(0.4 * (canvas.width / 100), 0.4 * (canvas.height / 100), 1);
             return sprite;
         }
 
@@ -1803,7 +1634,7 @@
             doc.text(`- Voc Total: ${voc}`, 14, finalYTable + 11);
             doc.text(`- Vmp Total: ${vmp}`, 14, finalYTable + 16);
 
-            doc.save("presupuesto_solar_v1.0.8.pdf");
+            doc.save("presupuesto_solar_v1.0.7.pdf");
         }
 
         function animate() { requestAnimationFrame(animate); if (controls) controls.update(); if (renderer && scene && camera) renderer.render(scene, camera); }

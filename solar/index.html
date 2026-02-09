@@ -322,7 +322,7 @@
         <h1
             style="text-align:center; color:#f1c40f; margin-bottom:15px; font-size:16px; border-bottom:1px solid #333; padding-bottom:10px;">
             Simulador Solar Pro
-            <span style="font-size:10px; color:#888; font-weight:normal; margin-left:5px;">v1.0.8</span>
+            <span style="font-size:10px; color:#888; font-weight:normal; margin-left:5px;">v1.0.9</span>
         </h1>
         <h2>1. Geometría del Tejado</h2>
         <div class="group">
@@ -979,68 +979,114 @@
                         anchorsCoords.push(startAnc + k * currentSpan);
                     }
 
-                    // GENERACIÓN DE RIELES Y UNIONES (Optimizado)
+                    // GENERACIÓN DE RIELES Y UNIONES (Optimizado con Anti-Colisión de Presores)
                     const railUnit = parseFloat(genRailEl.value) || 2.35;
                     segments = [];
 
-                    if (!isSunfer && Math.abs(railUnit - 2.35) < 0.05) {
-                        // Optimización de Combinación (2350 + 1230)
-                        // Buscar la mejor combinación que cubra railLen con mínimo desperdicio
-                        let bestWaste = Infinity;
-                        let bestCombo = []; // Array of lengths
+                    // 1. Calcular posiciones relativas de los presores (Clamps)
+                    // Se asume que el riel comienza en startX = centerX - railLen / 2
+                    // Los presores están entre paneles.
+                    let clampRelPositions = [];
+                    // El ancho de la zona "prohibida" para una unión es aprox el ancho del presor + margen
+                    // Presor = 2cm a 4cm. Unión = 10cm. 
+                    // Si el centro de la unión cae a menos de X cm del centro del presor, colisión.
+                    const COLLISION_THRESHOLD = 0.12; // 12cm de margen total (6cm por lado)
 
-                        const max2350 = Math.ceil(railLen / 2.35);
-
-                        for (let i = max2350; i >= 0; i--) {
-                            const lenSoFar = i * 2.35;
-                            const remainder = Math.max(0, railLen - lenSoFar);
-                            const j = Math.ceil(remainder / 1.23);
-
-                            const totalL = lenSoFar + j * 1.23;
-                            const waste = totalL - railLen;
-
-                            if (waste < bestWaste && waste >= -0.001) {
-                                bestWaste = waste;
-                                bestCombo = [];
-                                for (let k = 0; k < i; k++) bestCombo.push(2.35);
-                                for (let k = 0; k < j; k++) bestCombo.push(1.23);
-                            }
-                        }
-
-                        // Fallback safety
-                        if (bestCombo.length === 0) {
-                            const needed = Math.ceil(railLen / 2.35);
-                            for (let k = 0; k < needed; k++) bestCombo.push(2.35);
-                        }
-
-                        segments = bestCombo;
-                        // Add to BOM
-                        segments.forEach(s => {
-                            if (s > 2.0) totalBom.g1_2350 += 2; // x2 rails
-                            else totalBom.g1_1230 += 2;
-                        });
-                        totalBom.g_union += Math.max(0, segments.length - 1) * 2;
-
-                    } else if (!isSunfer) {
-                        // Lógica Estándar (Sin optimización mixta)
-                        const needed = Math.floor(railLen / railUnit) + (railLen % railUnit > 0.01 ? 1 : 0);
-                        for (let k = 0; k < needed; k++) segments.push(railUnit);
-
-                        // BOM Genérico
-                        if (Math.abs(railUnit - 1.23) < 0.05) totalBom.g1_1230 += needed * 2;
-                        else totalBom.g_rail += needed * 2;
-
-                        totalBom.g_union += Math.max(0, needed - 1) * 2;
+                    for (let i = 0; i < n - 1; i++) {
+                        const pCur = rowPanels[i];
+                        const pNext = rowPanels[i + 1];
+                        const midX = (pCur.x + pCur.w + pNext.x) / 2;
+                        const relX = midX - (centerX - railLen / 2);
+                        clampRelPositions.push(relX);
                     }
 
-                    // BOM Tapas (Siempre 4 por fila de paneles: 2 rieles x 2 extremos)
-                    // BOM Tapas y Presores (Genérico)
-                    // Presores Genéricos (Reutilizamos S10 para Laterales, S11 para Intermedios)
+                    // 2. Algoritmo de Corte Inteligente (Smart Cut)
+                    // Probamos recortar el primer riel desde 0cm hasta 50cm en pasos de 5cm
+                    // para desplazar las uniones y evitar colisiones.
+                    let bestStartCut = 0;
+                    let solutionFound = false;
+
+                    // Estrategia: Solo probamos cortes si NO es Sunfer (Sunfer tiene medidas fijas predefinidas)
+                    if (!isSunfer) {
+                        for (let cut = 0; cut <= 1.5; cut += 0.05) { // Probamos hasta 1.5m de desplazamiento
+                            let tempSegments = [];
+                            let currentPos = 0;
+                            let first = true;
+
+                            // Simular distribución con este corte inicial
+                            let remainingLen = railLen;
+
+                            while (remainingLen > 0.01) {
+                                let segLen = railUnit;
+                                if (first) {
+                                    segLen -= cut;
+                                    if (segLen < 0.1) segLen = 0.1; // Mínimo constructivo
+                                    first = false;
+                                }
+
+                                // Si es el último trozo y es pequeño, se ajusta
+                                if (remainingLen <= segLen) {
+                                    segLen = remainingLen;
+                                }
+
+                                tempSegments.push(segLen);
+                                currentPos += segLen;
+                                remainingLen -= segLen;
+
+                                // Verificar colisión de la unión (currentPos)
+                                // La última posición es el final del riel, no lleva unión.
+                                if (remainingLen > 0.01) {
+                                    // Check collision
+                                    const isCollision = clampRelPositions.some(cx => Math.abs(cx - currentPos) < COLLISION_THRESHOLD);
+                                    if (isCollision) {
+                                        // Invalid configuration
+                                        tempSegments = null;
+                                        break;
+                                    }
+                                }
+                            }
+
+                            if (tempSegments !== null) {
+                                segments = tempSegments;
+                                bestStartCut = cut;
+                                solutionFound = true;
+                                break;
+                            }
+                        }
+                    }
+
+                    // Si no se encuentra solución o es Sunfer, usar lógica estándar (con posible colisión)
+                    if (!solutionFound && segments.length === 0) {
+                        const needed = Math.floor(railLen / railUnit) + (railLen % railUnit > 0.01 ? 1 : 0);
+                        for (let k = 0; k < needed; k++) segments.push(railUnit);
+                        // Ajustar el último
+                        const currentTotal = segments.reduce((a, b) => a + b, 0);
+                        if (currentTotal > railLen) segments[segments.length - 1] -= (currentTotal - railLen);
+                    }
+
+                    // 3. Recalcular BOM basado en los segmentos reales
+                    if (!isSunfer) {
+                        let rowG1_2350 = 0;
+                        let rowG1_1230 = 0;
+                        let rowUnions = 0;
+
+                        segments.forEach(seg => {
+                            if (Math.abs(railUnit - 2.35) < 0.05) rowG1_2350 += 2; // 2 rails
+                            else rowG1_1230 += 2; // 2 rails
+                        });
+                        rowUnions = Math.max(0, segments.length - 1) * 2;
+
+                        totalBom.g1_2350 += rowG1_2350;
+                        totalBom.g1_1230 += rowG1_1230;
+                        totalBom.g_union += rowUnions;
+                    }
+
+                    // BOM Tapas y Presores (Genérico) stays same
                     const pCount = rowPanels.length;
                     totalBom.tapa += 4;
-                    totalBom.s02_3 += numAnc * 2; // Fijaciones S02.3 por defecto (2 rieles)
+                    totalBom.s02_3 += numAnc * 2;
                     if (pCount > 0) {
-                        totalBom.s10 += 4; // 2 rails * 2 ends
+                        totalBom.s10 += 4;
                         totalBom.s11 += Math.max(0, pCount - 1) * 2;
                     }
                 }
