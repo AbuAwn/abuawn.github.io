@@ -1136,48 +1136,16 @@
                     if (document.getElementById('viewDimensions')?.checked) {
                         const startRailX = centerX - railLen / 2;
                         const endRailX = centerX + railLen / 2;
-                        // Helper function defined below
-                        // Pass sorted points: start, anchors..., end
-                        const points = [startRailX, ...anchorsCoords, endRailX].sort((a, b) => a - b);
+                        const roofMinX = Math.min(...vertices.map(v => v.x));
+                        const roofMaxX = Math.max(...vertices.map(v => v.x));
 
-                        const lineMat = new THREE.LineBasicMaterial({ color: 0xffff00 });
-                        const dimY = railY - 0.15; // Below rail
-                        const dimZ = 0.2; // Above panel so visible? Or on Scale? 
-                        // Panel is Z=0.1. Rail Z=0.05 (inside panel pivot). Wait, pivot Z?
-                        // Pivot is added to scene. Panel Mesh Z=0.1.
-                        // Rail Z=0.05.
-                        // Let's put text at Z=0.25 to be safe on top.
+                        // Horizontal dimensions line: RoofLeft -> RailStart -> Anchors -> RailEnd -> RoofRight
+                        const dimY = railY - 0.25;
+                        const dimZ = 0.25;
 
-                        for (let i = 0; i < points.length - 1; i++) {
-                            const p1 = points[i];
-                            const p2 = points[i + 1];
-                            const dist = p2 - p1;
-                            if (dist < 0.005) continue;
-
-                            // Line
-                            const geometry = new THREE.BufferGeometry().setFromPoints([
-                                new THREE.Vector3(p1, dimY, dimZ),
-                                new THREE.Vector3(p2, dimY, dimZ)
-                            ]);
-                            const line = new THREE.Line(geometry, lineMat);
-                            parentGroup.add(line);
-
-                            // Ticks
-                            const tH = 0.04;
-                            const t1 = new THREE.Line(new THREE.BufferGeometry().setFromPoints([
-                                new THREE.Vector3(p1, dimY - tH, dimZ), new THREE.Vector3(p1, dimY + tH, dimZ)
-                            ]), lineMat);
-                            const t2 = new THREE.Line(new THREE.BufferGeometry().setFromPoints([
-                                new THREE.Vector3(p2, dimY - tH, dimZ), new THREE.Vector3(p2, dimY + tH, dimZ)
-                            ]), lineMat);
-                            parentGroup.add(t1); parentGroup.add(t2);
-
-                            // Text
-                            const mid = (p1 + p2) / 2;
-                            const lbl = makeTextSprite(dist.toFixed(2) + 'm');
-                            lbl.position.set(mid, dimY - 0.05, dimZ + 0.05);
-                            parentGroup.add(lbl);
-                        }
+                        // Pass all key points for horizontal chain dimensioning
+                        const keyPoints = [startRailX, ...anchorsCoords, endRailX];
+                        drawDimensions(parentGroup, roofMinX, roofMaxX, keyPoints, dimY, dimZ);
                     }
                 });
 
@@ -1236,8 +1204,9 @@
             const color = "rgba(0, 255, 255, 1.0)"; // Cyan for vertical dims
             const lineMat = new THREE.LineBasicMaterial({ color: 0x00ffff });
 
-            // Include 0 (Bottom of roof) in points to measure first rail height from bottom
-            const points = [0, ...yPositions];
+            // Include 0 (Bottom) and Top (Height) to measure full vertical usage
+            const roofHeight = Math.max(...vertices.map(v => v.y));
+            const points = [0, ...yPositions, roofHeight];
 
             for (let i = 0; i < points.length - 1; i++) {
                 const y1 = points[i];
