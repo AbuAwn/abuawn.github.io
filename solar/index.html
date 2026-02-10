@@ -471,7 +471,7 @@
                         <option value="4.80">Ultra 4.80m</option>
                         <option value="custom">Personalizado</option>
                     </select>
-                    <input type="number" id="genRailLen" value="2.35" step="0.05" onchange="renderStructureWrapper()">
+                    <input type="text" id="genRailLen" value="2.35" onchange="renderStructureWrapper()">
                 </div>
                 <div class="flex-item group" id="grp-spacing"><label>Sep. Máx (m)</label><input type="number"
                         id="genSpacing" value="1.4" step="0.05" onchange="renderStructureWrapper()"></div>
@@ -1052,15 +1052,51 @@
                         ];
 
                         if (isManual) {
-                            // Modo Manual: Forzamos el uso repetido del perfil seleccionado
-                            // Sin optimización de mezcla, solo repetición.
-                            let remaining = railLen;
-                            segments = [];
-                            while (remaining > 0.005) {
-                                let useLen = (railUnit || 2.35);
-                                let actual = Math.min(remaining, useLen);
-                                segments.push({ len: actual, type: railUnit });
-                                remaining -= actual;
+                            // Modo Manual: Soporte para combinaciones (ej: 2.35+1.23+2.35)
+                            // 1. Parsear input
+                            const rawVal = genRailEl.value;
+                            let manualSegs = [];
+                            if (rawVal.includes('+')) {
+                                manualSegs = rawVal.split('+').map(s => parseFloat(s.trim())).filter(n => !isNaN(n) && n > 0);
+                            } else {
+                                const v = parseFloat(rawVal);
+                                if (!isNaN(v) && v > 0) manualSegs = [v];
+                            }
+
+                            // 2. Validar Longitud Total
+                            if (manualSegs.length > 0) {
+                                const totalManual = manualSegs.reduce((a, b) => a + b, 0);
+                                if (totalManual < railLen - 0.05 && tipEl) {
+                                    tipEl.innerText = `⚠️ LONGITUD INSUFICIENTE: ${totalManual.toFixed(2)}m < ${railLen.toFixed(2)}m requeridos.`;
+                                    tipEl.style.color = '#e74c3c';
+                                    tipEl.style.display = 'block';
+                                } else if (tipEl) {
+                                    tipEl.innerText = `Longitud Manual: ${totalManual.toFixed(2)}m (Req: ${railLen.toFixed(2)}m)`;
+                                    tipEl.style.color = '#2ecc71';
+                                    tipEl.style.display = 'block';
+                                }
+
+                                // 3. Construir Segmentos
+                                segments = [];
+
+                                // Si es una combinación explícita ("+"), usamos la secuencia exacta
+                                if (rawVal.includes('+')) {
+                                    manualSegs.forEach(len => {
+                                        segments.push({ len: len, type: len });
+                                    });
+                                } else {
+                                    // Si es un valor único, comportamiento antiguo (repetir hasta llenar)
+                                    let remaining = railLen;
+                                    const useLen = manualSegs[0] || 2.35;
+                                    while (remaining > 0.005) {
+                                        let actual = Math.min(remaining, useLen);
+                                        segments.push({ len: actual, type: useLen });
+                                        remaining -= actual;
+                                    }
+                                }
+                            } else {
+                                // Fallback
+                                segments.push({ len: railLen, type: 2.35 });
                             }
                         } else {
                             // MODO AUTO: SOLVER RECURSIVO PARA MÍNIMO COSTE
