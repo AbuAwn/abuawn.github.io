@@ -1037,59 +1037,41 @@
 
                         // Intentamos encontrar la mejor configuración
                         for (let strat of strategies) {
-                            // Probamos desplazar el inicio (corte) para evitar colisiones
-                            for (let cut = 0; cut <= 1.2; cut += 0.05) {
-                                let tempSegs = [];
-                                let tempCost = 0;
-                                let currentX_sim = 0;
-                                let remaining = railLen;
-                                let first = true;
-                                let valid = true;
-                                let sIdx = 0;
+                            // Sin restricción de uniones, siempre empezamos con perfil entero (corte 0) para minimizar desperdicio
+                            let cut = 0;
 
-                                while (remaining > 0.005) {
-                                    let baseLen = strat[sIdx % strat.length];
-                                    sIdx++;
+                            let tempSegs = [];
+                            let tempCost = 0;
+                            let remaining = railLen;
+                            let sIdx = 0;
 
-                                    let segLen = baseLen;
-                                    if (first) {
-                                        segLen -= cut;
-                                        if (segLen < 0.1) { valid = false; break; } // Trozo inseguro
-                                        first = false;
-                                    }
+                            while (remaining > 0.005) {
+                                let baseLen = strat[sIdx % strat.length];
+                                sIdx++;
 
-                                    // Coste: Asumimos barra entera nueva
-                                    tempCost += (costMap[baseLen] || 20);
+                                let segLen = baseLen;
 
-                                    let actualLen = segLen;
-                                    if (remaining < segLen) actualLen = remaining;
+                                // Coste: Asumimos barra entera nueva
+                                tempCost += (costMap[baseLen] || 20);
 
-                                    tempSegs.push({ len: actualLen, type: baseLen });
-                                    currentX_sim += actualLen;
-                                    remaining -= actualLen;
+                                let actualLen = segLen;
+                                if (remaining < segLen) actualLen = remaining;
 
-                                    // Chequear colisión de la unión
-                                    if (remaining > 0.005) {
-                                        if (clampRelPositions.some(cx => Math.abs(cx - currentX_sim) < COLLISION_THRESHOLD)) {
-                                            valid = false;
-                                            break;
-                                        }
-                                    }
-                                }
+                                tempSegs.push({ len: actualLen, type: baseLen });
+                                remaining -= actualLen;
+                            }
 
-                                if (valid) {
-                                    // Si es válida, ¿es mejor? (Menor coste, o mismo coste y menos piezas)
-                                    if (!bestSol || tempCost < bestSol.cost - 0.1 || (Math.abs(tempCost - bestSol.cost) < 0.1 && tempSegs.length < bestSol.segs.length)) {
-                                        bestSol = { cost: tempCost, segs: tempSegs };
-                                    }
-                                }
+                            // Siempre es válida si no chequeamos colisiones
+                            // Comparamos si es mejor (Menor coste)
+                            if (!bestSol || tempCost < bestSol.cost - 0.1 || (Math.abs(tempCost - bestSol.cost) < 0.1 && tempSegs.length < bestSol.segs.length)) {
+                                bestSol = { cost: tempCost, segs: tempSegs };
                             }
                         }
 
                         if (bestSol) {
                             segments = bestSol.segs;
                         } else {
-                            // Fallback de emergencia
+                            // Fallback (Logic should cover, but just in case)
                             let remaining = railLen;
                             while (remaining > 0.005) {
                                 let useLen = (railUnit || 2.35);
