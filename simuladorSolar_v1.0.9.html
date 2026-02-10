@@ -1001,85 +1001,98 @@
                         clampRelPositions.push(relX);
                     }
 
-                    // 2. Algoritmo de Corte Inteligente (Smart Cut)
-                    // Probamos recortar el primer riel desde 0cm hasta 50cm en pasos de 5cm
-                    // para desplazar las uniones y evitar colisiones.
-                    let bestStartCut = 0;
-                    let solutionFound = false;
-
-                    // Estrategia: Solo probamos cortes si NO es Sunfer (Sunfer tiene medidas fijas predefinidas)
+                    // 2. OPTIMIZACIÓN AVANZADA DE RIELES (Smart Mix & Alternation)
+                    // Buscamos la combinación más económica y robusta (sin colisiones)
+                    // Estrategias: Solo largos, Solo cortos, Alternados (A-B, B-A)
                     if (!isSunfer) {
-                        for (let cut = 0; cut <= 1.5; cut += 0.05) { // Probamos hasta 1.5m de desplazamiento
-                            let tempSegments = [];
-                            let currentPos = 0;
-                            let first = true;
+                        const strategies = [
+                            [2.35], [1.23], [2.35, 1.23], [1.23, 2.35]
+                        ];
 
-                            // Simular distribución con este corte inicial
-                            let remainingLen = railLen;
+                        let bestSol = null;
 
-                            while (remainingLen > 0.01) {
-                                let segLen = railUnit;
-                                if (first) {
-                                    segLen -= cut;
-                                    if (segLen < 0.1) segLen = 0.1; // Mínimo constructivo
-                                    first = false;
+                        // Costes base (fallback)
+                        const cost2350 = (typeof bomPrices !== 'undefined') ? bomPrices.g1_2350 : 16.50;
+                        const cost1230 = (typeof bomPrices !== 'undefined') ? bomPrices.g1_1230 : 9.00;
+
+                        // Intentamos encontrar la mejor configuración
+                        for (let strat of strategies) {
+                            // Probamos desplazar el inicio (corte) para evitar colisiones
+                            // Aumentamos el rango de prueba a 1.2m para permitir encajar bien los alternados
+                            for (let cut = 0; cut <= 1.2; cut += 0.05) {
+                                let tempSegs = [];
+                                let tempCost = 0;
+                                let currentX_sim = 0;
+                                let remaining = railLen;
+                                let first = true;
+                                let valid = true;
+                                let sIdx = 0;
+
+                                while (remaining > 0.005) {
+                                    let baseLen = strat[sIdx % strat.length];
+                                    sIdx++;
+
+                                    let segLen = baseLen;
+                                    if (first) {
+                                        segLen -= cut;
+                                        if (segLen < 0.1) { valid = false; break; } // Trozo inseguro
+                                        first = false;
+                                    }
+
+                                    // Coste: Asumimos barra entera nueva (simplificación conservadora)
+                                    tempCost += (baseLen === 2.35 ? cost2350 : cost1230);
+
+                                    let actualLen = segLen;
+                                    if (remaining < segLen) actualLen = remaining;
+
+                                    tempSegs.push({ len: actualLen, type: baseLen });
+                                    currentX_sim += actualLen;
+                                    remaining -= actualLen;
+
+                                    // Chequear colisión de la unión
+                                    if (remaining > 0.005) {
+                                        if (clampRelPositions.some(cx => Math.abs(cx - currentX_sim) < COLLISION_THRESHOLD)) {
+                                            valid = false;
+                                            break;
+                                        }
+                                    }
                                 }
 
-                                // Si es el último trozo y es pequeño, se ajusta
-                                if (remainingLen <= segLen) {
-                                    segLen = remainingLen;
-                                }
-
-                                tempSegments.push(segLen);
-                                currentPos += segLen;
-                                remainingLen -= segLen;
-
-                                // Verificar colisión de la unión (currentPos)
-                                // La última posición es el final del riel, no lleva unión.
-                                if (remainingLen > 0.01) {
-                                    // Check collision
-                                    const isCollision = clampRelPositions.some(cx => Math.abs(cx - currentPos) < COLLISION_THRESHOLD);
-                                    if (isCollision) {
-                                        // Invalid configuration
-                                        tempSegments = null;
-                                        break;
+                                if (valid) {
+                                    // Si es válida, ¿es mejor? (Menor coste, o mismo coste y menos piezas)
+                                    if (!bestSol || tempCost < bestSol.cost - 0.1 || (Math.abs(tempCost - bestSol.cost) < 0.1 && tempSegs.length < bestSol.segs.length)) {
+                                        bestSol = { cost: tempCost, segs: tempSegs };
                                     }
                                 }
                             }
+                        }
 
-                            if (tempSegments !== null) {
-                                segments = tempSegments;
-                                bestStartCut = cut;
-                                solutionFound = true;
-                                break;
+                        if (bestSol) {
+                            segments = bestSol.segs;
+                        } else {
+                            // Fallback de emergencia: Solo llenar sin mirar colisiones
+                            // Usamos el railUnit seleccionado por defecto
+                            let remaining = railLen;
+                            while (remaining > 0.005) {
+                                let useLen = (railUnit || 2.35);
+                                let actual = Math.min(remaining, useLen);
+                                segments.push({ len: actual, type: railUnit });
+                                remaining -= actual;
                             }
                         }
-                    }
 
-                    // Si no se encuentra solución o es Sunfer, usar lógica estándar (con posible colisión)
-                    if (!solutionFound && segments.length === 0) {
-                        const needed = Math.floor(railLen / railUnit) + (railLen % railUnit > 0.01 ? 1 : 0);
-                        for (let k = 0; k < needed; k++) segments.push(railUnit);
-                        // Ajustar el último
-                        const currentTotal = segments.reduce((a, b) => a + b, 0);
-                        if (currentTotal > railLen) segments[segments.length - 1] -= (currentTotal - railLen);
-                    }
-
-                    // 3. Recalcular BOM basado en los segmentos reales
-                    if (!isSunfer) {
+                        // 3. BOM Calculation (Updated for Object Segments)
                         let rowG1_2350 = 0;
                         let rowG1_1230 = 0;
-                        let rowUnions = 0;
 
-                        segments.forEach(seg => {
-                            if (Math.abs(railUnit - 2.35) < 0.05) rowG1_2350 += 2; // 2 rails
-                            else rowG1_1230 += 2; // 2 rails
+                        segments.forEach(s => {
+                            if (Math.abs(s.type - 2.35) < 0.01) rowG1_2350 += 2;
+                            else rowG1_1230 += 2;
                         });
-                        rowUnions = Math.max(0, segments.length - 1) * 2;
 
                         totalBom.g1_2350 += rowG1_2350;
                         totalBom.g1_1230 += rowG1_1230;
-                        totalBom.g_union += rowUnions;
+                        totalBom.g_union += Math.max(0, segments.length - 1) * 2;
                     }
 
                     // BOM Tapas y Presores (Genérico) stays same
@@ -1109,22 +1122,24 @@
                         const railStart = centerX - railLen / 2;
                         let currentX = railStart;
 
-                        segments.forEach(segLen => {
+                        segments.forEach(seg => {
+                            const segLen = seg.len;
+                            const segType = seg.type; // 2.35 or 1.23 source
+
                             const segGeo = new THREE.BoxGeometry(segLen - 0.005, 0.045, 0.045); // Gap visual
                             let segMat = matGeneric;
 
-                            // Asignar color según el tipo de perfil seleccionado (railUnit), no la longitud del recorte
-                            // Para que visualmente coincida con la leyenda aunque esté cortado
-                            if (Math.abs(railUnit - 1.23) < 0.05) segMat = mat1230;
-                            else if (Math.abs(railUnit - 2.35) < 0.05) segMat = mat2350;
+                            // Asignar color según el tipo de perfil de ORIGEN
+                            if (Math.abs(segType - 1.23) < 0.05) segMat = mat1230;
+                            else if (Math.abs(segType - 2.35) < 0.05) segMat = mat2350;
 
                             const segMesh = new THREE.Mesh(segGeo, segMat);
                             segMesh.position.set(currentX + segLen / 2, railY, zOffset);
                             parentGroup.add(segMesh);
 
-                            // Etiqueta de Recorte (Si es considerablemente más corto que el estándar)
-                            if (Math.abs(segLen - railUnit) > 0.05 && segLen < railUnit) {
-                                const cutAmount = Math.round((railUnit - segLen) * 100);
+                            // Etiqueta de Recorte (Usando el tipo de perfil correcto como referencia)
+                            if (Math.abs(segLen - segType) > 0.05 && segLen < segType) {
+                                const cutAmount = Math.round((segType - segLen) * 100);
                                 if (cutAmount > 0) {
                                     const cutLbl = makeTextSprite(`Recorte: -${cutAmount}cm`, "rgba(255, 50, 50, 1.0)");
                                     const scaleFactor = 0.6;
@@ -1135,7 +1150,6 @@
                                 }
                             }
 
-                            // Dibujar unión si no es el último
                             currentX += segLen;
                         });
 
@@ -1143,9 +1157,9 @@
                         if (segments.length > 1) {
                             let spliceX = railStart;
                             for (let s = 0; s < segments.length - 1; s++) {
-                                spliceX += segments[s];
+                                spliceX += segments[s].len; // Access .len property
                                 const gSpliceGeo = new THREE.BoxGeometry(0.1, 0.052, 0.052);
-                                const gSpliceMat = new THREE.MeshPhongMaterial({ color: 0x2c3e50 }); // Dark Blue for splice
+                                const gSpliceMat = new THREE.MeshPhongMaterial({ color: 0x2c3e50 });
                                 const gSplice = new THREE.Mesh(gSpliceGeo, gSpliceMat);
                                 gSplice.position.set(spliceX, railY, zOffset);
                                 parentGroup.add(gSplice);
