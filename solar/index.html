@@ -1032,100 +1032,95 @@
                     // 2. OPTIMIZACIÓN AVANZADA DE RIELES (Smart Mix & Alternation)
                     // Buscamos la combinación más económica y robusta (sin colisiones)
                     if (!isSunfer) {
-                        const costMap = {
-                            0.35: (typeof bomPrices !== 'undefined' && bomPrices.g1_0350) ? bomPrices.g1_0350 : 2.53,
-                            0.70: (typeof bomPrices !== 'undefined' && bomPrices.g1_0700) ? bomPrices.g1_0700 : 4.50,
-                            0.80: (typeof bomPrices !== 'undefined' && bomPrices.g1_0800) ? bomPrices.g1_0800 : 5.00,
-                            0.90: (typeof bomPrices !== 'undefined' && bomPrices.g1_0900) ? bomPrices.g1_0900 : 6.00,
-                            1.10: (typeof bomPrices !== 'undefined' && bomPrices.g1_1100) ? bomPrices.g1_1100 : 7.00,
-                            1.23: (typeof bomPrices !== 'undefined' && bomPrices.g1_1230) ? bomPrices.g1_1230 : 8.99,
-                            1.45: (typeof bomPrices !== 'undefined' && bomPrices.g1_1450) ? bomPrices.g1_1450 : 10.00,
-                            1.80: (typeof bomPrices !== 'undefined' && bomPrices.g1_1800) ? bomPrices.g1_1800 : 14.00,
-                            2.20: (typeof bomPrices !== 'undefined' && bomPrices.g1_2200) ? bomPrices.g1_2200 : 18.00,
-                            2.35: (typeof bomPrices !== 'undefined' && bomPrices.g1_2350) ? bomPrices.g1_2350 : 17.95,
-                            3.60: (typeof bomPrices !== 'undefined' && bomPrices.g1_3600) ? bomPrices.g1_3600 : 30.99,
-                            4.40: (typeof bomPrices !== 'undefined' && bomPrices.g1_4400) ? bomPrices.g1_4400 : 35.00,
-                            4.80: (typeof bomPrices !== 'undefined' && bomPrices.g1_4800) ? bomPrices.g1_4800 : 38.00
-                        };
+                        // Definir Stock Completo con Precios Actualizados
+                        const getPrice = (k, def) => (typeof bomPrices !== 'undefined' && bomPrices[k]) ? bomPrices[k] : def;
 
-                        let strategies = [
-                            [4.80], [4.40], [3.60], [2.35], [2.20], [1.80], [1.45], [1.23], [1.10], [0.90], [0.80], [0.70], [0.35],
-                            [2.35, 1.23], [1.23, 2.35]
+                        const stock = [
+                            { len: 4.80, cost: getPrice('g1_4800', 38.00), k: 'g1_4800' },
+                            { len: 4.40, cost: getPrice('g1_4400', 35.00), k: 'g1_4400' },
+                            { len: 3.60, cost: getPrice('g1_3600', 30.99), k: 'g1_3600' },
+                            { len: 2.35, cost: getPrice('g1_2350', 17.95), k: 'g1_2350' },
+                            { len: 2.20, cost: getPrice('g1_2200', 18.00), k: 'g1_2200' },
+                            { len: 1.80, cost: getPrice('g1_1800', 14.00), k: 'g1_1800' },
+                            { len: 1.45, cost: getPrice('g1_1450', 10.00), k: 'g1_1450' },
+                            { len: 1.23, cost: getPrice('g1_1230', 8.99), k: 'g1_1230' },
+                            { len: 1.10, cost: getPrice('g1_1100', 7.00), k: 'g1_1100' },
+                            { len: 0.90, cost: getPrice('g1_0900', 6.00), k: 'g1_0900' },
+                            { len: 0.80, cost: getPrice('g1_0800', 5.00), k: 'g1_0800' },
+                            { len: 0.70, cost: getPrice('g1_0700', 4.50), k: 'g1_0700' },
+                            { len: 0.35, cost: getPrice('g1_0350', 2.53), k: 'g1_0350' }
                         ];
 
-                        // Si es modo MANUAL, forzamos usar SOLO el perfil seleccionado por el usuario
                         if (isManual) {
-                            strategies = [[railUnit]];
-                        }
-
-                        let bestSol = null;
-
-                        // Intentamos encontrar la mejor configuración
-                        for (let strat of strategies) {
-                            // Sin restricción de uniones, siempre empezamos con perfil entero (corte 0)
-                            let cut = 0;
-
-                            let tempSegs = [];
-                            let tempCost = 0;
+                            // Modo Manual: Forzamos el uso repetido del perfil seleccionado
+                            // Sin optimización de mezcla, solo repetición.
                             let remaining = railLen;
-                            let sIdx = 0;
-
-                            while (remaining > 0.005) {
-                                let baseLen = strat[sIdx % strat.length];
-                                sIdx++;
-
-                                let segLen = baseLen;
-
-                                // Coste: Asumimos barra entera nueva
-                                let c = costMap[baseLen];
-                                if (!c) {
-                                    // Estimación de coste para medidas custom (~8.5€/m)
-                                    c = baseLen * 8.5;
-                                }
-                                tempCost += c;
-
-                                let actualLen = segLen;
-                                if (remaining < segLen) actualLen = remaining;
-
-                                tempSegs.push({ len: actualLen, type: baseLen });
-                                remaining -= actualLen;
-                            }
-
-                            // Comparar coste
-                            if (!bestSol || tempCost < bestSol.cost - 0.1 || (Math.abs(tempCost - bestSol.cost) < 0.1 && tempSegs.length < bestSol.segs.length)) {
-                                bestSol = { cost: tempCost, segs: tempSegs };
-                            }
-                        }
-
-                        if (bestSol) {
-                            segments = bestSol.segs;
-                        } else {
-                            // Fallback
-                            let remaining = railLen;
+                            segments = [];
                             while (remaining > 0.005) {
                                 let useLen = (railUnit || 2.35);
                                 let actual = Math.min(remaining, useLen);
                                 segments.push({ len: actual, type: railUnit });
                                 remaining -= actual;
                             }
+                        } else {
+                            // MODO AUTO: SOLVER RECURSIVO PARA MÍNIMO COSTE
+                            // Encuentra la combinación óptima de perfiles
+                            const memo = {};
+
+                            const solve = (remLen) => {
+                                // Cuantizar longitud para evitar errores de float en keys
+                                const key = Math.round(remLen * 100);
+                                if (memo[key]) return memo[key];
+
+                                let best = { cost: Infinity, segs: [] };
+
+                                // Caso base: longitud cubierta
+                                if (remLen <= 0.005) return { cost: 0, segs: [] };
+
+                                // Opción A: Cerrar fila con una pieza final (cualquiera que quepa/sobre)
+                                for (let s of stock) {
+                                    if (s.len >= remLen - 0.005) {
+                                        // Esta pieza es suficiente para terminar
+                                        if (s.cost < best.cost) {
+                                            best = {
+                                                cost: s.cost,
+                                                segs: [{ len: remLen, type: s.len }]
+                                            };
+                                        }
+                                    }
+                                }
+
+                                // Opción B: Usar pieza intermedia y seguir
+                                // Limitamos las intermedias a >= 1.20m para evitar puzzles de micro-piezas
+                                for (let s of stock) {
+                                    if (s.len >= 1.20 && remLen > s.len) {
+                                        const res = solve(remLen - s.len);
+                                        if (res.cost + s.cost < best.cost) {
+                                            best = {
+                                                cost: res.cost + s.cost,
+                                                segs: [{ len: s.len, type: s.len }, ...res.segs]
+                                            };
+                                        }
+                                    }
+                                }
+
+                                memo[key] = best;
+                                return best;
+                            };
+
+                            const solution = solve(railLen);
+                            segments = solution.segs;
                         }
 
-                        // 3. BOM Calculation
+                        // 3. BOM Calculation (Using keys from stock logic would be cleaner, but keeping map loop for robustness)
                         segments.forEach(s => {
                             const t = s.type;
-                            if (Math.abs(t - 0.35) < 0.01) totalBom.g1_0350 += 2;
-                            else if (Math.abs(t - 0.70) < 0.01) totalBom.g1_0700 += 2;
-                            else if (Math.abs(t - 0.80) < 0.01) totalBom.g1_0800 += 2;
-                            else if (Math.abs(t - 0.90) < 0.01) totalBom.g1_0900 += 2;
-                            else if (Math.abs(t - 1.10) < 0.01) totalBom.g1_1100 += 2;
-                            else if (Math.abs(t - 1.23) < 0.01) totalBom.g1_1230 += 2;
-                            else if (Math.abs(t - 1.45) < 0.01) totalBom.g1_1450 += 2;
-                            else if (Math.abs(t - 1.80) < 0.01) totalBom.g1_1800 += 2;
-                            else if (Math.abs(t - 2.20) < 0.01) totalBom.g1_2200 += 2;
-                            else if (Math.abs(t - 2.35) < 0.01) totalBom.g1_2350 += 2;
-                            else if (Math.abs(t - 3.60) < 0.01) totalBom.g1_3600 += 2;
-                            else if (Math.abs(t - 4.40) < 0.01) totalBom.g1_4400 += 2;
-                            else if (Math.abs(t - 4.80) < 0.01) totalBom.g1_4800 += 2;
+                            // Helper to find closest stock key
+                            const match = stock.find(st => Math.abs(st.len - t) < 0.05);
+                            if (match) {
+                                if (!totalBom[match.k]) totalBom[match.k] = 0;
+                                totalBom[match.k] += 2; // 2 rails per structure
+                            }
                         });
 
                         totalBom.g_union += Math.max(0, segments.length - 1) * 2;
