@@ -1048,10 +1048,15 @@
                             4.80: (typeof bomPrices !== 'undefined' && bomPrices.g1_4800) ? bomPrices.g1_4800 : 38.00
                         };
 
-                        const strategies = [
+                        let strategies = [
                             [4.80], [4.40], [3.60], [2.35], [2.20], [1.80], [1.45], [1.23], [1.10], [0.90], [0.80], [0.70], [0.35],
                             [2.35, 1.23], [1.23, 2.35]
                         ];
+
+                        // Si es modo MANUAL, forzamos usar SOLO el perfil seleccionado por el usuario
+                        if (isManual) {
+                            strategies = [[railUnit]];
+                        }
 
                         let bestSol = null;
 
@@ -1072,7 +1077,12 @@
                                 let segLen = baseLen;
 
                                 // Coste: Asumimos barra entera nueva
-                                tempCost += (costMap[baseLen] || 20);
+                                let c = costMap[baseLen];
+                                if (!c) {
+                                    // Estimación de coste para medidas custom (~8.5€/m)
+                                    c = baseLen * 8.5;
+                                }
+                                tempCost += c;
 
                                 let actualLen = segLen;
                                 if (remaining < segLen) actualLen = remaining;
