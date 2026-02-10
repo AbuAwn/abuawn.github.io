@@ -909,6 +909,7 @@
                 let anchorsCoords = [];
                 let segments = [];
                 let isSunfer = (mode === 'sunfer');
+                let railUnit = parseFloat(genRailEl.value) || 2.35;
 
                 if (isSunfer && sunferData[n]) {
                     const d = sunferData[n];
@@ -980,7 +981,7 @@
                     }
 
                     // GENERACIÓN DE RIELES Y UNIONES (Optimizado con Anti-Colisión de Presores)
-                    const railUnit = parseFloat(genRailEl.value) || 2.35;
+                    railUnit = parseFloat(genRailEl.value) || 2.35;
                     segments = [];
 
                     // 1. Calcular posiciones relativas de los presores (Clamps)
