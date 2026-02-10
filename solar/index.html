@@ -1122,6 +1122,19 @@
                             segMesh.position.set(currentX + segLen / 2, railY, zOffset);
                             parentGroup.add(segMesh);
 
+                            // Etiqueta de Recorte (Si es considerablemente más corto que el estándar)
+                            if (Math.abs(segLen - railUnit) > 0.05 && segLen < railUnit) {
+                                const cutAmount = Math.round((railUnit - segLen) * 100);
+                                if (cutAmount > 0) {
+                                    const cutLbl = makeTextSprite(`Recorte: -${cutAmount}cm`, "rgba(255, 50, 50, 1.0)");
+                                    const scaleFactor = 0.6;
+                                    cutLbl.scale.x *= scaleFactor;
+                                    cutLbl.scale.y *= scaleFactor;
+                                    cutLbl.position.set(currentX + segLen / 2, railY + 0.05, zOffset + 0.1);
+                                    parentGroup.add(cutLbl);
+                                }
+                            }
+
                             // Dibujar unión si no es el último
                             currentX += segLen;
                         });
@@ -1805,8 +1818,22 @@
             doc.text(`- Voc Total: ${voc}`, 14, finalYTable + 11);
             doc.text(`- Vmp Total: ${vmp}`, 14, finalYTable + 16);
 
-            doc.save("presupuesto_solar_v1.0.8.pdf");
+            doc.save("presupuesto_solar_v1.0.9.pdf");
         }
+
+        // Initialize with default Obramat/Market approximate prices
+        bomPrices = {
+            s02_3: 8.50, // Soporte
+            s10: 1.80,   // Presor Lat
+            s11: 1.80,   // Presor Cen
+            ug1: 3.50,   // Unión
+            g1_1230: 9.00,
+            g1_2350: 16.50,
+            tapa: 0.75,
+            s13: 0.30,
+            g_rail: 7.00,
+            g_union: 3.50
+        };
 
         function animate() { requestAnimationFrame(animate); if (controls) controls.update(); if (renderer && scene && camera) renderer.render(scene, camera); }
         window.onload = init;
