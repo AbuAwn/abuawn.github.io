@@ -1889,21 +1889,33 @@
                 head.push(rowHead);
             }
 
-            // Extract Body
+            // Extract Body and Calculate Total
             let body = [];
+            let grandTotal = 0;
+
             table.querySelectorAll('tbody tr').forEach(tr => {
                 let row = [];
-                tr.querySelectorAll('td').forEach(td => {
+                tr.querySelectorAll('td').forEach((td, index) => {
                     const input = td.querySelector('input');
-                    if (input) row.push(input.value + ' €');
-                    else row.push(td.innerText.replace('€', '').trim() + ' €');
+                    let valStr = '';
+                    if (input) {
+                        valStr = input.value;
+                        row.push(valStr + ' €');
+                    } else {
+                        valStr = td.innerText.replace('€', '').trim();
+                        row.push(valStr + ' €');
+                    }
+
+                    // Sum the last column (Total)
+                    // Assuming structure: Concept | Qty | Price | Total
+                    // Index 3 is Total
+                    if (index === 3) {
+                        const v = parseFloat(valStr.replace(',', '.'));
+                        if (!isNaN(v)) grandTotal += v;
+                    }
                 });
                 body.push(row);
             });
-
-            // Footer (Total) logic if not in table body
-            // (Assuming existing code might calculate total elsewhere, but let's check BOM total manually or via DOM)
-            // Grand total is usually in the last col of rows, but let's recalculate or just take what's there.
 
             doc.autoTable({
                 head: head,
@@ -1917,11 +1929,9 @@
                     2: { halign: 'right' },
                     3: { halign: 'right', fontStyle: 'bold' }
                 },
-                foot: [['', '', 'TOTAL:', '']] // Placeholder if needed
+                foot: [['', '', 'TOTAL:', grandTotal.toFixed(2) + ' €']],
+                footStyles: { fillColor: [46, 204, 113], textColor: [255, 255, 255], fontStyle: 'bold', halign: 'right' }
             });
-
-            // Calculate total from data if needed to put in footer
-            // But usually the user wants to see what's on screen.
             // Let's add the Project Summary text if available (Voc/Vmp)
 
             const voc = document.getElementById('st-voc')?.innerText || '';
