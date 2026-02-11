@@ -547,10 +547,10 @@
         const P_SAFE = 0.08; // Margen de seguridad para anclajes (m)
 
         const panelPresets = {
-            ja450: { l: 1762, w: 1134, voc: 39.4, vmpH: 28.3 },
-            tensite: { l: 1961, w: 1134, voc: 43.1, vmpH: 31.0 },
-            trina: { l: 1762, w: 1134, voc: 52.9, vmpH: 38.3 },
-            tongwei: { l: 1899, w: 1096, voc: 43.8, vmpH: 31.1 }
+            ja450: { l: 1762, w: 1134, voc: 39.4, vmpH: 28.3, power: 455 },
+            tensite: { l: 1961, w: 1134, voc: 43.1, vmpH: 31.0, power: 500 },
+            trina: { l: 1762, w: 1134, voc: 52.9, vmpH: 38.3, power: 440 },
+            tongwei: { l: 1899, w: 1096, voc: 43.8, vmpH: 31.1, power: 435 }
         };
 
         const inverterPresets = {
@@ -1848,106 +1848,225 @@
             if (!jsPDF) { alert("Librería PDF no cargada. Recargue la página."); return; }
 
             const doc = new jsPDF();
-            doc.setFontSize(18);
-            doc.text("Presupuesto Estructura Solar", 105, 20, null, null, "center");
 
-            doc.setFontSize(10);
+            // --- DATA GATHERING ---
+            const pSel = document.getElementById('panelPreset');
+            const pText = pSel.options[pSel.selectedIndex].text;
+            const pVal = pSel.value;
+            const pData = panelPresets[pVal] || { power: 0 };
+
+            const iSel = document.getElementById('invPreset');
+            const iText = iSel.options[iSel.selectedIndex].text;
+
+            const sSel = document.getElementById('structPreset');
+            const sText = sSel.options[sSel.selectedIndex].text;
+
+            const panelsCount = panels.length;
+            const totalPowerKW = (panelsCount * (pData.power || 0)) / 1000;
+            const powerStr = (totalPowerKW > 0) ? `${totalPowerKW.toFixed(2)} kWp` : "(Potencia no definida)";
+
             const dateStr = new Date().toLocaleDateString();
-            doc.text("Fecha: " + dateStr, 105, 28, null, null, "center");
 
-            // 1. Capture 3D Scene
+            // --- PAGE 1: PROJECT SUMMARY & BOM ---
+
+            // Header
+            doc.setFillColor(44, 62, 80); // Dark Blue / Asphalt
+            doc.rect(0, 0, 210, 35, 'F');
+            doc.setTextColor(255, 255, 255);
+            doc.setFontSize(20);
+            doc.text("Informe Técnico & Presupuesto", 105, 16, null, null, "center");
+            doc.setFontSize(11);
+            doc.text(`Fecha: ${dateStr} | Simulador Solar Pro v1.0.9`, 105, 26, null, null, "center");
+
+            // Summary Box
+            doc.setTextColor(0, 0, 0);
+            doc.setFontSize(10);
+            doc.setDrawColor(180, 180, 180);
+            doc.setFillColor(248, 248, 248);
+            doc.roundedRect(14, 42, 182, 30, 2, 2, 'FD');
+
+            doc.setFont(undefined, 'bold');
+            doc.text("Resumen del Sistema", 20, 50);
+            doc.setFont(undefined, 'normal');
+
+            // Column 1
+            doc.text(`• Módulos: ${pText}`, 20, 58);
+            doc.text(`• Generador No: ${panelsCount} paneles (${powerStr})`, 20, 65);
+
+            // Column 2
+            doc.text(`• Inversor: ${iText}`, 110, 58);
+            doc.text(`• Estructura: ${sText}`, 110, 65);
+
+            // 3D Screenshot Frame
+            let imgHeight = 0;
             if (renderer && scene && camera) {
                 // Ensure render is fresh
                 renderer.render(scene, camera);
-                const imgData = renderer.domElement.toDataURL("image/jpeg", 0.9);
+                const imgData = renderer.domElement.toDataURL("image/jpeg", 0.95);
 
-                // Add Image (Fit to width)
                 const imgProps = doc.getImageProperties(imgData);
-                const pdfWidth = doc.internal.pageSize.getWidth();
-                const margin = 15;
-                const imgWidth = pdfWidth - (margin * 2);
-                const imgHeight = (imgProps.height * imgWidth) / imgProps.width;
+                const margin = 14;
+                const imgWidth = 182;
+                imgHeight = (imgProps.height * imgWidth) / imgProps.width;
+                if (imgHeight > 95) imgHeight = 95; // Cap height
 
-                doc.addImage(imgData, 'JPEG', margin, 35, imgWidth, imgHeight);
+                // Draw Border
+                doc.setDrawColor(100);
+                doc.setLineWidth(0.1);
+                doc.rect(margin - 0.5, 80 - 0.5, imgWidth + 1, imgHeight + 1);
 
-                // Move cursor down for table
-                var finalY = 35 + imgHeight + 10;
-            } else {
-                var finalY = 40;
+                doc.addImage(imgData, 'JPEG', margin, 80, imgWidth, imgHeight);
+                doc.setFontSize(9);
+                doc.setTextColor(100);
+                doc.text("Figura 1: Vista 3D del diseño preliminar", 105, 80 + imgHeight + 5, null, null, "center");
+                doc.setTextColor(0);
             }
 
-            // 2. Add BOM Table
+            // BOM Table
+            const startY = 80 + imgHeight + 12;
             const table = document.querySelector('#bom-container table');
-            if (!table) { alert("Genere la estructura primero."); return; }
 
-            // Extract Headers
-            let head = [];
-            const ths = table.querySelectorAll('thead tr th');
-            if (ths.length > 0) {
-                let rowHead = [];
-                ths.forEach(th => rowHead.push(th.innerText));
-                head.push(rowHead);
+            if (table) {
+                // Same extraction logic as before
+                let head = [];
+                const ths = table.querySelectorAll('thead tr th');
+                if (ths.length > 0) {
+                    let rowHead = [];
+                    ths.forEach(th => rowHead.push(th.innerText));
+                    head.push(rowHead);
+                }
+
+                let body = [];
+                let grandTotal = 0;
+                table.querySelectorAll('tbody tr').forEach(tr => {
+                    let row = [];
+                    tr.querySelectorAll('td').forEach((td, index) => {
+                        const input = td.querySelector('input');
+                        let valStr = input ? input.value : td.innerText.replace('€', '').trim();
+                        row.push(valStr + ' €');
+                        if (index === 3) {
+                            const v = parseFloat(valStr.replace(',', '.'));
+                            if (!isNaN(v)) grandTotal += v;
+                        }
+                    });
+                    body.push(row);
+                });
+
+                doc.autoTable({
+                    head: head,
+                    body: body,
+                    startY: startY,
+                    theme: 'grid',
+                    headStyles: { fillColor: [41, 128, 185], halign: 'center', fontSize: 9 },
+                    bodyStyles: { fontSize: 9 },
+                    columnStyles: {
+                        0: { halign: 'left' },
+                        1: { halign: 'center' },
+                        2: { halign: 'right' },
+                        3: { halign: 'right', fontStyle: 'bold' }
+                    },
+                    foot: [['', '', 'TOTAL:', grandTotal.toFixed(2) + ' €']],
+                    footStyles: { fillColor: [39, 174, 96], textColor: 255, fontStyle: 'bold', halign: 'right' }
+                });
+            } else {
+                doc.text("Debes generar la estructura para ver el presupuesto.", 14, startY);
             }
 
-            // Extract Body and Calculate Total
-            let body = [];
-            let grandTotal = 0;
+            // --- PAGE 2: INSTALLATION GUIDE ---
+            doc.addPage();
 
-            table.querySelectorAll('tbody tr').forEach(tr => {
-                let row = [];
-                tr.querySelectorAll('td').forEach((td, index) => {
-                    const input = td.querySelector('input');
-                    let valStr = '';
-                    if (input) {
-                        valStr = input.value;
-                        row.push(valStr + ' €');
-                    } else {
-                        valStr = td.innerText.replace('€', '').trim();
-                        row.push(valStr + ' €');
-                    }
+            // Header Page 2
+            doc.setFillColor(236, 240, 241); // Light Grey
+            doc.rect(0, 0, 210, 25, 'F');
+            doc.setTextColor(44, 62, 80);
+            doc.setFontSize(16);
+            doc.text("Guía de Instalación y Montaje", 14, 16);
 
-                    // Sum the last column (Total)
-                    // Assuming structure: Concept | Qty | Price | Total
-                    // Index 3 is Total
-                    if (index === 3) {
-                        const v = parseFloat(valStr.replace(',', '.'));
-                        if (!isNaN(v)) grandTotal += v;
-                    }
-                });
-                body.push(row);
-            });
+            doc.setTextColor(0);
+            doc.setFontSize(10);
+            let y = 35;
+
+            // 1. Torques
+            doc.setFont(undefined, 'bold');
+            doc.text("1. Pares de Apriete (Torque)", 14, y);
+            y += 6;
+            doc.setFont(undefined, 'normal');
+            doc.text("Para garantizar la estanqueidad y resistencia al viento, respete estos valores:", 14, y);
+            y += 5;
+
+            const torqueData = [
+                ["Componente", "Par Recomendado (Nm)", "Herramienta"],
+                ["Tornillo Presor S10/S11 (Allen M8)", "7 Nm", "Llave Allen/Hex 6mm"],
+                ["Tornillo Unión UG1 (DIN912 M8)", "20 Nm", "Llave Hex 13mm"],
+                ["Anclaje Estructural (M10)", "40 Nm", "Llave Vaso 17mm"],
+                ["Tornillo Roscachapa (M4.8)", "6 Nm", "Atornilladora (Par limitado)"]
+            ];
 
             doc.autoTable({
-                head: head,
-                body: body,
-                startY: finalY,
-                theme: 'grid',
-                headStyles: { fillColor: [41, 128, 185], halign: 'center' },
-                columnStyles: {
-                    0: { halign: 'left' },
-                    1: { halign: 'center' },
-                    2: { halign: 'right' },
-                    3: { halign: 'right', fontStyle: 'bold' }
-                },
-                foot: [['', '', 'TOTAL:', grandTotal.toFixed(2) + ' €']],
-                footStyles: { fillColor: [46, 204, 113], textColor: [255, 255, 255], fontStyle: 'bold', halign: 'right' }
+                head: [torqueData[0]],
+                body: torqueData.slice(1),
+                startY: y,
+                theme: 'striped',
+                headStyles: { fillColor: [52, 73, 94], fontSize: 9 },
+                styles: { fontSize: 9 },
+                margin: { left: 14, right: 14 } // Reduced width margin
             });
-            // Let's add the Project Summary text if available (Voc/Vmp)
 
-            const voc = document.getElementById('st-voc')?.innerText || '';
-            const vmp = document.getElementById('st-vmp')?.innerText || '';
-            const panelsCount = document.getElementById('st-count')?.innerText || '';
+            y = doc.lastAutoTable.finalY + 12;
 
-            let finalYTable = doc.lastAutoTable.finalY + 10;
+            // 2. Procedures
+            doc.setFont(undefined, 'bold');
+            doc.text("2. Procedimiento de Montaje (Sunfer / Estructura Coplanar)", 14, y);
+            y += 8;
+            doc.setFont(undefined, 'normal');
 
-            doc.setFontSize(10);
-            doc.text(`Resumen Técnico:`, 14, finalYTable);
+            const steps = [
+                "1. Replanteo: Marcar la posición de los anclajes sobre correas o vigas.",
+                "2. Fijación: Instalar anclajes (S02.3, L-Foot o Varilla) asegurando impermeabilización con juntas EPDM.",
+                "3. Perfiles: Colocar perfiles G1. Si la longitud > perfil, usar piezas de unión UG1.",
+                "4. Nivelación: Ajustar la altura para corregir irregularidades de la cubierta.",
+                "5. Paneles: Empezar colocación. Fijar primer presor lateral (End Clamp S10).",
+                "6. Intermedios: Colocar paneles sucesivos con presores centrales (Inter Clamp S11 SÓLO 2cm separación).",
+                "7. Cierre: Colocar último presor lateral y tapas G1."
+            ];
+
+            steps.forEach(step => {
+                doc.text(step, 14, y);
+                y += 5.5;
+            });
+            y += 8;
+
+            // 3. Safety & Warnings
+            doc.setDrawColor(192, 57, 43); // Red
+            doc.setLineWidth(1.5);
+            doc.line(14, y, 196, y);
+            y += 8;
+
+            doc.setTextColor(192, 57, 43);
+            doc.setFont(undefined, 'bold');
+            doc.text("⚠ PRECAUCIONES DE SEGURIDAD Y VIGOR", 14, y);
+            y += 6;
+
+            doc.setTextColor(0);
+            doc.setFont(undefined, 'normal');
             doc.setFontSize(9);
-            doc.text(`- Paneles: ${panelsCount}`, 14, finalYTable + 6);
-            doc.text(`- Voc Total: ${voc}`, 14, finalYTable + 11);
-            doc.text(`- Vmp Total: ${vmp}`, 14, finalYTable + 16);
+            const warns = [
+                "- No pise nunca sobre la superficie acristalada de los módulos.",
+                "- Realice la instalación con arnés de seguridad (trabajos en altura).",
+                "- Conecte toda la estructura a la red de tierra del edificio (Puesta a Tierra) para cumplir REBT.",
+                "- Verifique que la estructura del edificio soporta la carga extra (~15-20kg/m²)."
+            ];
+            warns.forEach(w => {
+                doc.text(w, 14, y);
+                y += 5;
+            });
 
-            doc.save("presupuesto_solar_v1.0.9.pdf");
+            // Footer P2
+            doc.setFontSize(8);
+            doc.setTextColor(150);
+            doc.text("Simulador Solar Pro - Documento generado automáticamente.", 105, 285, null, null, "center");
+
+            doc.save("Proyecto_Solar_Completo.pdf");
         }
 
         // Initialize with default Obramat/Market approximate prices
