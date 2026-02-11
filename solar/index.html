@@ -469,9 +469,11 @@
                         <option value="3.60">Mega 3.60m</option>
                         <option value="4.40">Giga 4.40m</option>
                         <option value="4.80">Ultra 4.80m</option>
-                        <option value="custom">Personalizado</option>
+                        <option value="custom">Manual / Total</option>
                     </select>
-                    <input type="text" id="genRailLen" value="2.35" onchange="renderStructureWrapper()">
+                    <input type="text" id="genRailLen" value="2.35" placeholder="Ej: 2350+1230"
+                        onchange="renderStructureWrapper()" style="width:120px;"
+                        title="Introduce longitudes en metros o mm, separadas por + (ej: 2.35+1.20)">
                 </div>
                 <div class="flex-item group" id="grp-spacing"><label>Sep. Máx (m)</label><input type="number"
                         id="genSpacing" value="1.4" step="0.05" onchange="renderStructureWrapper()"></div>
@@ -1052,50 +1054,69 @@
                         ];
 
                         if (isManual) {
-                            // Modo Manual: Soporte para combinaciones (ej: 2.35+1.23+2.35)
-                            // 1. Parsear input
+                            // Modo Manual TOTAL: El usuario define exactamente la composición
                             const rawVal = genRailEl.value;
                             let manualSegs = [];
-                            if (rawVal.includes('+')) {
-                                manualSegs = rawVal.split('+').map(s => parseFloat(s.trim())).filter(n => !isNaN(n) && n > 0);
+
+                            // 1. Parsing: Soporta "2.35 + 1.23" o "2350+1230" (detecta mm vs m)
+                            if (rawVal.indexOf('+') !== -1 || rawVal.indexOf(',') !== -1 || rawVal.indexOf(' ') !== -1) {
+                                // Split por separadores habituales
+                                const parts = rawVal.split(/[\+\,\s]+/).map(s => s.trim().replace(',', '.')).filter(s => s.length > 0);
+                                parts.forEach(p => {
+                                    let val = parseFloat(p);
+                                    if (!isNaN(val) && val > 0) {
+                                        // Heurística simple: Si es > 100, probablemente son mm. Si es < 10, son m.
+                                        // (Aunque existen perfiles de 40mm... asumiremos input razonable de perfiles > 300mm)
+                                        if (val > 50) val = val / 1000;
+                                        manualSegs.push(val);
+                                    }
+                                });
                             } else {
-                                const v = parseFloat(rawVal);
-                                if (!isNaN(v) && v > 0) manualSegs = [v];
-                            }
-
-                            // 2. Validar Longitud Total
-                            if (manualSegs.length > 0) {
-                                const totalManual = manualSegs.reduce((a, b) => a + b, 0);
-                                if (totalManual < railLen - 0.05 && tipEl) {
-                                    tipEl.innerText = `⚠️ LONGITUD INSUFICIENTE: ${totalManual.toFixed(2)}m < ${railLen.toFixed(2)}m requeridos.`;
-                                    tipEl.style.color = '#e74c3c';
-                                    tipEl.style.display = 'block';
-                                } else if (tipEl) {
-                                    tipEl.innerText = `Longitud Manual: ${totalManual.toFixed(2)}m (Req: ${railLen.toFixed(2)}m)`;
-                                    tipEl.style.color = '#2ecc71';
-                                    tipEl.style.display = 'block';
-                                }
-
-                                // 3. Construir Segmentos
-                                segments = [];
-
-                                // Si es una combinación explícita ("+"), usamos la secuencia exacta
-                                if (rawVal.includes('+')) {
-                                    manualSegs.forEach(len => {
-                                        segments.push({ len: len, type: len });
-                                    });
-                                } else {
-                                    // Si es un valor único, comportamiento antiguo (repetir hasta llenar)
+                                // Valor único (comportamiento antiguo: repetir)
+                                let val = parseFloat(rawVal.replace(',', '.'));
+                                if (!isNaN(val) && val > 0) {
+                                    // Check heuristic again
+                                    if (val > 50) val = val / 1000;
+                                    // Si es valor único, NO es "Manual Total", es "Manual Repetitivo"
                                     let remaining = railLen;
-                                    const useLen = manualSegs[0] || 2.35;
                                     while (remaining > 0.005) {
-                                        let actual = Math.min(remaining, useLen);
-                                        segments.push({ len: actual, type: useLen });
+                                        let actual = Math.min(remaining, val);
+                                        segments.push({ len: actual, type: val });
                                         remaining -= actual;
                                     }
                                 }
-                            } else {
-                                // Fallback
+                            }
+
+                            // 2. Lógica Manual Total ("Receta")
+                            if (manualSegs.length > 0) {
+                                segments = [];
+                                manualSegs.forEach(len => segments.push({ len: len, type: len }));
+
+                                const totalManual = manualSegs.reduce((a, b) => a + b, 0);
+                                const diff = totalManual - railLen;
+                                const diffCm = Math.round(Math.abs(diff) * 100);
+
+                                if (tipEl) {
+                                    tipEl.style.display = 'block';
+                                    tipEl.style.fontWeight = 'bold';
+
+                                    if (diff >= -0.05) { // Margen de 5cm de tolerancia
+                                        const msg = (diff > 0.01) ? `Sobra: ${diffCm}cm` : `Exacto`;
+                                        tipEl.innerHTML = `<span style="color:#2ecc71">✅ Válido. ${msg}</span>`;
+                                        tipEl.className = 'ok';
+
+                                        // Renderizado: Centramos la composición manual
+                                        // Si sobra mucho, el riel será más largo que los paneles.
+                                        // Ajustamos railLen visual (aunque la lógica de anclajes usaba el railLen requerido...)
+                                        // Vamos a dejar que railLen sea el calculado geométricamente para los anclajes,
+                                        // pero los segmentos visuales pueden salir.
+                                    } else {
+                                        tipEl.innerHTML = `<span style="color:#e74c3c">❌ Insuficiente. Falta: ${diffCm}cm</span>`;
+                                        tipEl.className = 'err';
+                                    }
+                                }
+                            } else if (segments.length === 0) {
+                                // Fallback vacío
                                 segments.push({ len: railLen, type: 2.35 });
                             }
                         } else {
