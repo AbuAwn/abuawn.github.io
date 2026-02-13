@@ -448,6 +448,27 @@
                     style="width:auto; margin-right:8px;">
                 Ver Cotas (Distancias)
             </label>
+            <div id="tile-align-opts" style="margin-top:8px; border-top:1px solid #333; padding-top:8px;">
+                <label style="display:flex; align-items:center; cursor:pointer; color:#eee;">
+                    <input type="checkbox" id="alignToTile" onchange="renderStructureWrapper()" checked
+                        style="width:auto; margin-right:8px;">
+                    Ajustar a Paso de Teja
+                </label>
+                <div class="flex-row" style="margin-top:5px;">
+                    <div class="flex-item group"><label>Paso Teja (cm)</label><input type="number" id="tilePitch"
+                            value="25" min="10" step="1" onchange="renderStructureWrapper()"></div>
+                </div>
+            </div>
+            <div style="margin-top:10px; border-top:1px solid #333; padding-top:10px;">
+                <label>Fuente de Precios</label>
+                <select id="priceSourceSelect" onchange="applyPriceSource()">
+                    <option value="obramat" selected>Obramat (Bricomart)</option>
+                    <option value="leroy">Leroy Merlin</option>
+                    <option value="carlos">Carlos Alcaraz</option>
+                    <option value="alacen">Almacén Fotovoltaico</option>
+                    <option value="manual">Manual</option>
+                </select>
+            </div>
         </div>
 
         <div id="generic-options" style="display:none; margin-top:5px; border-top:1px solid #333; padding-top:5px;">
@@ -788,7 +809,7 @@
                 s02_3: { n: 'Soporte S02.3', c: '#ff4500' },
                 s10: { n: 'Presor Lat. S10', c: '#e74c3c' },
                 s11: { n: 'Presor Cen. S11', c: '#2ecc71' },
-                ug1: { n: 'Unión Guía UG1', c: '#2980b9' },
+                ug1: { n: 'UG1 de Sunfer', c: '#2980b9' },
                 g1_0350: { n: 'Perfil G1-350', c: '#ecf0f1' },
                 g1_0700: { n: 'Perfil G1-700', c: '#bdc3c7' },
                 g1_0800: { n: 'Perfil G1-800', c: '#95a5a6' },
@@ -807,7 +828,27 @@
                 s13: { n: 'Tornillería S13', c: '#ffffff' },
                 g_rail: { n: 'Perfil Genérico', c: '#c0c0c0' },
                 g_anc: { n: 'Anclaje Genérico', c: '#3498db' },
-                g_union: { n: 'Unión Perfil', c: '#2980b9' }
+                g_union: { n: 'UG1 de Sunfer', c: '#2980b9' }
+            };
+
+            const priceSources = {
+                obramat: {
+                    name: 'Obramat',
+                    prices: { s02_3: 8.50, s10: 1.80, s11: 1.80, ug1: 3.50, g_union: 3.50, g1_2350: 17.95, g1_4400: 35.00 }
+                },
+                leroy: {
+                    name: 'Leroy Merlin',
+                    prices: { s02_3: 14.99, s10: 2.50, s11: 2.50, ug1: 5.99, g_union: 5.99, g1_2350: 22.95, g1_4400: 45.00 }
+                },
+                carlos: {
+                    name: 'Carlos Alcaraz',
+                    prices: { s02_3: 9.20, s10: 1.95, s11: 1.95, ug1: 3.90, g_union: 3.90, g1_2350: 18.50, g1_4400: 36.50 }
+                },
+                alacen: {
+                    name: 'Almacén Fotovoltaico',
+                    prices: { s02_3: 7.90, s10: 1.65, s11: 1.65, ug1: 3.20, g_union: 3.20, g1_2350: 16.50, g1_4400: 33.00 }
+                },
+                manual: { name: 'Manual / Propio', prices: {} }
             };
 
             let grandTotal = 0;
@@ -868,6 +909,24 @@
             });
             const totEl = document.getElementById('bom-total');
             if (totEl) totEl.innerHTML = sum.toFixed(2) + ' €';
+        }
+
+        function applyPriceSource() {
+            const src = document.getElementById('priceSourceSelect').value;
+            const data = priceSources[src];
+            if (!data) return;
+
+            if (src === 'manual') {
+                // Keep current prices, enable manual editing?
+                // For now just do nothing, let user edit
+            } else {
+                // Merge prices
+                for (let k in data.prices) {
+                    bomPrices[k] = data.prices[k];
+                }
+            }
+            // Update view
+            renderStructureWrapper();
         }
 
         function renderStructure(parentGroup) {
@@ -1002,10 +1061,64 @@
                     }
 
                     // Generar Coordenadas
+                    // Generar Coordenadas
                     const startAnc = (centerX - railLen / 2) + CANTILEVER;
+                    const endAncLimit = (centerX + railLen / 2) - CANTILEVER;
 
-                    for (let k = 0; k < numAnc; k++) {
-                        anchorsCoords.push(startAnc + k * currentSpan);
+                    const alignTile = document.getElementById('alignToTile')?.checked;
+                    const pitchCm = parseFloat(document.getElementById('tilePitch')?.value) || 25;
+                    const pitch = pitchCm / 100;
+
+                    if (alignTile) {
+                        // Logic for Tile Alignment
+                        // 1. Find first grid point >= startAnc
+                        // Note: Using global grid system logic (relative to 0) or relative to roof edge?
+                        // Let's assume global grid for consistency.
+
+                        let firstGrid = Math.ceil(startAnc / pitch) * pitch;
+                        // Avoid snapping too far if it violates cantilever too much?
+                        // For now, strict grid.
+
+                        let current = firstGrid;
+                        anchorsCoords = [];
+
+                        // We need to cover up to endAncLimit
+                        // Max span logic:
+                        const maxStep = Math.floor(MAX_SPAN / pitch) * pitch;
+
+                        if (current <= endAncLimit + 0.05) { // Tolerance
+                            anchorsCoords.push(current);
+                        } else {
+                            // Rail too short or pitch too big, force center or start
+                            anchorsCoords.push(startAnc);
+                        }
+
+                        // Fill rest
+                        while (current < endAncLimit) {
+                            let next = current + maxStep;
+                            // Ensure we don't exceed limit significantly, but we must reach near end
+                            if (next > endAncLimit) {
+                                // Close the gap. Check if gap to end limit is > MAX_SPAN implies we need an intermediate
+                                // But effectively we just place the last anchor at the last valid grid point
+                                next = Math.floor(endAncLimit / pitch) * pitch;
+                                if (next <= current) break; // Should not happen unless pitch > span
+                            }
+
+                            // Check valid gap
+                            if (next - current > MAX_SPAN + 0.01) {
+                                // This grid step is too large! (should be covered by maxStep logic unless pitch > MAX_SPAN)
+                                // Fallback: add intermediate
+                                next = current + pitch;
+                            }
+
+                            if (!anchorsCoords.includes(next)) anchorsCoords.push(next);
+                            current = next;
+                        }
+                    } else {
+                        // Legacy Equidistant Logic
+                        for (let k = 0; k < numAnc; k++) {
+                            anchorsCoords.push(startAnc + k * currentSpan);
+                        }
                     }
 
                     // GENERACIÓN DE RIELES Y UNIONES (Optimizado con Anti-Colisión de Presores)
@@ -1836,10 +1949,19 @@
             let body = [];
             table.querySelectorAll('tbody tr').forEach(tr => {
                 let row = [];
-                tr.querySelectorAll('td').forEach(td => {
-                    const input = td.querySelector('input');
-                    if (input) row.push(input.value + ' €');
-                    else row.push(td.innerText.replace('€', '').trim() + ' €');
+                const tds = tr.querySelectorAll('td');
+                tds.forEach((td, index) => {
+                    // Col 0: Concept, Col 1: Qty -> Text only
+                    // Col 2: Price (Input), Col 3: Total -> Currency
+                    if (index === 2) {
+                        const input = td.querySelector('input');
+                        const val = input ? input.value : '0.00';
+                        row.push(val + ' €');
+                    } else if (index === 3) {
+                        row.push(td.innerText.trim()); // Already has € in HTML
+                    } else {
+                        row.push(td.innerText.trim());
+                    }
                 });
                 body.push(row);
             });
