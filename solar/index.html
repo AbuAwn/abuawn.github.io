@@ -492,7 +492,9 @@
                         <option value="4.80">Ultra 4.80m</option>
                         <option value="custom">Personalizado</option>
                     </select>
-                    <input type="number" id="genRailLen" value="2.35" step="0.05" onchange="renderStructureWrapper()">
+                    <input type="text" id="genRailLen" value="2.35" placeholder="Ej: 2.35+1.20"
+                        onchange="renderStructureWrapper()"
+                        title="Introduce longitudes en metros separadas por + (ej: 2.35+1.20)">
                 </div>
                 <div class="flex-item group" id="grp-spacing"><label>Sep. Máx (m)</label><input type="number"
                         id="genSpacing" value="1.4" step="0.05" onchange="renderStructureWrapper()"></div>
@@ -911,23 +913,144 @@
             if (totEl) totEl.innerHTML = sum.toFixed(2) + ' €';
         }
 
-        function applyPriceSource() {
+        // URL del Cloudflare Worker (actualiza esto después de desplegar)
+        const WORKER_URL = 'https://solar-price-scraper.YOUR-ACCOUNT.workers.dev';
+
+        async function applyPriceSource() {
             const src = document.getElementById('priceSourceSelect').value;
-            const data = priceSources[src];
-            if (!data) return;
 
             if (src === 'manual') {
-                // Keep current prices, enable manual editing?
-                // For now just do nothing, let user edit
-            } else {
-                // Merge prices
-                for (let k in data.prices) {
-                    bomPrices[k] = data.prices[k];
-                }
+                // Modo manual: no hacer nada, dejar que el usuario edite
+                return;
             }
-            // Update view
-            renderStructureWrapper();
+
+            // Mostrar indicador de carga
+            const selectEl = document.getElementById('priceSourceSelect');
+            const originalHTML = selectEl.innerHTML;
+            selectEl.disabled = true;
+            selectEl.innerHTML = '<option>Actualizando precios...</option>';
+
+            try {
+                // Intentar obtener precios del worker
+                const response = await fetch(`${WORKER_URL}/prices?source=${src}`, {
+                    method: 'GET',
+                    headers: {
+                        'Accept': 'application/json'
+                    }
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+
+                    if (data.success && data.prices) {
+                        // Actualizar precios con los datos del worker
+                        for (let k in data.prices) {
+                            if (data.prices[k] > 0) {
+                                bomPrices[k] = data.prices[k];
+                            }
+                        }
+
+                        console.log(`✅ Precios actualizados desde ${data.source}:`, data.prices);
+
+                        // Mostrar notificación de éxito
+                        showNotification(`Precios actualizados desde ${src}`, 'success');
+                    } else {
+                        throw new Error('Respuesta inválida del servidor');
+                    }
+                } else {
+                    throw new Error(`Error HTTP: ${response.status}`);
+                }
+            } catch (error) {
+                console.warn('⚠️ Error obteniendo precios del worker, usando fallback:', error);
+
+                // Fallback a precios locales
+                const fallbackPrices = {
+                    obramat: {
+                        s02_3: 8.50, s10: 1.80, s11: 1.80, ug1: 3.50, g_union: 3.50,
+                        g1_1230: 8.99, g1_1800: 14.00, g1_2350: 17.95, g1_3600: 30.99, g1_4400: 35.00,
+                        tapa: 0.75, s13: 0.30
+                    },
+                    leroy: {
+                        s02_3: 14.99, s10: 2.50, s11: 2.50, ug1: 5.99, g_union: 5.99,
+                        g1_1230: 12.50, g1_1800: 18.00, g1_2350: 22.95, g1_3600: 38.00, g1_4400: 45.00,
+                        tapa: 1.20, s13: 0.50
+                    },
+                    carlos: {
+                        s02_3: 9.20, s10: 1.95, s11: 1.95, ug1: 3.90, g_union: 3.90,
+                        g1_1230: 9.50, g1_1800: 15.00, g1_2350: 18.50, g1_3600: 32.00, g1_4400: 36.50,
+                        tapa: 0.85, s13: 0.35
+                    },
+                    alacen: {
+                        s02_3: 7.90, s10: 1.65, s11: 1.65, ug1: 3.20, g_union: 3.20,
+                        g1_1230: 7.50, g1_1800: 12.50, g1_2350: 16.50, g1_3600: 28.00, g1_4400: 33.00,
+                        tapa: 0.60, s13: 0.25
+                    }
+                };
+
+                if (fallbackPrices[src]) {
+                    for (let k in fallbackPrices[src]) {
+                        bomPrices[k] = fallbackPrices[src][k];
+                    }
+                    showNotification(`Usando precios de referencia (${src})`, 'warning');
+                }
+            } finally {
+                // Restaurar selector
+                selectEl.disabled = false;
+                selectEl.innerHTML = originalHTML;
+                selectEl.value = src;
+
+                // Actualizar vista
+                renderStructureWrapper();
+            }
         }
+
+        function showNotification(message, type = 'info') {
+            // Crear elemento de notificación
+            const notif = document.createElement('div');
+            notif.style.cssText = `
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                padding: 15px 20px;
+                border-radius: 8px;
+                color: white;
+                font-weight: bold;
+                z-index: 10000;
+                animation: slideIn 0.3s ease;
+                box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+            `;
+
+            if (type === 'success') {
+                notif.style.background = '#2ecc71';
+            } else if (type === 'warning') {
+                notif.style.background = '#f39c12';
+            } else {
+                notif.style.background = '#3498db';
+            }
+
+            notif.textContent = message;
+            document.body.appendChild(notif);
+
+            // Eliminar después de 3 segundos
+            setTimeout(() => {
+                notif.style.animation = 'slideOut 0.3s ease';
+                setTimeout(() => notif.remove(), 300);
+            }, 3000);
+        }
+
+        // Añadir estilos de animación
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes slideIn {
+                from { transform: translateX(400px); opacity: 0; }
+                to { transform: translateX(0); opacity: 1; }
+            }
+            @keyframes slideOut {
+                from { transform: translateX(0); opacity: 1; }
+                to { transform: translateX(400px); opacity: 0; }
+            }
+        `;
+        document.head.appendChild(style);
 
         function renderStructure(parentGroup) {
             const modeEl = document.getElementById('structPreset');
