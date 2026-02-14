@@ -322,7 +322,7 @@
         <h1
             style="text-align:center; color:#f1c40f; margin-bottom:15px; font-size:16px; border-bottom:1px solid #333; padding-bottom:10px;">
             Simulador Solar Pro
-            <span style="font-size:10px; color:#888; font-weight:normal; margin-left:5px;">v1.11</span>
+            <span style="font-size:10px; color:#888; font-weight:normal; margin-left:5px;">v1.12</span>
         </h1>
         <h2>1. Geometría del Tejado</h2>
         <div class="group">
@@ -1288,15 +1288,31 @@
                         ];
 
                         if (isManual) {
-                            // Modo Manual: Forzamos el uso repetido del perfil seleccionado
-                            // Sin optimización de mezcla, solo repetición.
-                            let remaining = railLen;
-                            segments = [];
-                            while (remaining > 0.005) {
-                                let useLen = (railUnit || 2.35);
-                                let actual = Math.min(remaining, useLen);
-                                segments.push({ len: actual, type: railUnit });
-                                remaining -= actual;
+                            // Modo Manual: Soporta combinaciones como "1.8+2.35+1.8"
+                            const railInput = genRailEl.value.trim();
+
+                            // Detectar si es una combinación (contiene +)
+                            if (railInput.includes('+')) {
+                                // Parsear combinación manual
+                                const parts = railInput.split('+').map(p => parseFloat(p.trim())).filter(v => !isNaN(v) && v > 0);
+
+                                if (parts.length > 0) {
+                                    // Usar los segmentos especificados
+                                    segments = parts.map(len => ({ len: len, type: len }));
+                                } else {
+                                    // Fallback si el formato es inválido
+                                    segments = [{ len: railLen, type: 2.35 }];
+                                }
+                            } else {
+                                // Modo simple: repetir el mismo perfil
+                                let remaining = railLen;
+                                segments = [];
+                                while (remaining > 0.005) {
+                                    let useLen = (railUnit || 2.35);
+                                    let actual = Math.min(remaining, useLen);
+                                    segments.push({ len: actual, type: railUnit });
+                                    remaining -= actual;
+                                }
                             }
                         } else {
                             // MODO AUTO: SOLVER RECURSIVO PARA MÍNIMO COSTE
