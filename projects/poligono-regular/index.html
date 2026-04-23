@@ -1,0 +1,924 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Raíces de la Unidad y Constructibilidad</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Crimson+Pro:ital,wght@0,300;0,400;1,300;1,400&family=JetBrains+Mono:wght@300;400&display=swap');
+
+:root{
+  --bg:#05050a;
+  --panel:#0a0a14;
+  --border:rgba(180,160,255,.13);
+  --gold:#c8a84b;
+  --goldL:#e8cc78;
+  --violet:#8b6ef0;
+  --violetL:#b09af8;
+  --teal:#3ecfb0;
+  --tealL:#70e8cc;
+  --rose:#e06080;
+  --roseL:#f090a8;
+  --dim:rgba(220,215,255,.28);
+  --dimM:rgba(220,215,255,.55);
+  --white:rgba(235,230,255,.92);
+}
+
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{
+  background:var(--bg);
+  color:var(--white);
+  font-family:'Crimson Pro',serif;
+  min-height:100vh;
+  overflow-x:hidden;
+}
+
+/* ── GRID BACKGROUND ── */
+body::before{
+  content:'';position:fixed;inset:0;
+  background:
+    radial-gradient(ellipse 80% 50% at 50% -10%,rgba(139,110,240,.08),transparent),
+    radial-gradient(ellipse 40% 60% at 90% 80%,rgba(62,207,176,.05),transparent);
+  pointer-events:none;z-index:0;
+}
+
+/* ── HEADER ── */
+header{
+  text-align:center;
+  padding:2.8rem 1rem 1.4rem;
+  position:relative;z-index:1;
+  border-bottom:1px solid var(--border);
+}
+header h1{
+  font-family:'Playfair Display',serif;
+  font-size:clamp(1.4rem,4vw,2.6rem);
+  font-weight:700;
+  color:var(--goldL);
+  letter-spacing:.04em;
+  line-height:1.15;
+}
+header h1 em{
+  font-style:italic;color:var(--violetL);
+}
+header p{
+  color:var(--dim);font-size:.95rem;margin-top:.5rem;
+  font-style:italic;letter-spacing:.02em;
+}
+
+/* ── MAIN LAYOUT ── */
+.layout{
+  display:grid;
+  grid-template-columns:1fr min(420px,42vw);
+  gap:0;
+  max-width:1100px;
+  margin:0 auto;
+  position:relative;z-index:1;
+}
+@media(max-width:700px){
+  .layout{grid-template-columns:1fr}
+}
+
+/* ── LEFT: canvas area ── */
+.canvas-col{
+  padding:1.5rem 1rem 1rem;
+  display:flex;flex-direction:column;align-items:center;
+  border-right:1px solid var(--border);
+}
+.canvas-title{
+  font-family:'Playfair Display',serif;
+  font-size:.78rem;letter-spacing:.18em;
+  color:var(--violet);text-transform:uppercase;
+  margin-bottom:.7rem;
+}
+canvas{
+  display:block;
+  background:rgba(10,8,20,.7);
+  border-radius:4px;
+  border:1px solid var(--border);
+}
+
+/* selector */
+.n-selector{
+  display:flex;align-items:center;gap:.5rem;
+  margin-top:1rem;flex-wrap:wrap;justify-content:center;
+}
+.n-label{
+  font-family:'JetBrains Mono',monospace;
+  font-size:.7rem;color:var(--dim);letter-spacing:.08em;
+}
+.n-btns{display:flex;flex-wrap:wrap;gap:3px;justify-content:center;max-width:380px}
+.nb{
+  font-family:'JetBrains Mono',monospace;
+  font-size:.62rem;padding:.2rem .42rem;border-radius:2px;
+  border:1px solid rgba(139,110,240,.2);background:transparent;
+  color:rgba(220,215,255,.38);cursor:pointer;transition:all .15s;min-width:28px;
+}
+.nb:hover{border-color:var(--violetL);color:var(--violetL)}
+.nb.active{background:rgba(139,110,240,.2);border-color:var(--violetL);color:#d4c8ff}
+.nb.construct{color:rgba(62,207,176,.55);border-color:rgba(62,207,176,.18)}
+.nb.construct:hover{border-color:var(--tealL);color:var(--tealL)}
+.nb.construct.active{background:rgba(62,207,176,.15);border-color:var(--tealL);color:var(--tealL)}
+.nb.nocon{color:rgba(224,96,128,.5);border-color:rgba(224,96,128,.15)}
+.nb.nocon:hover{border-color:var(--roseL);color:var(--roseL)}
+.nb.nocon.active{background:rgba(224,96,128,.12);border-color:var(--roseL);color:var(--roseL)}
+
+/* ── RIGHT: theory panel ── */
+.theory-col{
+  padding:1.4rem 1.3rem;
+  overflow-y:auto;
+  max-height:calc(100vh - 100px);
+}
+.theory-col::-webkit-scrollbar{width:4px}
+.theory-col::-webkit-scrollbar-track{background:transparent}
+.theory-col::-webkit-scrollbar-thumb{background:rgba(139,110,240,.3);border-radius:2px}
+
+.card{
+  background:rgba(12,10,24,.75);
+  border:1px solid var(--border);
+  border-radius:4px;
+  padding:1rem 1.1rem;
+  margin-bottom:.85rem;
+}
+.card-label{
+  font-family:'JetBrains Mono',monospace;
+  font-size:.58rem;letter-spacing:.2em;
+  color:var(--violet);text-transform:uppercase;
+  margin-bottom:.4rem;
+}
+.card h3{
+  font-family:'Playfair Display',serif;
+  font-size:1rem;color:var(--goldL);
+  margin-bottom:.4rem;font-weight:400;
+}
+.card p{font-size:.88rem;color:var(--dimM);line-height:1.62;margin-bottom:.4rem}
+.card p:last-child{margin-bottom:0}
+
+/* math display */
+.math{
+  font-family:'JetBrains Mono',monospace;
+  font-size:.78rem;color:var(--violetL);
+  background:rgba(139,110,240,.08);
+  border:1px solid rgba(139,110,240,.15);
+  border-radius:3px;padding:.5rem .8rem;
+  margin:.5rem 0;line-height:1.7;
+  white-space:pre-wrap;
+}
+.math .hi{color:var(--tealL)}
+.math .warn{color:var(--roseL)}
+.math .gold{color:var(--goldL)}
+
+/* dynamic info card */
+#dynCard{transition:border-color .3s}
+#dynCard.constructible{border-color:rgba(62,207,176,.35)}
+#dynCard.nonconstructible{border-color:rgba(224,96,128,.35)}
+
+.verdict{
+  display:inline-flex;align-items:center;gap:.4rem;
+  font-family:'JetBrains Mono',monospace;
+  font-size:.72rem;padding:.28rem .7rem;border-radius:2px;
+  margin:.5rem 0 .2rem;font-weight:400;letter-spacing:.05em;
+}
+.verdict.yes{background:rgba(62,207,176,.12);color:var(--tealL);border:1px solid rgba(62,207,176,.3)}
+.verdict.no{background:rgba(224,96,128,.1);color:var(--roseL);border:1px solid rgba(224,96,128,.25)}
+
+/* tower steps */
+.tower{margin:.5rem 0}
+.tower-step{
+  display:flex;align-items:flex-start;gap:.5rem;
+  padding:.28rem 0;border-bottom:1px solid rgba(139,110,240,.08);
+  font-size:.82rem;
+}
+.tower-step:last-child{border-bottom:none}
+.tower-idx{
+  font-family:'JetBrains Mono',monospace;
+  font-size:.65rem;color:var(--violet);
+  min-width:18px;padding-top:.08rem;
+}
+.tower-text{color:var(--dimM);line-height:1.5}
+.tower-text .op{color:var(--goldL);font-family:'JetBrains Mono',monospace;font-size:.75rem}
+
+/* root list */
+.root-list{
+  display:flex;flex-wrap:wrap;gap:4px;margin:.45rem 0;
+}
+.root-chip{
+  font-family:'JetBrains Mono',monospace;
+  font-size:.6rem;padding:.15rem .45rem;border-radius:2px;
+  border:1px solid rgba(139,110,240,.2);
+  color:rgba(220,215,255,.5);
+  cursor:pointer;transition:all .15s;
+}
+.root-chip:hover{border-color:var(--violetL);color:var(--violetL)}
+.root-chip.highlighted{background:rgba(139,110,240,.2);border-color:var(--violetL);color:#d4c8ff}
+
+/* legend */
+.legend{display:flex;gap:1rem;flex-wrap:wrap;margin-top:.6rem}
+.leg{display:flex;align-items:center;gap:.3rem;font-size:.7rem;color:var(--dim)}
+.leg-dot{width:9px;height:9px;border-radius:50%}
+
+/* Language support */
+.lang-es, .lang-en, .lang-ar { display: none; }
+body.es .lang-es { display: inline; }
+body.en .lang-en { display: inline; }
+body.ar .lang-ar { display: inline; }
+body.es div.lang-es, body.es p.lang-es, body.es h1.lang-es, body.es h3.lang-es { display: block; }
+body.en div.lang-en, body.en p.lang-en, body.en h1.lang-en, body.en h3.lang-en { display: block; }
+body.ar div.lang-ar, body.ar p.lang-ar, body.ar h1.lang-ar, body.ar h3.lang-ar { display: block; }
+
+body.ar { direction: rtl; font-family: 'Cairo', sans-serif; }
+body.ar .layout { grid-template-columns: min(420px,42vw) 1fr; }
+body.ar .canvas-col { border-right: none; border-left: 1px solid var(--border); }
+
+.lang-btn {
+  background: rgba(139,110,240,.1);
+  border: 1px solid var(--border);
+  color: var(--dim);
+  padding: 4px 8px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.7rem;
+  font-family: 'JetBrains Mono', monospace;
+}
+.lang-btn:hover { border-color: var(--violetL); color: var(--white); }
+</style>
+</head>
+</style>
+</head>
+<body class="es">
+
+<header>
+  <h1>
+    <span class="lang-es">Raíces de la Unidad y <em>Constructibilidad</em></span>
+    <span class="lang-en">Roots of Unity and <em>Constructibility</em></span>
+    <span class="lang-ar">جذور الوحدة و<em>القابلية للإنشاء</em></span>
+  </h1>
+  <p>
+    <span class="lang-es">Por qué construir un polígono regular se reduce a resolver una ecuación algebraica</span>
+    <span class="lang-en">Why constructing a regular polygon boils down to solving an algebraic equation</span>
+    <span class="lang-ar">لماذا يختصر إنشاء مضلع منتظم في حل معادلة جبرية</span>
+  </p>
+  
+  <div style="position: absolute; top: 20px; right: 20px; display: flex; gap: 8px;">
+    <button class="lang-btn" onclick="setLang('es')">ES</button>
+    <button class="lang-btn" onclick="setLang('en')">EN</button>
+    <button class="lang-btn" onclick="setLang('ar')">AR</button>
+  </div>
+</header>
+
+<div class="layout">
+
+<!-- ── LEFT: complex plane ── -->
+<div class="canvas-col">
+  <div class="canvas-title">
+    <span class="lang-es">Plano complejo — raíces de z ⁿ = 1</span>
+    <span class="lang-en">Complex plane — roots of z ⁿ = 1</span>
+    <span class="lang-ar">المستوى العقدي — جذور z ⁿ = 1</span>
+  </div>
+  <canvas id="cv"></canvas>
+
+  <div class="n-selector">
+    <span class="n-label">n =</span>
+    <div class="n-btns" id="nBtns"></div>
+  </div>
+  <div class="legend">
+    <span class="leg">
+        <span class="leg-dot" style="background:rgba(62,207,176,.7)"></span>
+        <span class="lang-es">Constructible exacto</span>
+        <span class="lang-en">Exactly constructible</span>
+        <span class="lang-ar">قابل للإنشاء بدقة</span>
+    </span>
+    <span class="leg">
+        <span class="leg-dot" style="background:rgba(224,96,128,.6)"></span>
+        <span class="lang-es">No constructible</span>
+        <span class="lang-en">Not constructible</span>
+        <span class="lang-ar">غير قابل للإنشاء</span>
+    </span>
+    <span class="leg">
+        <span class="leg-dot" style="background:#c8a84b"></span>
+        <span class="lang-es">ω = raíz primitiva</span>
+        <span class="lang-en">ω = primitive root</span>
+        <span class="lang-ar">ω = جذر أولي</span>
+    </span>
+  </div>
+</div>
+
+<!-- ── RIGHT: theory ── -->
+<div class="theory-col">
+
+  <!-- Fixed theory -->
+  <div class="card">
+    <div class="card-label">
+        <span class="lang-es">El problema central</span>
+        <span class="lang-en">The Central Problem</span>
+        <span class="lang-ar">المشكلة المركزية</span>
+    </div>
+    <h3>
+        <span class="lang-es">Construir ↔ Resolver con radicales cuadrados</span>
+        <span class="lang-en">Construction ↔ Solving with square radicals</span>
+        <span class="lang-ar">الإنشاء ↔ الحل بالجذور المربعة</span>
+    </h3>
+    <p>
+        <span class="lang-es">Un polígono regular de <em>n</em> lados inscrito en el círculo unitario tiene sus vértices en las <strong>raíces n-ésimas de la unidad</strong>:</span>
+        <span class="lang-en">A regular polygon of <em>n</em> sides inscribed in the unit circle has its vertices at the <strong>n-th roots of unity</strong>:</span>
+        <span class="lang-ar">المضلع المنتظم ذو <em>n</em> أضلاع المرسوم في دائرة الوحدة تقع رؤوسه عند <strong>جذور الوحدة النونية</strong>:</span>
+    </p>
+    <div class="math">z<span class="hi">ⁿ</span> = 1  ⟹  z<sub>k</sub> = e<sup>2πik/n</sup> = cos(2πk/n) + i·sin(2πk/n)</div>
+    <p>
+        <span class="lang-es">Construir el polígono ≡ construir el número <span style="color:var(--violetL)">cos(2π/n)</span> a partir de ℚ usando solo <span style="color:var(--goldL)">+, −, ×, ÷, √</span>.</span>
+        <span class="lang-en">Constructing the polygon ≡ constructing the number <span style="color:var(--violetL)">cos(2π/n)</span> from ℚ using only <span style="color:var(--goldL)">+, −, ×, ÷, √</span>.</span>
+        <span class="lang-ar">إنشاء المضلع ≡ إنشاء العدد <span style="color:var(--violetL)">cos(2π/n)</span> انطلاقاً من ℚ باستخدام <span style="color:var(--goldL)">+, −, ×, ÷, √</span> فقط.</span>
+    </p>
+  </div>
+
+  <div class="card">
+    <div class="card-label">
+        <span class="lang-es">Teoría de Galois</span>
+        <span class="lang-en">Galois Theory</span>
+        <span class="lang-ar">نظرية غالوا</span>
+    </div>
+    <h3>
+        <span class="lang-es">Torre de extensiones cuadráticas</span>
+        <span class="lang-en">Tower of quadratic extensions</span>
+        <span class="lang-ar">برج الامتدادات التربيعية</span>
+    </h3>
+    <p>
+        <span class="lang-es">Un número α es constructible ↔ existe una cadena de cuerpos:</span>
+        <span class="lang-en">A number α is constructible ↔ there exists a chain of fields:</span>
+        <span class="lang-ar">يكون العدد α قابلاً للإنشاء ↔ إذا وجد تسلسل من الحقول:</span>
+    </p>
+    <div class="math"><span class="gold">ℚ = K₀ ⊂ K₁ ⊂ K₂ ⊂ … ⊂ Kₘ</span>
+con  <span class="hi">[Kᵢ₊₁ : Kᵢ] = 2</span>  para todo i,
+y  α ∈ Kₘ.</div>
+    <p>
+        <span class="lang-es">Equivalentemente: el <span style="color:var(--violetL)">polinomio mínimo</span> de α sobre ℚ tiene grado <span style="color:var(--goldL)">2<sup>k</sup></span> para algún k ≥ 0.</span>
+        <span class="lang-en">Equivalently: the <span style="color:var(--violetL)">minimal polynomial</span> of α over ℚ has degree <span style="color:var(--goldL)">2<sup>k</sup></span> for some k ≥ 0.</span>
+        <span class="lang-ar">بمعنى آخر: <span style="color:var(--violetL)">متعدد الحدود الأدنى</span> لـ α على ℚ له درجة <span style="color:var(--goldL)">2<sup>k</sup></span> لبعض k ≥ 0.</span>
+    </p>
+  </div>
+
+  <div class="card">
+    <div class="card-label">
+        <span class="lang-es">Polinomio ciclotómico</span>
+        <span class="lang-en">Cyclotomic Polynomial</span>
+        <span class="lang-ar">متعدد الحدود الدوري</span>
+    </div>
+    <h3>
+        <span class="lang-es">Φₙ(z) y su grado φ(n)</span>
+        <span class="lang-en">Φₙ(z) and its degree φ(n)</span>
+        <span class="lang-ar">Φₙ(z) ودرجته φ(n)</span>
+    </h3>
+    <p>
+        <span class="lang-es">Las raíces primitivas n-ésimas son raíces del <strong>polinomio ciclotómico</strong>:</span>
+        <span class="lang-en">The primitive n-th roots are roots of the <strong>cyclotomic polynomial</strong>:</span>
+        <span class="lang-ar">جذور الوحدة الأولية هي جذور لـ <strong>متعدد الحدود الدوري</strong>:</span>
+    </p>
+    <div class="math">Φ<sub>n</sub>(z) = <span class="hi">∏</span><sub>gcd(k,n)=1</sub> (z − e<sup>2πik/n</sup>)
+grado = <span class="gold">φ(n)</span>  (función de Euler)</div>
+    <p>
+        <span class="lang-es">El grupo de Galois Gal(ℚ(ζₙ)/ℚ) ≅ (ℤ/nℤ)* tiene orden φ(n). Para que cos(2π/n) sea constructible hace falta que <span style="color:var(--goldL)">φ(n) sea potencia de 2</span>.</span>
+        <span class="lang-en">The Galois group Gal(ℚ(ζₙ)/ℚ) ≅ (ℤ/nℤ)* has order φ(n). For cos(2π/n) to be constructible, <span style="color:var(--goldL)">φ(n) must be a power of 2</span>.</span>
+        <span class="lang-ar">زمرة غالوا Gal(ℚ(ζₙ)/ℚ) ≅ (ℤ/nℤ)* رتبتها φ(n). لكي يكون cos(2π/n) قابلاً للإنشاء يجب أن تكون <span style="color:var(--goldL)">φ(n) قوة للعدد 2</span>.</span>
+    </p>
+  </div>
+
+  <div class="card">
+    <div class="card-label">
+        <span class="lang-es">Teorema de Gauss–Wantzel (1837)</span>
+        <span class="lang-en">Gauss–Wantzel Theorem (1837)</span>
+        <span class="lang-ar">مبرهنة غاوس-وانتزل (1837)</span>
+    </div>
+    <h3>
+        <span class="lang-es">Condición necesaria y suficiente</span>
+        <span class="lang-en">Necessary and Sufficient Condition</span>
+        <span class="lang-ar">الشرط اللازم والكافي</span>
+    </h3>
+    <div class="math"><span class="gold">n-gono constructible</span>  ⟺
+n = 2<sup>k</sup> · p₁ · p₂ · … · pₘ
+donde los <span class="hi">pᵢ son primos de Fermat distintos</span>
+(primos de la forma 2<sup>2ʲ</sup>+1):  <span class="hi">3, 5, 17, 257, 65537</span></div>
+    <p>
+        <span class="lang-es">Wantzel demostró en 1837 que la condición también es <em>necesaria</em>. Gauss solo había demostrado suficiencia.</span>
+        <span class="lang-en">Wantzel proved in 1837 that the condition is also <em>necessary</em>. Gauss had only proved sufficiency.</span>
+        <span class="lang-ar">أثبت وانتزل في عام 1837 أن الشرط <em>ضروري</em> أيضاً. كان غاوس قد أثبت الكفاية فقط.</span>
+    </p>
+  </div>
+
+  <!-- Dynamic card — updates with n -->
+  <div class="card" id="dynCard">
+    <div class="card-label">
+        <span class="lang-es">Análisis para n = <span id="dynN">10</span></span>
+        <span class="lang-en">Analysis for n = <span id="dynN">10</span></span>
+        <span class="lang-ar">تحليل لـ n = <span id="dynN">10</span></span>
+    </div>
+    <div id="dynVerdict"></div>
+    <div id="dynContent"></div>
+  </div>
+
+</div>
+</div>
+
+<script>
+(function(){
+"use strict";
+
+window.setLang = function(lang) {
+  document.body.className = lang;
+  localStorage.setItem('preferredLang', lang);
+  if (typeof updateCard === 'function') updateCard(currentN);
+};
+
+const I18N = {
+  es: {
+    roots: "raíces primitivas",
+    degree: "grado",
+    minPoly: "grado min. pol. de cos(2π/n)",
+    pow2: "potencia de 2",
+    notPow2: "≠ potencia de 2",
+    cyclotomic: "Polinomio ciclotómico:",
+    problem: "Problema: ",
+    notFermat: "no es primo de Fermat",
+    exponent: "aparece con exponente >1 en la factorización",
+    galoisReason: "El grupo de Galois (ℤ/nℤ)* tiene orden φ(n) que contiene un factor impar, lo que impide descomponerlo en extensiones cuadráticas.",
+    exactCos: "Expresión exacta de cos(2π/n):",
+    tower: "Torre de extensiones cuadráticas (esquema):",
+    baseField: "cuerpo base",
+    rationalSqrt: "√ de racional",
+    nestedRadicals: "radicales anidados (Gauss 1796)",
+    generators: "Raíces primitivas (generadoras del polígono):",
+    verdictYes: "✓ CONSTRUCTIBLE con regla y compás",
+    verdictNo: "✗ NO constructible exacto"
+  },
+  en: {
+    roots: "primitive roots",
+    degree: "degree",
+    minPoly: "min. poly. degree of cos(2π/n)",
+    pow2: "power of 2",
+    notPow2: "≠ power of 2",
+    cyclotomic: "Cyclotomic Polynomial:",
+    problem: "Problem: ",
+    notFermat: "is not a Fermat prime",
+    exponent: "appears with exponent > 1 in the factorization",
+    galoisReason: "The Galois group (ℤ/nℤ)* has order φ(n) which contains an odd factor, preventing decomposition into quadratic extensions.",
+    exactCos: "Exact expression for cos(2π/n):",
+    tower: "Tower of quadratic extensions (schema):",
+    baseField: "base field",
+    rationalSqrt: "√ of rational",
+    nestedRadicals: "nested radicals (Gauss 1796)",
+    generators: "Primitive roots (polygon generators):",
+    verdictYes: "✓ CONSTRUCTIBLE with straightedge and compass",
+    verdictNo: "✗ NOT exactly constructible"
+  },
+  ar: {
+    roots: "جذور أولية",
+    degree: "درجة",
+    minPoly: "درجة متعدد الحدود الأدنى لـ cos(2π/n)",
+    pow2: "قوة للعدد 2",
+    notPow2: "≠ قوة للعدد 2",
+    cyclotomic: "متعدد الحدود الدوري:",
+    problem: "المشكلة: ",
+    notFermat: "ليس عدداً أولياً لفرما",
+    exponent: "يظهر بأس أكبر من 1 في التحليل",
+    galoisReason: "زمرة غالوا (ℤ/nℤ)* رتبتها φ(n) تحتوي على عامل فردي، مما يمنع تفكيكها إلى امتدادات تربيعية.",
+    exactCos: "التعبير الدقيق لـ cos(2π/n):",
+    tower: "برج الامتدادات التربيعية (مخطط):",
+    baseField: "حقل القاعدة",
+    rationalSqrt: "جذر لعدد نسبي",
+    nestedRadicals: "جذور متداخلة (غاوص 1796)",
+    generators: "الجذور الأولية (مولدات المضلع):",
+    verdictYes: "✓ قابل للإنشاء بالمسطرة والفرجار",
+    verdictNo: "✗ غير قابل للإنشاء بدقة"
+  }
+};
+
+/* ══════════════════════════════════════
+   CANVAS
+══════════════════════════════════════ */
+var cv=document.getElementById('cv');
+var ctx=cv.getContext('2d');
+var SZ=Math.min(window.innerWidth*.52,420);
+if(window.innerWidth<=700)SZ=Math.min(window.innerWidth*.9,400);
+cv.width=cv.height=SZ;
+var CX=SZ/2,CY=SZ/2,R=SZ*.36;
+
+/* ══════════════════════════════════════
+   MATH
+══════════════════════════════════════ */
+/* Euler totient */
+function gcd(a,b){while(b){var t=b;b=a%b;a=t;}return a;}
+function phi(n){
+  var r=0,i;
+  for(i=1;i<=n;i++)if(gcd(i,n)===1)r++;
+  return r;
+}
+/* factorisation */
+function factors(n){
+  var f={},d=2,m=n;
+  while(d*d<=m){while(m%d===0){f[d]=(f[d]||0)+1;m=Math.floor(m/d);}d++;}
+  if(m>1)f[m]=(f[m]||0)+1;
+  return f;
+}
+/* is power of 2? */
+function isPow2(n){return n>0&&(n&(n-1))===0;}
+/* is Fermat prime? */
+var FERMAT={3:1,5:1,17:1,257:1,65537:1};
+function isFermat(p){return !!FERMAT[p];}
+
+/* Constructibility check + explanation */
+function analyse(n){
+  var f=factors(n);
+  var keys=Object.keys(f).map(Number);
+  /* separate power of 2 */
+  var k=f[2]||0;
+  var oddPrimes=keys.filter(function(p){return p!==2;});
+  /* each odd prime must be a Fermat prime appearing with exponent 1 */
+  var ok=true,reason='';
+  var badPrimes=[];
+  var goodPrimes=[];
+  oddPrimes.forEach(function(p){
+    if(!isFermat(p)){ok=false;badPrimes.push(p);}
+    else if(f[p]>1){ok=false;badPrimes.push(p+'²');}
+    else goodPrimes.push(p);
+  });
+  /* build factorisation string */
+  var factStr='';
+  if(k>0)factStr+='2'+(k>1?('⁰¹²³⁴⁵⁶⁷⁸⁹'[k]||'^'+k):'');
+  goodPrimes.forEach(function(p){factStr+=(factStr?'·':'')+p;});
+  badPrimes.forEach(function(p){factStr+=(factStr?'·':'')+p;});
+  if(!factStr)factStr='1';
+
+  /* phi */
+  var ph=phi(n);
+  /* degree of min poly of cos(2π/n) is phi(n)/2 for n>2 */
+  var degCos=n>2?ph/2:1;
+
+  /* tower for constructible cases */
+  var tower=[];
+  if(ok){
+    /* build tower symbolically */
+    tower.push({field:'ℚ',ext:'-',note:'cuerpo base'});
+    /* for each Fermat prime factor, we need log2(p-1) quadratic extensions */
+    goodPrimes.forEach(function(p){
+      var steps=Math.log2(p-1);
+      for(var s=0;s<steps;s++){
+        tower.push({
+          field:'ℚ(cos '+((s===steps-1)?'2π/'+p:'parcial')+')',
+          ext:'[K:K₋₁]=2',
+          note:'√ de expresión racional'
+        });
+      }
+    });
+    /* powers of 2 give bisections */
+    for(var s=0;s<k;s++){
+      tower.push({field:'ℚ(cos 2π/'+n+')',ext:'[K:K₋₁]=2',note:'bisección de arco'});
+    }
+  }
+
+  return{
+    ok:ok,
+    factStr:factStr,
+    phi:ph,
+    degCos:degCos,
+    badPrimes:badPrimes,
+    goodPrimes:goodPrimes,
+    k2:k,
+    tower:tower,
+    oddPrimes:oddPrimes
+  };
+}
+
+/* cyclotomic polynomial coefficients (for display, small n) */
+function cyclotomicStr(n){
+  /* precomputed strings for n=1..24 */
+  var T={
+    1:'z − 1',
+    2:'z + 1',
+    3:'z² + z + 1',
+    4:'z² + 1',
+    5:'z⁴ + z³ + z² + z + 1',
+    6:'z² − z + 1',
+    7:'z⁶ + z⁵ + z⁴ + z³ + z² + z + 1',
+    8:'z⁴ + 1',
+    9:'z⁶ + z³ + 1',
+    10:'z⁴ − z³ + z² − z + 1',
+    11:'z¹⁰ + z⁹ + … + z + 1',
+    12:'z⁴ − z² + 1',
+    13:'z¹² + z¹¹ + … + z + 1',
+    14:'z⁶ − z⁵ + z⁴ − z³ + z² − z + 1',
+    15:'z⁸ − z⁷ + z⁵ − z⁴ + z³ − z + 1',
+    16:'z⁸ + 1',
+    17:'z¹⁶ + z¹⁵ + … + z + 1',
+    18:'z⁶ − z³ + 1',
+    19:'z¹⁸ + z¹⁷ + … + z + 1',
+    20:'z⁸ − z⁶ + z⁴ − z² + 1',
+    21:'z¹² − z¹¹ + z⁹ − z⁸ + z⁶ − z⁴ + z³ − z + 1',
+    22:'z¹⁰ − z⁹ + z⁸ − z⁷ + z⁶ − z⁵ + z⁴ − z³ + z² − z + 1',
+    23:'z²² + z²¹ + … + z + 1',
+    24:'z⁸ − z⁴ + 1'
+  };
+  return T[n]||'Φ'+n+'(z)';
+}
+
+/* cos(2π/n) exact expression for small constructible n */
+function cosExpr(n){
+  var E={
+    3:'−1/2',
+    4:'0',
+    5:'(√5−1)/4',
+    6:'√3/2  (= 1/2)',
+    8:'√2/2',
+    10:'(√5+1)/4  =  1/(2φ)',
+    12:'√3/2',
+    15:'(1/8)(√5+1 + √(2(5−√5)))',
+    16:'(1/2)√(2+√2)',
+    17:'(−1+√17+√(34−2√17)+2√(17+3√17−√(34−2√17)−2√(34+2√17)))/16',
+    20:'(√5+1)/4  =  φ/2',
+    24:'(√6+√2)/4',
+  };
+  return E[n]||null;
+}
+
+/* ══════════════════════════════════════
+   DRAW
+══════════════════════════════════════ */
+var hoveredRoot=-1;
+var currentN=10;
+
+function drawAll(n){
+  currentN=n;
+  ctx.fillStyle='rgba(10,8,20,.92)';ctx.fillRect(0,0,SZ,SZ);
+
+  /* grid */
+  ctx.strokeStyle='rgba(139,110,240,.07)';ctx.lineWidth=1;
+  /* axes */
+  ctx.beginPath();ctx.moveTo(0,CY);ctx.lineTo(SZ,CY);ctx.stroke();
+  ctx.beginPath();ctx.moveTo(CX,0);ctx.lineTo(CX,SZ);ctx.stroke();
+
+  /* unit circle */
+  ctx.beginPath();ctx.arc(CX,CY,R,0,Math.PI*2);
+  ctx.strokeStyle='rgba(139,110,240,.3)';ctx.lineWidth=1.2;ctx.stroke();
+
+  /* axis labels */
+  ctx.font="italic 11px 'Crimson Pro',serif";
+  ctx.fillStyle='rgba(139,110,240,.45)';
+  ctx.fillText('Re',CX+R+6,CY+4);
+  ctx.fillText('Im',CX+4,CY-R-6);
+  ctx.fillText('1',CX+R+3,CY-6);
+  ctx.fillText('-1',CX-R-18,CY-6);
+  ctx.fillText('i',CX+4,CY-R-2);
+  ctx.fillText('-i',CX+4,CY+R+12);
+
+  var info=analyse(n);
+  var isC=info.ok;
+
+  /* roots */
+  var roots=[];
+  for(var k=0;k<n;k++){
+    var angle=-Math.PI/2+k*2*Math.PI/n; // start at top
+    roots.push({x:CX+R*Math.cos(angle),y:CY+R*Math.sin(angle),k:k});
+  }
+
+  /* polygon lines */
+  ctx.beginPath();
+  roots.forEach(function(r,i){
+    if(i===0)ctx.moveTo(r.x,r.y);else ctx.lineTo(r.x,r.y);
+  });
+  ctx.closePath();
+  ctx.strokeStyle=isC?'rgba(62,207,176,.25)':'rgba(224,96,128,.2)';
+  ctx.lineWidth=1.5;ctx.stroke();
+
+  /* for constructible: draw some auxiliary circles hinting at the tower */
+  if(isC&&n>2){
+    /* show a few quadratic extension "circles" */
+    var ph=info.phi;
+    var steps=Math.log2(ph);
+    for(var s=1;s<=Math.min(steps,4);s++){
+      var rr=R*(1-s*.12);
+      ctx.beginPath();ctx.arc(CX,CY,rr,0,Math.PI*2);
+      ctx.strokeStyle='rgba(200,168,75,'+(0.04+s*.015)+')';
+      ctx.lineWidth=.7;ctx.setLineDash([3,5]);ctx.stroke();ctx.setLineDash([]);
+    }
+  }
+
+  /* each root */
+  roots.forEach(function(r,i){
+    var isPrim=gcd(i===0?n:i,n)===1;
+    var isHov=hoveredRoot===i;
+    var col=isPrim?(isC?'rgba(62,207,176,.85)':'rgba(224,96,128,.8)'):'rgba(180,160,255,.45)';
+    if(i===1)col=isC?'#3ecfb0':'#e06080'; /* ω always highlighted */
+
+    /* spoke */
+    ctx.beginPath();ctx.moveTo(CX,CY);ctx.lineTo(r.x,r.y);
+    ctx.strokeStyle=isPrim?
+      (isC?'rgba(62,207,176,.12)':'rgba(224,96,128,.1)'):
+      'rgba(139,110,240,.07)';
+    ctx.lineWidth=1;ctx.stroke();
+
+    /* dot */
+    var dotR=isHov?7:(i===1?6:isPrim?5:3.5);
+    ctx.beginPath();ctx.arc(r.x,r.y,dotR,0,Math.PI*2);
+    if(isHov){ctx.fillStyle='rgba(200,168,75,.9)';}
+    else{ctx.fillStyle=col;}
+    ctx.fill();
+
+    /* label for visible roots */
+    if(n<=16||isHov){
+      ctx.font="11px 'JetBrains Mono',monospace";
+      ctx.fillStyle=isHov?'#e8cc78':(i===1?'#70e8cc':'rgba(220,215,255,.45)');
+      var lx=r.x+(r.x-CX)*(.22),ly=r.y+(r.y-CY)*(.22);
+      if(i===0)ctx.fillText('1',lx+3,ly-4);
+      else if(i===1)ctx.fillText('ω',lx+3,ly-4);
+      else if(n<=12)ctx.fillText('ω'+['⁰','¹','²','³','⁴','⁵','⁶','⁷','⁸','⁹','¹⁰','¹¹','¹²'][i],lx+2,ly-3);
+    }
+  });
+
+  /* ω=1 dot */
+  ctx.beginPath();ctx.arc(CX+R,CY,4.5,0,Math.PI*2);
+  ctx.fillStyle='#c8a84b';ctx.fill();
+
+  /* cos(2π/n) projection */
+  var cosVal=Math.cos(2*Math.PI/n);
+  var px=CX+R*cosVal;
+  ctx.beginPath();ctx.moveTo(px,CY-6);ctx.lineTo(px,CY+6);
+  ctx.strokeStyle='rgba(200,168,75,.6)';ctx.lineWidth=1.5;ctx.stroke();
+  ctx.beginPath();ctx.moveTo(CX,CY);ctx.lineTo(px,CY);
+  ctx.strokeStyle='rgba(200,168,75,.35)';ctx.lineWidth=1;ctx.setLineDash([3,4]);ctx.stroke();ctx.setLineDash([]);
+  ctx.font="10px 'JetBrains Mono',monospace";
+  ctx.fillStyle='rgba(200,168,75,.7)';
+  ctx.fillText('cos(2π/'+n+')',px-28,CY+18);
+}
+
+/* hover */
+cv.addEventListener('mousemove',function(e){
+  var rect=cv.getBoundingClientRect();
+  var mx=e.clientX-rect.left,my=e.clientY-rect.top;
+  var n=currentN,best=-1,bestD=15;
+  for(var k=0;k<n;k++){
+    var angle=-Math.PI/2+k*2*Math.PI/n;
+    var rx=CX+R*Math.cos(angle),ry=CY+R*Math.sin(angle);
+    var dd=Math.sqrt((mx-rx)*(mx-rx)+(my-ry)*(my-ry));
+    if(dd<bestD){bestD=dd;best=k;}
+  }
+  if(best!==hoveredRoot){
+    hoveredRoot=best;
+    drawAll(currentN);
+    updateHoverInfo(best);
+  }
+});
+cv.addEventListener('mouseleave',function(){hoveredRoot=-1;drawAll(currentN);updateHoverInfo(-1);});
+
+function updateHoverInfo(k){
+  /* optionally highlight chip */
+  document.querySelectorAll('.root-chip').forEach(function(c){
+    c.classList.toggle('highlighted',+c.dataset.k===k);
+  });
+}
+
+/* ══════════════════════════════════════
+   DYNAMIC CARD
+══════════════════════════════════════ */
+function updateCard(n){
+  var info=analyse(n);
+  document.getElementById('dynN').textContent=n;
+  var card=document.getElementById('dynCard');
+  card.className='card '+(info.ok?'constructible':'nonconstructible');
+
+  var lang = document.body.className.split(' ').find(c => ['es','en','ar'].includes(c)) || 'es';
+  var t = I18N[lang];
+
+  /* verdict */
+  var vd=document.getElementById('dynVerdict');
+  if(info.ok){
+    vd.innerHTML='<span class="verdict yes">'+t.verdictYes+'</span>';
+  } else {
+    vd.innerHTML='<span class="verdict no">'+t.verdictNo+'</span>';
+  }
+
+  var html='';
+
+  /* factorisation */
+  html+='<p style="font-family:\'JetBrains Mono\',monospace;font-size:.75rem;color:var(--dimM)">';
+  html+='n = '+n+' = '+info.factStr+'</p>';
+
+  /* phi */
+  html+='<div class="math">';
+  html+='φ('+n+') = '+info.phi+'  ('+t.roots+')\n';
+  html+=''+t.degree+' Φ<sub>'+n+'</sub>(z) = '+info.phi+'\n';
+  html+=''+t.minPoly+' = <span class="'+(info.ok?'hi':'warn')+'">'+info.degCos+'</span>';
+  if(info.ok){
+    html+='\n<span class="gold">'+info.degCos+' = 2^'+Math.log2(info.degCos)+'  ✓ '+t.pow2+'</span>';
+  } else {
+    html+='\n<span class="warn">'+info.degCos+' '+t.notPow2+'  ✗</span>';
+  }
+  html+='</div>';
+
+  /* cyclotomic poly */
+  html+='<p style="font-size:.78rem;color:var(--dim);margin-bottom:.2rem">'+t.cyclotomic+'</p>';
+  html+='<div class="math">Φ<sub>'+n+'</sub>(z) = '+cyclotomicStr(n)+'</div>';
+
+  /* reason why not constructible */
+  if(!info.ok){
+    html+='<p style="color:rgba(224,96,128,.75);font-size:.83rem">'+t.problem;
+    info.badPrimes.forEach(function(p, idx){
+      if(FERMAT[p]===undefined&&typeof p==='number'){
+        html+='<strong>'+p+'</strong> '+t.notFermat+'. ';
+      } else {
+        html+='<strong>'+p+'</strong> '+t.exponent+'. ';
+      }
+    });
+    html+='</p>';
+    html+='<p style="color:var(--dim);font-size:.82rem">'+t.galoisReason+'</p>';
+  }
+
+  /* cos expression */
+  var ce=cosExpr(n);
+  if(ce){
+    html+='<p style="font-size:.78rem;color:var(--dim);margin:.4rem 0 .15rem">'+t.exactCos+'</p>';
+    html+='<div class="math"><span class="gold">cos(2π/'+n+') = '+ce+'</span></div>';
+  }
+
+  /* tower */
+  if(info.ok&&n>2){
+    html+='<p style="font-size:.78rem;color:var(--dim);margin:.4rem 0 .2rem">'+t.tower+'</p>';
+    html+='<div class="tower">';
+    html+='<div class="tower-step"><span class="tower-idx">K₀</span><span class="tower-text">ℚ — '+t.baseField+'</span></div>';
+    var steps=Math.log2(info.phi);
+    for(var s=1;s<=steps;s++){
+      var ext=s===1?t.rationalSqrt:'√ de expresión en K'+(s-1);
+      if(n===4&&s===1)ext='√(−1)  (no necesaria, basta cos=0)';
+      if((n===8||n===16)&&s===steps)ext='√(2+√2…)';
+      if(n===5&&s===1)ext='√5';
+      if(n===5&&s===2)ext='√(5±√5)/… → cos(2π/5)';
+      if(n===17&&s>2)ext=t.nestedRadicals;
+      html+='<div class="tower-step"><span class="tower-idx">K'+s+'</span>';
+      html+='<span class="tower-text"><span class="op">[K'+s+':K'+(s-1)+']=2</span> — '+ext+'</span></div>';
+    }
+    html+='</div>';
+  }
+
+  /* roots summary */
+  html+='<p style="font-size:.78rem;color:var(--dim);margin:.4rem 0 .2rem">'+t.generators+'</p>';
+  html+='<div class="root-list" id="rootList">';
+  for(var k=1;k<n;k++){
+    if(gcd(k,n)===1){
+      html+='<span class="root-chip" data-k="'+k+'">ω<sup>'+k+'</sup></span>';
+    }
+  }
+  html+='</div>';
+
+  document.getElementById('dynContent').innerHTML=html;
+
+  /* attach hover to chips */
+  document.querySelectorAll('.root-chip').forEach(function(c){
+    c.addEventListener('mouseenter',function(){
+      hoveredRoot=+this.dataset.k;drawAll(currentN);updateHoverInfo(hoveredRoot);});
+    c.addEventListener('mouseleave',function(){
+      hoveredRoot=-1;drawAll(currentN);updateHoverInfo(-1);});
+  });
+}
+
+/* ══════════════════════════════════════
+   CONSTRUCTIBILITY TABLE
+══════════════════════════════════════ */
+var CONSTRUCT={3:1,4:1,5:1,6:1,8:1,10:1,12:1,15:1,16:1,17:1,20:1,24:1};
+
+/* ══════════════════════════════════════
+   N BUTTONS
+══════════════════════════════════════ */
+var bwrap=document.getElementById('nBtns');
+for(var nn=2;nn<=24;nn++){
+  (function(n){
+    var cl=CONSTRUCT[n]?'nb construct':'nb nocon';
+    var b=document.createElement('button');
+    b.className=cl+(n===10?' active':'');
+    b.dataset.n=n;b.textContent=n;
+    b.onclick=function(){
+      document.querySelectorAll('.nb').forEach(function(x){x.classList.remove('active');});
+      this.classList.add('active');
+      hoveredRoot=-1;
+      drawAll(n);updateCard(n);
+    };
+    bwrap.appendChild(b);
+  })(nn);
+}
+
+/* INIT */
+const savedLang = localStorage.getItem('preferredLang') || 'es';
+window.setLang(savedLang);
+
+drawAll(10);
+updateCard(10);
+
+/* small glow animation on canvas */
+var t0=Date.now();
+function pulse(){
+  var dt=(Date.now()-t0)/1000;
+  /* gentle redraw every 2s to animate the cos projection line */
+  requestAnimationFrame(pulse);
+}
+/* don't need heavy loop — static is fine */
+
+})();
+</script>
+</body>
+</html>
