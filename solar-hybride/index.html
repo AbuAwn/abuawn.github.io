@@ -1,0 +1,1005 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Solar Hybride - Esquema Técnico Interactivo</title>
+    <style>
+        :root {
+            --bg-dark: #0f172a;
+            --bg-panel: #1e293b;
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --grid-color: #334155;
+            --color-pv: #eab308;
+            --color-grid: #ef4444;
+            --color-battery: #f97316;
+            --color-house: #ec4899;
+            --color-micro: #3b82f6;
+            --color-hys: #22c55e;
+            --line-ac: #8b4513;
+            --line-n: #2563eb;
+            --line-dc-pos: #dc2626;
+            --line-dc-neg: #171717;
+            --font-family: 'Inter', system-ui, sans-serif;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: #1e293b;
+            color: var(--text-main);
+            font-family: var(--font-family);
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        header {
+            background-color: rgba(15, 23, 42, 0.9);
+            padding: 1rem 2rem;
+            border-bottom: 1px solid var(--grid-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 10;
+        }
+
+        h1 {
+            margin: 0;
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: #38bdf8;
+            letter-spacing: 0.5px;
+        }
+
+        #canvas-container {
+            flex: 1;
+            position: relative;
+            background-image:
+                linear-gradient(var(--grid-color) 1px, transparent 1px),
+                linear-gradient(90deg, var(--grid-color) 1px, transparent 1px);
+            background-size: 25px 25px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-position: center center;
+            overflow: hidden;
+        }
+
+        canvas {
+            display: block;
+            max-width: 100%;
+            max-height: 100%;
+            aspect-ratio: 1600 / 870;
+            object-fit: contain;
+            margin: 0 auto;
+        }
+
+        #controls {
+            background-color: #020617;
+            border-top: 1px solid var(--grid-color);
+            padding: 1rem 2rem;
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            z-index: 10;
+        }
+
+        .control-row {
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+            flex-wrap: wrap;
+        }
+
+        .control-group {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            background-color: var(--bg-panel);
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            border: 1px solid #334155;
+        }
+
+        .control-group label {
+            font-size: 0.875rem;
+            font-weight: 600;
+            min-width: 140px;
+        }
+
+        .control-group.pv label {
+            color: var(--color-pv);
+        }
+
+        .control-group.micro label {
+            color: var(--color-micro);
+        }
+
+        .control-group.house label {
+            color: var(--color-house);
+        }
+
+        .control-group.cont label {
+            color: #c084fc;
+        }
+
+        input[type=range] {
+            -webkit-appearance: none;
+            width: 150px;
+            background: transparent;
+        }
+
+        input[type=range]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            height: 16px;
+            width: 16px;
+            border-radius: 50%;
+            background: #cbd5e1;
+            cursor: pointer;
+            margin-top: -6px;
+        }
+
+        input[type=range]::-webkit-slider-runnable-track {
+            width: 100%;
+            height: 4px;
+            cursor: pointer;
+            background: #475569;
+            border-radius: 2px;
+        }
+
+        .val-display {
+            font-family: 'Consolas', monospace;
+            font-size: 0.875rem;
+            min-width: 60px;
+            text-align: right;
+            color: var(--text-muted);
+        }
+
+        button {
+            padding: 0.5rem 1rem;
+            border: none;
+            border-radius: 6px;
+            font-weight: 600;
+            font-size: 0.875rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-family: var(--font-family);
+        }
+
+        button.active {
+            box-shadow: 0 0 10px rgba(255, 255, 255, 0.2);
+            transform: scale(1.05);
+        }
+
+        #btn-grid {
+            background-color: var(--color-grid);
+            color: white;
+        }
+
+        #btn-grid.active {
+            background-color: #22c55e;
+        }
+
+        #btn-inj {
+            background-color: #ea580c;
+            color: white;
+        }
+
+        #btn-inj.active {
+            background-color: #2563eb;
+        }
+
+        .geya-btns button {
+            background-color: #334155;
+            color: #cbd5e1;
+            margin-right: 4px;
+        }
+
+        .geya-btns button.selected {
+            color: white;
+        }
+
+        #btn-g1.selected {
+            background-color: #ef4444;
+        }
+
+        #btn-g0.selected {
+            background-color: #f59e0b;
+        }
+
+        #btn-g2.selected {
+            background-color: #10b981;
+        }
+
+        #status-bar {
+            display: flex;
+            gap: 1rem;
+            padding-top: 0.5rem;
+            border-top: 1px dotted #334155;
+            font-family: 'Consolas', monospace;
+            font-size: 0.85rem;
+            color: #a7f3d0;
+            overflow-x: auto;
+            white-space: nowrap;
+        }
+
+        .status-item {
+            padding-right: 1rem;
+            border-right: 1px solid #475569;
+        }
+
+        .status-item:last-child {
+            border-right: none;
+        }
+    </style>
+</head>
+
+<body>
+
+    <header>
+        <h1>ESQUEMA TÉCNICO INTERACTIVO (FASE 1)</h1>
+        <div style="font-size: 0.85rem; color: #64748b;">Solar Hybride Dashboard Web</div>
+    </header>
+
+    <div id="canvas-container">
+        <canvas id="schemaCanvas" width="1600" height="870"></canvas>
+    </div>
+
+    <div id="controls">
+        <div class="control-row">
+            <button id="btn-grid" class="active">⚡ RESTAURAR RED</button>
+
+            <div class="control-group geya-btns">
+                <label style="min-width: auto; color: #94a3b8;">GEYA:</label>
+                <button id="btn-g1">I→Red</button>
+                <button id="btn-g0">0 (Off)</button>
+                <button id="btn-g2" class="selected">II→HYS</button>
+            </div>
+
+            <button id="btn-inj">🚫 Sin Inyección</button>
+        </div>
+
+        <div class="control-row">
+            <div class="control-group pv">
+                <label>☀ Paneles PV (DC):</label>
+                <input type="range" id="sl-pv" min="0" max="6000" step="100" value="3500">
+                <span class="val-display" id="val-pv">3500 W</span>
+            </div>
+
+            <div class="control-group micro">
+                <label>⚡ Micros AC:</label>
+                <input type="range" id="sl-micro" min="0" max="4000" step="100" value="2500">
+                <span class="val-display" id="val-micro">2500 W</span>
+            </div>
+
+            <div class="control-group house">
+                <label>🏠 Consumo Casa:</label>
+                <input type="range" id="sl-house" min="200" max="10000" step="100" value="2000">
+                <span class="val-display" id="val-house">2000 W</span>
+            </div>
+
+            <div class="control-group cont">
+                <label>📋 P. Contratada:</label>
+                <input type="range" id="sl-cont" min="3300" max="15000" step="100" value="5500">
+                <span class="val-display" id="val-cont">5500 W</span>
+            </div>
+        </div>
+
+        <div id="status-bar">
+            <div class="status-item" id="st-pv">☀PV: 3500W</div>
+            <div class="status-item" id="st-micro">⚡Micros: 2500W</div>
+            <div class="status-item" id="st-house">🏠Casa: 2000W</div>
+            <div class="status-item" id="st-grid">Red: 0W</div>
+            <div class="status-item" id="st-bat">Bat: Idle (SOC:65%)</div>
+            <div class="status-item" id="st-sys" style="color: #fbbf24;">🟢RED | GEYA→HYS | ATS→Red | Inyección:🚫</div>
+        </div>
+    </div>
+
+    <script>
+
+        // System State inherited from previous HTML
+        const state = {
+            grid_active: true,
+            geya_state: 'II',
+            permite_inyeccion: false,
+            pv: 3500,
+            micros: 2500,
+            load: 2000,
+            pot_cont: 5500,
+            bat_soc: 65.0,
+            bat_power: 0,
+            grid_power: 0,
+            effective_load: 0,
+            hys_clipped: false
+        };
+
+        // Limits
+        const HYS_MAX = 6000;
+        const EPS_MAX = 6000;
+        const HYS_INJ = 6000;
+        const BAT_MAX_CARGA = 3000;
+        const BAT_MAX_DESCARGA = 3000;
+
+        // UI Elements
+        const els = {
+            slPv: document.getElementById('sl-pv'),
+            slMicro: document.getElementById('sl-micro'),
+            slHouse: document.getElementById('sl-house'),
+            slCont: document.getElementById('sl-cont'),
+            valPv: document.getElementById('val-pv'),
+            valMicro: document.getElementById('val-micro'),
+            valHouse: document.getElementById('val-house'),
+            valCont: document.getElementById('val-cont'),
+            btnGrid: document.getElementById('btn-grid'),
+            btnInj: document.getElementById('btn-inj'),
+            btnG1: document.getElementById('btn-g1'),
+            btnG0: document.getElementById('btn-g0'),
+            btnG2: document.getElementById('btn-g2'),
+            stPv: document.getElementById('st-pv'),
+            stMicro: document.getElementById('st-micro'),
+            stHouse: document.getElementById('st-house'),
+            stGrid: document.getElementById('st-grid'),
+            stBat: document.getElementById('st-bat'),
+            stSys: document.getElementById('st-sys'),
+            canvas: document.getElementById('schemaCanvas')
+        };
+
+        const ctx = els.canvas.getContext('2d');
+        let animOffset = 0;
+        let animLines = [];
+
+        // Constants from Python
+        const C = {
+            BG: "#f5f6fa",
+            L: "#8B4513",
+            N: "#1565C0",
+            DEAD: "#cfd8dc",
+            COM: "#FF6F00",
+            EARTH: "#2e7d32",
+            DC_POS: "#c62828",
+            DC_NEG: "#212121",
+            BAT: "#ff8f00",
+            PV: "#f9a825"
+        };
+
+        // Wiring helpers
+        function wire(pts, color, width = 3, dash = []) {
+            ctx.beginPath();
+            ctx.moveTo(pts[0], pts[1]);
+            for (let i = 2; i < pts.length; i += 2) ctx.lineTo(pts[i], pts[i + 1]);
+            ctx.strokeStyle = color;
+            ctx.lineWidth = width;
+            ctx.setLineDash(dash);
+            ctx.lineJoin = 'round';
+            ctx.lineCap = 'round';
+            ctx.stroke();
+            ctx.setLineDash([]);
+        }
+
+        function wireAnim(pts, color, dir_flow = 1, width = 3) {
+            wire(pts, color, width);
+            if (color !== C.DEAD) {
+                animLines.push({ pts: pts, dir: dir_flow, width: Math.max(1, width - 1) });
+            }
+        }
+
+        function wirePower(pts, color, watts, dir_flow = 1) {
+            let w = 2 + Math.floor(Math.min(watts, 6000) / 1500);
+            if (watts < 10) wire(pts, C.DEAD, 2);
+            else wireAnim(pts, color, dir_flow, w);
+        }
+
+        // Draw helpers
+        function drawBox(x1, y1, x2, y2, fill, outline = "black", width = 2, dash = []) {
+            ctx.beginPath();
+            ctx.rect(x1, y1, x2 - x1, y2 - y1);
+            ctx.fillStyle = fill;
+            ctx.fill();
+            ctx.lineWidth = width;
+            ctx.strokeStyle = outline;
+            ctx.setLineDash(dash);
+            ctx.stroke();
+            ctx.setLineDash([]);
+        }
+
+        function drawRBox(x1, y1, x2, y2, r, fill, outline = "black", width = 2) {
+            ctx.beginPath();
+            ctx.roundRect(x1, y1, x2 - x1, y2 - y1, r);
+            ctx.fillStyle = fill;
+            ctx.fill();
+            ctx.lineWidth = width;
+            ctx.strokeStyle = outline;
+            ctx.stroke();
+        }
+
+        function drawText(x, y, text, font = "10px 'Segoe UI'", fill = "black", align = "center") {
+            ctx.font = font;
+            ctx.fillStyle = fill;
+            ctx.textAlign = align;
+            ctx.textBaseline = "middle";
+            let lines = text.split('\n');
+            let m = font.match(/\d+/);
+            let lh = m ? parseInt(m[0]) * 1.2 : 12;
+            let startY = y - (lines.length - 1) * lh / 2;
+            for (let i = 0; i < lines.length; i++) ctx.fillText(lines[i], x, startY + i * lh);
+        }
+
+        function drawTextBg(x, y, text, font = "9px 'Segoe UI'", fill = "#2980b9", bg = C.BG) {
+            ctx.font = font;
+            let lines = text.split('\n');
+            let m = font.match(/\d+/);
+            let lh = m ? parseInt(m[0]) * 1.2 : 12;
+            let maxW = 0;
+            lines.forEach(l => maxW = Math.max(maxW, ctx.measureText(l).width));
+            let h = lines.length * lh;
+
+            ctx.fillStyle = bg;
+            ctx.fillRect(x - maxW / 2 - 4, y - h / 2 - 2, maxW + 8, h + 4);
+
+            ctx.fillStyle = fill;
+            ctx.textAlign = "center";
+            ctx.textBaseline = "middle";
+            let startY = y - (lines.length - 1) * lh / 2;
+            for (let i = 0; i < lines.length; i++) ctx.fillText(lines[i], x, startY + i * lh);
+        }
+
+        function drawWattLabel(x, y, watts, direction = "→", color = "#2e7d32") {
+            if (watts < 10) return;
+            drawTextBg(x, y, direction + " " + watts.toFixed(0) + "W", "bold 9px Consolas", color, "#f0f0f0");
+        }
+
+        function drawPia(x, y1, y2, text, subtext = "", active = true) {
+            let w = 28;
+            let cf = active ? "#ffffff" : "#ecf0f1";
+            let co = active ? "#2c3e50" : "#bdc3c7";
+            drawBox(x - w / 2, y1 - 14, x + w / 2, y2 + 14, cf, co);
+            let py = active ? (y1 + y2) / 2 - 8 : (y1 + y2) / 2 + 4;
+            wire([x, (y1 + y2) / 2 + 6, x, py], "#2c3e50", 3);
+            let dc = active ? "#e74c3c" : "#95a5a6";
+            ctx.beginPath(); ctx.arc(x, py, 4, 0, Math.PI * 2);
+            ctx.fillStyle = dc; ctx.fill();
+            ctx.strokeStyle = "#1a1a1a"; ctx.lineWidth = 1; ctx.stroke();
+            drawTextBg(x, y1 - 28, text, "bold 10px 'Segoe UI'", "black");
+            if (subtext) drawTextBg(x, y2 + 38, subtext, "8px 'Segoe UI'", "#7f8c8d");
+        }
+
+        function drawId(x, y1, y2, text, subtext = "", active = true) {
+            let yc = (y1 + y2) / 2;
+            let r = 18;
+            let cf = active ? "#f9f9f9" : "#ecf0f1";
+            let co = active ? "#2c3e50" : "#bdc3c7";
+            ctx.beginPath(); ctx.ellipse(x, yc, r, (y2 + 16 - y1 + 16) / 2, 0, 0, Math.PI * 2);
+            ctx.fillStyle = cf; ctx.fill();
+            ctx.lineWidth = 2; ctx.strokeStyle = co; ctx.stroke();
+            let tc = active ? "#1565C0" : "#bdc3c7";
+            drawText(x, yc, "~", "bold 16px Arial", tc);
+            drawTextBg(x, y1 - 30, text, "bold 10px 'Segoe UI'", "black");
+            if (subtext) drawTextBg(x, y2 + 43, subtext, "8px 'Segoe UI'", "#7f8c8d");
+        }
+
+        function drawEarth(pts) {
+            wire(pts, C.EARTH, 3);
+            wire(pts, "#fdd835", 3, [10, 10]);
+        }
+
+        function drawGroundSym(x, y, s = 1.0) {
+            let widths = [16, 10, 5];
+            widths.forEach((w, i) => {
+                let dy = y + i * 5 * s;
+                let hw = w * s / 2;
+                wire([x - hw, dy, x + hw, dy], C.EARTH, 2);
+            });
+        }
+
+        function drawGeya(x, y) {
+            let w = 100, h = 160;
+            let x1 = x - w / 2, y1 = y - h / 2;
+            let x2 = x + w / 2, y2 = y + h / 2;
+            drawBox(x1 + 3, y1 + 3, x2 + 3, y2 + 3, "#b0bec5", "#b0bec5");
+            drawRBox(x1, y1, x2, y2, 6, "#263238", "#1a1a1a");
+            drawBox(x1 + 3, y1 + 3, x2 - 3, y1 + 28, "#37474f", "#37474f");
+            drawText(x, y1 + 16, "GEYA", "bold 10px 'Segoe UI'", "#eceff1");
+
+            // Bornes sup
+            [[-20, "L"], [20, "N"]].forEach(it => {
+                drawBox(x + it[0] - 6, y1 - 3, x + it[0] + 6, y1 + 5, "#78909c", "#455a64", 1);
+            });
+            // Bornes inf
+            [-25, 25].forEach(pdx => {
+                [-10, 10].forEach(dx => {
+                    drawBox(x + pdx + dx - 5, y2 - 5, x + pdx + dx + 5, y2 + 3, "#78909c", "#455a64", 1);
+                });
+            });
+
+            // LEDs
+            const cs = {
+                'I': ["#e74c3c", "#455a64", "#455a64"],
+                '0': ["#455a64", "#f39c12", "#455a64"],
+                'II': ["#455a64", "#455a64", "#27ae60"]
+            };
+            ["I", "0", "II"].forEach((lbl, i) => {
+                let iy = y1 + 38 + i * 16;
+                drawBox(x1 + 8, iy, x1 + 20, iy + 10, cs[state.geya_state][i], "#1a1a1a", 1);
+                drawText(x1 + 25, iy + 5, lbl, "7px 'Segoe UI'", "#90a4ae", "left");
+            });
+
+            // Palanca
+            let hw = 46, hh = 26;
+            let hyOffsets = { 'I': -22, '0': 0, 'II': 22 };
+            let hy = y + 10 + hyOffsets[state.geya_state];
+            let hcol = { 'I': "#e74c3c", '0': "#f39c12", 'II': "#27ae60" }[state.geya_state];
+            drawRBox(x - hw / 2, hy - hh / 2, x + hw / 2, hy + hh / 2, 3, hcol, "#1a1a1a");
+            drawText(x, hy, state.geya_state, "bold 13px 'Segoe UI'", "white");
+
+            // Internal wires
+            let eL = x - 20, eN = x + 20, ey = y1 + 85;
+            if (state.geya_state === 'I') {
+                wire([eL, ey, x - 35, y2 - 10], "#e74c3c", 2);
+                wire([eN, ey, x - 15, y2 - 10], "#1565C0", 2);
+            } else if (state.geya_state === 'II') {
+                wire([eL, ey, x + 15, y2 - 10], "#e74c3c", 2);
+                wire([eN, ey, x + 35, y2 - 10], "#1565C0", 2);
+            } else {
+                wire([eL, ey, eL, ey + 10], C.DEAD, 2);
+                wire([eN, ey, eN, ey + 10], C.DEAD, 2);
+                wire([x - 6, y + 32, x + 6, y + 44], "#e74c3c", 2);
+                wire([x - 6, y + 44, x + 6, y + 32], "#e74c3c", 2);
+            }
+        }
+
+        function drawAts(x, y) {
+            let w = 150, h = 220;
+            let x1 = x - w / 2, y1 = y - h / 2;
+            let x2 = x + w / 2, y2 = y + h / 2;
+            drawBox(x1 + 3, y1 + 3, x2 + 3, y2 + 3, "#ce93d8", "#ce93d8");
+            drawRBox(x1, y1, x2, y2, 6, "#f3e5f5", "#8e24aa");
+            drawBox(x1 + 3, y1 + 3, x2 - 3, y1 + 32, "#8e24aa", "#8e24aa");
+            drawText(x, y1 + 18, "ATS AUTOMÁTICO", "bold 9px 'Segoe UI'", "white");
+
+            drawText(x1 + 10, y - 50, "In1 (Red)", "8px 'Segoe UI'", "#4a148c", "left");
+            drawText(x1 + 10, y - 36, state.grid_active ? "(Prioridad)" : "(OFF)", "7px 'Segoe UI'", state.grid_active ? "#27ae60" : "#ef5350", "left");
+
+            drawText(x1 + 10, y + 42, "In2 (EPS)", "8px 'Segoe UI'", "#4a148c", "left");
+            drawText(x1 + 10, y + 56, state.grid_active ? "(Standby)" : "(¡ACTIVO!)", "7px 'Segoe UI'", state.grid_active ? "#ef5350" : "#27ae60", "left");
+
+            drawText(x2 - 10, y, "CARGA→", "bold 10px 'Segoe UI'", "#4a148c", "right");
+
+            let led1 = state.grid_active ? "#4caf50" : "#616161";
+            let led2 = !state.grid_active ? "#ff9800" : "#616161";
+            [[led1, y - 48], [led2, y + 48]].forEach(arr => {
+                let [led, ly] = arr;
+                if (led !== "#616161") {
+                    ctx.beginPath(); ctx.ellipse(x + 39, ly, 7, 7, 0, 0, Math.PI * 2);
+                    ctx.strokeStyle = led; ctx.setLineDash([2, 3]); ctx.stroke(); ctx.setLineDash([]);
+                }
+                ctx.beginPath(); ctx.arc(x + 39, ly, 4, 0, Math.PI * 2);
+                ctx.fillStyle = led; ctx.fill(); ctx.strokeStyle = "#1a1a1a"; ctx.stroke();
+            });
+
+            // switch arm
+            let px = x + 8;
+            ctx.beginPath(); ctx.arc(px + 26, y, 4, 0, Math.PI * 2); ctx.fillStyle = "#4a148c"; ctx.fill();
+            if (state.grid_active) wire([px - 15, y - 48, px + 24, y], "#4caf50", 3);
+            else wire([px - 15, y + 48, px + 24, y], "#ff9800", 3);
+        }
+
+        function drawInverter(x1, y1, x2, y2) {
+            drawBox(x1 + 4, y1 + 4, x2 + 4, y2 + 4, "#a5d6a7", "#a5d6a7");
+            drawRBox(x1, y1, x2, y2, 8, "#e8f5e9", "#2e7d32");
+            drawBox(x1 + 3, y1 + 3, x2 - 3, y1 + 50, "#2e7d32", "#2e7d32");
+            drawText((x1 + x2) / 2, y1 + 16, "HYS INVERTER", "bold 12px 'Segoe UI'", "white");
+            drawText((x1 + x2) / 2, y1 + 35, "Hoymiles HYS-6.0LV", "8px 'Segoe UI'", "#c8e6c9");
+
+            // ports right
+            [[420, "GRID"], [560, "EPS"]].forEach(arr => {
+                drawBox(x2 - 4, arr[0] - 10, x2 + 6, arr[0] + 10, "#1b5e20", "#1a1a1a", 1);
+                drawText(x2 - 15, arr[0], "Puerto " + arr[1], "bold 9px Consolas", "#1b5e20", "right");
+            });
+
+            // port left gen
+            drawBox(x1 - 6, 690, x1 + 4, 710, "#1b5e20", "#1a1a1a", 1);
+            drawText(x1 + 15, 700, "Puerto GEN", "bold 9px Consolas", "#1b5e20", "left");
+            drawText(x1 + 15, 760, "Puerto COM", "bold 9px Consolas", "#5d6d7e", "left");
+
+            // ports bottom
+            [[(x1 + x2) / 2 - 50, "BAT", C.BAT], [(x1 + x2) / 2 + 50, "PV", C.PV]].forEach(arr => {
+                drawBox(arr[0] - 10, y2 - 4, arr[0] + 10, y2 + 6, arr[2], "#1a1a1a", 1);
+                drawText(arr[0], y2 - 18, "Puerto " + arr[1], "bold 9px Consolas", arr[2]);
+            });
+        }
+
+        function drawPvPanels(x, y, watts) {
+            let w = 140, h = 90;
+            drawBox(x + 3, y + 3, x + w + 3, y + h + 3, "#c8e6c9", "#c8e6c9");
+            drawRBox(x, y, x + w, y + h, 5, "#1565C0", "#0d47a1");
+            let ccols = 6, crows = 3;
+            let cw = (w - 16) / ccols, ch = (h - 16) / crows;
+            for (let r = 0; r < crows; r++) {
+                for (let c = 0; c < ccols; c++) {
+                    let cx = x + 8 + c * cw, cy = y + 8 + r * ch;
+                    let val = Math.min(255, 40 + Math.floor((watts / 6000) * 180));
+                    // make a nice blue
+                    let col = `rgb(${val}, ${val}, 255)`;
+                    drawBox(cx, cy, cx + cw - 2, cy + ch - 2, col, "#0d47a1", 1);
+                }
+            }
+            if (watts > 100) {
+                ctx.beginPath(); ctx.ellipse(x + w - 15, y + 15, 10, 10, 0, 0, Math.PI * 2);
+                ctx.fillStyle = "#fff9c4"; ctx.fill(); ctx.strokeStyle = "#f9a825"; ctx.stroke();
+            }
+            drawText(x + w / 2, y + h + 15, `PANELES PV (${watts.toFixed(0)}W)`, "bold 9px 'Segoe UI'", "#0d47a1");
+        }
+
+        function drawBattery(x, y, soc, power) {
+            let w = 110, h = 65;
+            drawBox(x + w / 2 - 10, y - 6, x + w / 2 + 10, y, "#78909c", "#455a64", 1);
+            drawBox(x + 3, y + 3, x + w + 3, y + h + 3, "#90a4ae", "#90a4ae");
+            drawRBox(x, y, x + w, y + h, 5, "#37474f", "#263238");
+
+            let bx = x + 8, by = y + 10, bw = w - 16, bh = 20;
+            drawBox(bx, by, bx + bw, by + bh, "#1a1a1a", "#455a64", 1);
+
+            let fw = bw * (soc / 100);
+            let scol = soc > 50 ? "#4caf50" : (soc > 20 ? "#ff9800" : "#f44336");
+            if (fw > 0) {
+                ctx.fillStyle = scol;
+                ctx.fillRect(bx + 1, by + 1, fw, bh - 2);
+            }
+            drawText(bx + bw / 2, by + bh / 2, soc.toFixed(0) + "%", "bold 10px Consolas", "white");
+
+            let stxt = "— Idle", scol2 = "#78909c";
+            if (power > 10) { stxt = "⬆ Cargando " + power.toFixed(0) + "W"; scol2 = "#4caf50"; }
+            else if (power < -10) { stxt = "⬇ Descargando " + Math.abs(power).toFixed(0) + "W"; scol2 = "#ff9800"; }
+            drawText(x + w / 2, y + h - 12, stxt, "bold 8px 'Segoe UI'", scol2);
+            drawText(x + w / 2, y + h + 12, "BATERÍA LiFePO4", "bold 8px 'Segoe UI'", "#37474f");
+        }
+
+        function drawHouseIcon(x, y, load) {
+            ctx.beginPath(); ctx.moveTo(x, y - 25); ctx.lineTo(x - 30, y); ctx.lineTo(x + 30, y); ctx.closePath();
+            ctx.fillStyle = "#ef5350"; ctx.fill(); ctx.lineWidth = 2; ctx.strokeStyle = "#b71c1c"; ctx.stroke();
+            drawBox(x - 22, y, x + 22, y + 30, "#ffcdd2", "#b71c1c");
+            drawBox(x - 6, y + 10, x + 6, y + 30, "#b71c1c", "#b71c1c");
+            drawBox(x + 10, y + 5, x + 18, y + 13, "#e3f2fd", "#b71c1c");
+            drawText(x, y + 42, `🏠 ${load.toFixed(0)}W`, "bold 10px Consolas", "#b71c1c");
+        }
+
+        function draw() {
+            ctx.clearRect(0, 0, 1600, 870);
+            animLines = [];
+
+            let y_L = 100, y_N = 130;
+
+            let grid_import = Math.max(0, state.grid_power);
+            let grid_export = Math.max(0, -state.grid_power);
+
+            let c_grid_L = state.grid_active ? C.L : C.DEAD;
+            let c_grid_N = state.grid_active ? C.N : C.DEAD;
+            let c_micro_L = C.L, c_micro_N = C.N;
+
+            let c_posI_L = C.DEAD, c_posI_N = C.DEAD, c_posII_L = C.DEAD, c_posII_N = C.DEAD;
+            if (state.geya_state === 'I') { c_posI_L = c_micro_L; c_posI_N = c_micro_N; }
+            else if (state.geya_state === 'II') { c_posII_L = c_micro_L; c_posII_N = c_micro_N; }
+
+            let c_eps_L = C.L, c_eps_N = C.N;
+            let c_casa_L = state.grid_active ? c_grid_L : c_eps_L;
+            let c_casa_N = state.grid_active ? c_grid_N : c_eps_N;
+
+            let pv_w = state.pv, micro_w = state.micros, load_w = state.effective_load;
+
+            // 1. Grid
+            wirePower([50, y_L, 1550, y_L], c_grid_L, state.grid_active ? grid_import + grid_export : 0, 1);
+            wirePower([50, y_N, 1550, y_N], c_grid_N, state.grid_active ? grid_import + grid_export : 0, 1);
+
+            drawRBox(18, 55, 160, 90, 5, "#ffebee", "#c62828");
+            drawText(89, 65, "LÍNEA DE RED", "bold 8px 'Segoe UI'", "#b71c1c");
+            drawText(89, 80, "ELÉCTRICA (Grid)", "7px 'Segoe UI'", "#c62828");
+
+            let iga_x = 220;
+            drawBox(iga_x - 25, y_L - 14, iga_x + 25, y_N + 14, "#eceff1", "#37474f");
+            drawText(iga_x, (y_L + y_N) / 2, "IGA", "bold 10px 'Segoe UI'", "#37474f");
+            drawText(iga_x, y_L - 25, "40A", "8px 'Segoe UI'", "#37474f");
+
+            if (state.grid_active && Math.abs(state.grid_power) > 10) {
+                drawWattLabel(700, y_L - 15, Math.abs(state.grid_power), state.grid_power > 0 ? "↓" : "↑", state.grid_power > 0 ? "#c62828" : "#2e7d32");
+            }
+
+            // 2. Micros y Despensa
+            let desp_x1 = 80, desp_y1 = 330, desp_x2 = 220, desp_y2 = 620;
+            drawRBox(desp_x1, desp_y1, desp_x2, desp_y2, 5, "#fafafa", "#78909c");
+            drawText((desp_x1 + desp_x2) / 2, desp_y1 + 14, "CUADRO DESPENSA", "bold 8px 'Segoe UI'", "#37474f");
+
+            drawRBox(15, 230, 85, 320, 5, "#e3f2fd", "#1565C0");
+            drawText(50, 255, "MICROS", "bold 8px 'Segoe UI'", "#0d47a1");
+            drawText(50, 275, micro_w.toFixed(0) + "W", "bold 10px Consolas", "#1565C0");
+            drawText(50, 295, "AC (4kW)", "7px 'Segoe UI'", "#64b5f6");
+
+            let mLx = 125, mNx = 165;
+            wireAnim([85, 260, mLx, 260, mLx, desp_y1], c_micro_L, -1);
+            wireAnim([85, 290, mNx, 290, mNx, desp_y1], c_micro_N, -1);
+
+            let py_L = 420, py_N = 455;
+            wireAnim([mLx, desp_y1, mLx, py_L], c_micro_L, -1);
+            wireAnim([mNx, desp_y1, mNx, py_N], c_micro_N, -1);
+            drawId(130, py_L, py_N, "ID 40A", "A-SI");
+            drawPia(185, py_L, py_N, "PIA 25A");
+            wireAnim([130, py_L, 185, py_L], c_micro_L, -1);
+            wireAnim([130, py_N, 185, py_N], c_micro_N, -1);
+
+            wireAnim([desp_x2, py_L, 310, py_L], c_micro_L, -1);
+            wireAnim([desp_x2, py_N, 310, py_N], c_micro_N, -1);
+            drawTextBg(268, py_L - 12, "6mm²", "7px 'Segoe UI'", "#1565C0");
+
+            if (micro_w > 10) drawWattLabel(50, 215, micro_w, "↓", "#1565C0");
+
+            let geya_x = 365, geya_y = 510;
+            wireAnim([310, py_L, geya_x - 20, py_L, geya_x - 20, geya_y - 80], c_micro_L, -1);
+            wireAnim([310, py_N, geya_x + 20, py_N, geya_x + 20, geya_y - 80], c_micro_N, -1);
+
+            let m2grid = state.geya_state === 'I' ? micro_w : 0;
+            wirePower([geya_x - 35, geya_y + 82, geya_x - 35, 680, 460, 680, 460, y_L], c_posI_L, m2grid, 1);
+            wirePower([geya_x - 15, geya_y + 82, geya_x - 15, 705, 490, 705, 490, y_N], c_posI_N, m2grid, 1);
+
+            drawTextBg(470, 350, "Inyección\\na Red", "8px 'Segoe UI'", state.geya_state === 'I' ? "#c62828" : "#bdbdbd");
+            if (state.geya_state === 'I' && micro_w > 10) drawWattLabel(470, 380, m2grid, "↑", "#c62828");
+
+            let m2gen = state.geya_state === 'II' ? micro_w : 0;
+            wirePower([geya_x + 15, geya_y + 82, geya_x + 15, 695, 535, 695], c_posII_L, m2gen, -1);
+            wirePower([geya_x + 35, geya_y + 82, geya_x + 35, 720, 535, 720], c_posII_N, m2gen, -1);
+            drawPia(500, 695, 720, "PIA 20A");
+            drawTextBg(geya_x + 50, geya_y + 100, "→ GEN", "8px 'Segoe UI'", state.geya_state === 'II' ? "#2e7d32" : "#bdbdbd");
+            if (state.geya_state === 'II' && micro_w > 10) drawWattLabel(500, 755, m2gen, "→", "#2e7d32");
+
+            drawGeya(geya_x, geya_y);
+
+            // Inverter
+            let inv_x1 = 535, inv_y1 = 280, inv_x2 = 780, inv_y2 = 790;
+            drawInverter(inv_x1, inv_y1, inv_x2, inv_y2);
+            if (state.hys_clipped) drawText((inv_x1 + inv_x2) / 2, inv_y1 + 65, "⚠ LIMITADO A 6kW ⚠", "bold 9px 'Segoe UI'", "#c62828");
+
+            // Grid Port 
+            wirePower([950, y_L, 950, 420, inv_x2 + 6, 420], c_grid_L, state.grid_active ? (grid_import + grid_export) : 0, 1);
+            wirePower([980, y_N, 980, 445, inv_x2 + 6, 445], c_grid_N, state.grid_active ? (grid_import + grid_export) : 0, 1);
+            drawId(840, 420, 445, "ID A-SI", "", state.grid_active);
+            drawPia(900, 420, 445, "PIA 40A", "", state.grid_active);
+
+            // ATS + EPS
+            let ats_x = 1280, ats_y = 480;
+            wirePower([1080, y_L, 1080, ats_y - 48, ats_x - 75, ats_y - 48], c_grid_L, state.grid_active ? grid_import : 0, 1);
+            wirePower([1110, y_N, 1110, ats_y - 28, ats_x - 75, ats_y - 28], c_grid_N, state.grid_active ? grid_import : 0, 1);
+
+            wireAnim([inv_x2 + 6, 560, ats_x - 75, 560], c_eps_L, 1);
+            wireAnim([inv_x2 + 6, 585, ats_x - 75, 585], c_eps_N, 1);
+            drawId(1020, 560, 585, "ID A-SI");
+            drawPia(910, 560, 585, "PIA 40A");
+
+            drawAts(ats_x, ats_y);
+
+            // Casa
+            wirePower([ats_x + 75, ats_y - 5, 1500, ats_y - 5], c_casa_L, load_w, 1);
+            wirePower([ats_x + 75, ats_y + 15, 1500, ats_y + 15], c_casa_N, load_w, 1);
+            drawHouseIcon(1540, ats_y - 30, load_w);
+
+            // PV & Bat
+            let pv_x = inv_x2 + 50, pv_y = inv_y2 + 15;
+            drawPvPanels(pv_x, pv_y, pv_w);
+            let pv_port_x = (inv_x1 + inv_x2) / 2 + 50;
+            wirePower([pv_x + 70, pv_y, pv_x + 70, inv_y2 + 8, pv_port_x, inv_y2 + 8], pv_w > 10 ? C.DC_POS : C.DEAD, pv_w, 1);
+            wirePower([pv_x + 90, pv_y, pv_x + 90, inv_y2 + 18, pv_port_x + 15, inv_y2 + 18], pv_w > 10 ? C.DC_NEG : C.DEAD, pv_w, 1);
+            if (pv_w > 10) drawWattLabel(pv_x + 70, inv_y2 - 25, pv_w, "↑", C.PV);
+            drawTextBg(pv_port_x + 5, inv_y2 - 8, "DC", "7px 'Segoe UI'", "#f9a825");
+
+            let bat_x = inv_x1 - 170, bat_y = inv_y2 + 10;
+            drawBattery(bat_x, bat_y, state.bat_soc, state.bat_power);
+            let bat_port_x = (inv_x1 + inv_x2) / 2 - 50;
+            let bpow = Math.abs(state.bat_power), bdir = state.bat_power > 0 ? 1 : -1;
+            wirePower([bat_x + 55, bat_y, bat_x + 55, inv_y2 + 8, bat_port_x, inv_y2 + 8], bpow > 10 ? C.BAT : C.DEAD, bpow, bdir);
+            wirePower([bat_x + 70, bat_y, bat_x + 70, inv_y2 + 18, bat_port_x + 15, inv_y2 + 18], bpow > 10 ? C.DC_NEG : C.DEAD, bpow, bdir);
+            if (bpow > 10) drawWattLabel(bat_port_x, inv_y2 - 25, bpow, bdir === 1 ? "↑" : "↓", bdir === 1 ? "#4caf50" : "#ff9800");
+            drawTextBg(bat_port_x + 5, inv_y2 - 8, "DC", "7px 'Segoe UI'", C.BAT);
+
+            // Smart Meter, Tierra, etc.
+            let sm_x = 1420, sm_y = 80;
+            drawBox(sm_x - 25, sm_y - 20, sm_x + 25, sm_y + 20, "#eceff1", "#607d8b");
+            drawBox(sm_x - 12, sm_y - 8, sm_x + 12, sm_y + 3, "#c8e6c9", "#43a047");
+            drawText(sm_x, sm_y + 12, "CT", "7px 'Segoe UI'", "#607d8b");
+            drawText(sm_x, sm_y - 30, "Smart Meter", "8px 'Segoe UI'", "#37474f");
+
+            drawEarth([50, 165, 1480, 165]);
+            drawEarth([75, 165, 75, 615]);
+            wire([75, 612, 85, 612], C.EARTH, 2);
+            drawGroundSym(75, 620, 0.7);
+            drawEarth([1480, 165, 1480, 680]);
+            drawBox(1400, 680, 1520, 690, "#90a4ae", "#607d8b");
+            drawText(1460, 677, "CGMP Busbar", "7px 'Segoe UI'", "#37474f");
+            drawGroundSym(1460, 698, 0.9);
+
+            // COM
+            wire([inv_x1 - 6, 760, 510, 760, 510, 835, 1490, 835, 1490, 95, 1445, 95], C.COM, 2, [6, 4]);
+            drawTextBg(1000, 848, "Bus RS485 → Smart Meters", "8px 'Segoe UI'", C.COM);
+
+            // anim lines
+            animLines.forEach(line => {
+                ctx.strokeStyle = "white";
+                ctx.lineWidth = line.width;
+                ctx.setLineDash([4, 10]);
+                ctx.lineDashOffset = animOffset * line.dir;
+                ctx.beginPath();
+                ctx.moveTo(line.pts[0], line.pts[1]);
+                for (let i = 2; i < line.pts.length; i += 2) ctx.lineTo(line.pts[i], line.pts[i + 1]);
+                ctx.stroke();
+            });
+            ctx.setLineDash([]);
+        }
+
+        function calculateBalance() {
+            let hys_output = 0, micros_direct = 0;
+            state.hys_clipped = false;
+
+            if (state.geya_state === 'II') {
+                let hys_in = state.pv + state.micros;
+                hys_output = Math.min(hys_in, HYS_MAX);
+                micros_direct = 0;
+                if (hys_in >= HYS_MAX) state.hys_clipped = true;
+            } else if (state.geya_state === 'I') {
+                hys_output = Math.min(state.pv, HYS_MAX);
+                micros_direct = state.micros;
+                if (state.pv >= HYS_MAX) state.hys_clipped = true;
+            } else {
+                hys_output = Math.min(state.pv, HYS_MAX);
+                micros_direct = 0;
+                if (state.pv >= HYS_MAX) state.hys_clipped = true;
+            }
+
+            let total_gen = hys_output + micros_direct;
+
+            if (!state.grid_active) {
+                state.grid_power = 0;
+                let max_bat_dis = state.bat_soc > 5 ? BAT_MAX_DESCARGA : 0;
+                let eps_deliverable = Math.min(total_gen, EPS_MAX) + max_bat_dis;
+                state.effective_load = Math.min(state.load, eps_deliverable);
+
+                if (state.load > eps_deliverable) state.hys_clipped = true;
+
+                let real_deficit = state.effective_load - Math.min(total_gen, EPS_MAX);
+                if (real_deficit > 0 && state.bat_soc > 5) {
+                    state.bat_power = -Math.min(real_deficit, BAT_MAX_DESCARGA);
+                } else if (state.effective_load < Math.min(total_gen, EPS_MAX)) {
+                    let surplus = Math.min(total_gen, EPS_MAX) - state.effective_load;
+                    state.bat_power = state.bat_soc < 100 ? Math.min(surplus, BAT_MAX_CARGA) : 0;
+                } else {
+                    state.bat_power = 0;
+                }
+                return;
+            }
+
+            state.effective_load = state.load;
+            let surplus = total_gen - state.load;
+
+            if (surplus > 0) {
+                if (state.bat_soc < 100) {
+                    let charge = Math.min(surplus, BAT_MAX_CARGA);
+                    state.bat_power = charge;
+                    surplus -= charge;
+                } else {
+                    state.bat_power = 0;
+                }
+
+                if (state.permite_inyeccion) {
+                    state.grid_power = -Math.min(surplus, HYS_INJ);
+                } else {
+                    if (state.bat_soc < 100 && surplus > 0) {
+                        let extra = Math.min(surplus, BAT_MAX_CARGA - state.bat_power);
+                        state.bat_power += extra;
+                    }
+                    state.grid_power = 0;
+                }
+            } else {
+                let deficit = -surplus;
+                let grid_import = Math.min(deficit, state.pot_cont);
+                state.grid_power = grid_import;
+
+                let remain = deficit - grid_import;
+                if (remain > 0 && state.bat_soc > 5) {
+                    state.bat_power = -Math.min(remain, BAT_MAX_DESCARGA);
+                } else {
+                    state.bat_power = 0;
+                }
+            }
+        }
+
+        function updateLabels() {
+            els.stPv.textContent = `☀PV: ${state.pv}W`;
+            els.stMicro.textContent = `⚡Micros: ${state.micros}W`;
+
+            if (!state.grid_active && state.effective_load < state.load) {
+                els.stHouse.innerHTML = `🏠Casa: ${state.effective_load}W <span style="color:#ef4444">⚠(${state.load}W dem.)</span>`;
+            } else {
+                els.stHouse.textContent = `🏠Casa: ${state.load}W`;
+            }
+
+            if (state.grid_active) {
+                if (state.grid_power > 0) {
+                    let pct = (state.grid_power / state.pot_cont * 100).toFixed(0);
+                    els.stGrid.textContent = `Red: ${state.grid_power}W ↓Import (${pct}% P.Cont ${state.pot_cont}W)`;
+                } else if (state.grid_power < 0) {
+                    els.stGrid.textContent = `Red: ${Math.abs(state.grid_power)}W ↑Export`;
+                } else {
+                    els.stGrid.textContent = `Red: 0W`;
+                }
+            } else {
+                els.stGrid.textContent = 'Red: CORTADA';
+            }
+
+            let batState = state.bat_power > 0 ? '⬆Carga' : (state.bat_power < 0 ? '⬇Descarga' : 'Idle');
+            els.stBat.textContent = `Bat: ${Math.abs(state.bat_power)}W ${batState} (SOC:${state.bat_soc.toFixed(0)}%)`;
+
+            let sys = [];
+            sys.push(state.grid_active ? "🟢RED" : "🔴RED");
+            sys.push({ 'I': "GEYA→Red", '0': "GEYA OFF", 'II': "GEYA→HYS" }[state.geya_state]);
+            sys.push(state.grid_active ? "ATS→Red" : "ATS→EPS");
+            sys.push("Inyección:" + (state.permite_inyeccion ? "✅" : "🚫"));
+            els.stSys.textContent = sys.join(" | ");
+        }
+
+        function update() {
+            calculateBalance();
+            updateLabels();
+        }
+
+        function tick() {
+            if (state.bat_power > 0) state.bat_soc = Math.min(100, state.bat_soc + 0.05);
+            if (state.bat_power < 0) state.bat_soc = Math.max(0, state.bat_soc - 0.05);
+            animOffset += 2;
+            if (animOffset > 28) animOffset = 0;
+            draw();
+            setTimeout(tick, 50);
+        }
+
+        // Events
+        els.slPv.oninput = (e) => { state.pv = parseInt(e.target.value); els.valPv.textContent = state.pv + ' W'; update(); };
+        els.slMicro.oninput = (e) => { state.micros = parseInt(e.target.value); els.valMicro.textContent = state.micros + ' W'; update(); };
+        els.slHouse.oninput = (e) => { state.load = parseInt(e.target.value); els.valHouse.textContent = state.load + ' W'; update(); };
+        els.slCont.oninput = (e) => { state.pot_cont = parseInt(e.target.value); els.valCont.textContent = state.pot_cont + ' W'; update(); };
+
+        els.btnGrid.onclick = () => {
+            state.grid_active = !state.grid_active;
+            els.btnGrid.textContent = state.grid_active ? '🔌 CORTAR RED' : '⚡ RESTAURAR RED';
+            els.btnGrid.className = state.grid_active ? 'active' : '';
+            els.btnGrid.style.backgroundColor = state.grid_active ? '#c0392b' : '#27ae60';
+            update();
+        };
+
+        els.btnInj.onclick = () => {
+            state.permite_inyeccion = !state.permite_inyeccion;
+            els.btnInj.textContent = state.permite_inyeccion ? '✅ Con Inyección' : '🚫 Sin Inyección';
+            els.btnInj.className = state.permite_inyeccion ? 'active' : '';
+            update();
+        };
+
+        const setGeya = (val) => {
+            state.geya_state = val;
+            els.btnG1.classList.toggle('selected', val === 'I');
+            els.btnG0.classList.toggle('selected', val === '0');
+            els.btnG2.classList.toggle('selected', val === 'II');
+            update();
+        };
+        els.btnG1.onclick = () => setGeya('I');
+        els.btnG0.onclick = () => setGeya('0');
+        els.btnG2.onclick = () => setGeya('II');
+
+        els.btnGrid.textContent = state.grid_active ? '🔌 CORTAR RED' : '⚡ RESTAURAR RED';
+        els.btnGrid.style.backgroundColor = state.grid_active ? '#c0392b' : '#27ae60';
+
+        update();
+        tick();
+
+        // end script
+
+    </script>
+</body>
+
+</html>
