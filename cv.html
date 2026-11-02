@@ -248,6 +248,135 @@
       font-size: 0.85em;
     }
 
+    /* Header Actions & Print Button */
+    .header-actions {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 12px;
+      margin-top: 18px;
+    }
+
+    .header-contacts {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .header-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(255, 255, 255, 0.12);
+      color: #ffffff;
+      text-decoration: none;
+      padding: 6px 14px;
+      border-radius: 20px;
+      font-size: 13px;
+      border: 1px solid rgba(255, 255, 255, 0.25);
+      transition: all 0.2s ease;
+    }
+
+    .header-btn:hover {
+      background: rgba(255, 255, 255, 0.25);
+      border-color: rgba(255, 255, 255, 0.5);
+      transform: translateY(-2px);
+      color: #ffffff;
+    }
+
+    .print-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: #38bdf8;
+      color: #0f172a;
+      border: none;
+      padding: 7px 16px;
+      border-radius: 20px;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+      box-shadow: 0 4px 14px rgba(56, 189, 248, 0.35);
+      transition: all 0.2s ease;
+      font-family: inherit;
+    }
+
+    .print-btn:hover {
+      background: #0284c7;
+      color: #ffffff;
+      transform: translateY(-2px);
+      box-shadow: 0 6px 18px rgba(56, 189, 248, 0.5);
+    }
+
+    /* Project and Interactive Links */
+    .project-links {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 10px;
+    }
+
+    .project-tag-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: #e2e8f0;
+      color: #0f172a;
+      text-decoration: none;
+      padding: 5px 12px;
+      border-radius: 14px;
+      font-size: 12px;
+      font-weight: 600;
+      transition: all 0.2s ease;
+      border: 1px solid #cbd5e1;
+    }
+
+    .project-tag-link:hover {
+      background: #38bdf8;
+      color: #0f172a;
+      border-color: #38bdf8;
+      transform: translateY(-1px);
+    }
+
+    .contact-item a {
+      color: inherit;
+      text-decoration: none;
+      transition: color 0.2s ease;
+    }
+
+    .contact-item a:hover {
+      color: #0284c7;
+      text-decoration: underline;
+    }
+
+    /* Responsive styles */
+    @media (max-width: 768px) {
+      .header {
+        flex-direction: column-reverse;
+        align-items: center;
+        text-align: center;
+        gap: 20px;
+        padding: 25px 20px;
+      }
+
+      .header-actions {
+        justify-content: center;
+      }
+
+      .header-contacts {
+        justify-content: center;
+      }
+
+      .main-container {
+        grid-template-columns: 1fr;
+        padding: 20px;
+      }
+
+      .profile-photo {
+        width: 180px;
+      }
+    }
+
     /* Print styles */
     @media print {
       .navbar {
@@ -258,8 +387,33 @@
         display: none !important;
       }
 
+      .print-btn {
+        display: none !important;
+      }
+
+      .header-actions {
+        margin-top: 10px;
+        gap: 8px;
+      }
+
+      .header-btn {
+        background: transparent !important;
+        color: #ffffff !important;
+        border: none !important;
+        padding: 0 !important;
+        margin-right: 15px;
+        font-size: 12px;
+      }
+
+      .project-tag-link {
+        background: transparent !important;
+        border: 1px solid #cbd5e1 !important;
+        padding: 2px 8px !important;
+        color: #0f172a !important;
+      }
+
       @page {
-        margin: 15mm;
+        margin: 12mm 15mm;
         size: A4;
       }
 
@@ -282,8 +436,8 @@
 
       .header {
         margin: 0 0 20px 0;
-        padding: 30px !important;
-        background: var(--gradient-header) !important;
+        padding: 25px !important;
+        background: var(--gradient-header, #0f172a) !important;
         color: var(--white) !important;
         width: 100%;
         border-radius: 6px;
@@ -337,7 +491,7 @@
   <span id="title-ar" style="display:none">سيرة ذاتية عدنان بوعودة عرفة | مهندس اتصالات</span>
 
   <nav class="navbar">
-    <a href="index.html" class="nav-brand">AbuHidaya</a>
+    <a href="index.html" class="nav-brand">AbuAwn</a>
     <ul class="nav-links">
       <li><a href="index.html" class="nav-link">Home</a></li>
       <li><a href="projects.html" class="nav-link">
@@ -377,6 +531,28 @@
           <span class="lang-es">Ingeniero de Test y Validación</span>
           <span class="lang-en">Test and Validation Engineer</span>
           <span class="lang-ar">مهندس اختبار وتحقق</span>
+        </div>
+        <div class="header-actions">
+          <div class="header-contacts">
+            <a href="mailto:bouaouda@gmail.com" class="header-btn" title="Email">
+              <i class="fa-solid fa-envelope"></i>
+              <span>bouaouda@gmail.com</span>
+            </a>
+            <a href="https://www.linkedin.com/in/adnan-bouaouda-arafa/" target="_blank" rel="noopener noreferrer" class="header-btn" title="LinkedIn">
+              <i class="fa-brands fa-linkedin"></i>
+              <span>LinkedIn</span>
+            </a>
+            <a href="https://github.com/AbuAwn" target="_blank" rel="noopener noreferrer" class="header-btn" title="GitHub">
+              <i class="fa-brands fa-github"></i>
+              <span>GitHub</span>
+            </a>
+          </div>
+          <button onclick="window.print()" class="print-btn" title="Descargar PDF o Imprimir">
+            <i class="fa-solid fa-file-pdf"></i>
+            <span class="lang-es">Descargar PDF / Imprimir</span>
+            <span class="lang-en">Download PDF / Print</span>
+            <span class="lang-ar">تحميل PDF / طباعة</span>
+          </button>
         </div>
       </div>
       <div class="profile-photo">
@@ -566,6 +742,18 @@
             <span class="lang-ar">مجموعة من المشاريع الشخصية والمساهمات في سكالا وبايثون وتحليل البيانات. تطوير أدوات
               لمعالجة سجلات 5G والخوارزميات الرياضية.</span>
           </p>
+          <div class="project-links">
+            <a href="https://github.com/AbuAwn" target="_blank" rel="noopener noreferrer" class="project-tag-link">
+              <i class="fa-brands fa-github"></i>
+              <span>GitHub / AbuAwn</span>
+            </a>
+            <a href="projects.html" class="project-tag-link">
+              <i class="fa-solid fa-arrow-up-right-from-square"></i>
+              <span class="lang-es">Ver proyectos técnicos</span>
+              <span class="lang-en">View technical projects</span>
+              <span class="lang-ar">عرض المشاريع التقنية</span>
+            </a>
+          </div>
         </div>
 
         <div class="experience-item">
@@ -586,6 +774,20 @@
             <span class="lang-ar">رسالة ماجستير حول "نمو مشتقة منتجات بلاشكي". دراسة شاملة حول الخصائص التحليلية في قرص
               الوحدة.</span>
           </p>
+          <div class="project-links">
+            <a href="img/TFM_Matematicas.pdf" target="_blank" class="project-tag-link">
+              <i class="fa-solid fa-file-pdf"></i>
+              <span class="lang-es">Descargar TFM (PDF)</span>
+              <span class="lang-en">Download Thesis (PDF)</span>
+              <span class="lang-ar">تحميل الرسالة (PDF)</span>
+            </a>
+            <a href="academic.html" class="project-tag-link">
+              <i class="fa-solid fa-book-open"></i>
+              <span class="lang-es">Ver sección investigación</span>
+              <span class="lang-en">View research section</span>
+              <span class="lang-ar">عرض قسم الأبحاث</span>
+            </a>
+          </div>
         </div>
 
 
@@ -637,6 +839,14 @@
             <span class="lang-ar">تخصص في التحليل الرياضي. الأطروحة: "نمو مشتقة منتجات بلاشكي". التقدير: جيد
               جداً.</span>
           </p>
+          <div class="project-links">
+            <a href="img/TFM_Matematicas.pdf" target="_blank" class="project-tag-link">
+              <i class="fa-solid fa-file-pdf"></i>
+              <span class="lang-es">Descargar TFM (PDF)</span>
+              <span class="lang-en">Download Thesis (PDF)</span>
+              <span class="lang-ar">تحميل الرسالة (PDF)</span>
+            </a>
+          </div>
           <div class="math-box">
             <math xmlns="http://www.w3.org/1998/Math/MathML" display="block">
               <mi>B</mi>
@@ -723,15 +933,23 @@
           <span class="lang-ar">اتصل</span>
         </h2>
         <div class="contact-info">
-          <div class="contact-item"><i class="fa-solid fa-phone"></i> +34 619 904 442</div>
-          <div class="contact-item"><i class="fa-solid fa-envelope"></i> bouaouda@gmail.com</div>
+          <div class="contact-item">
+            <i class="fa-solid fa-phone"></i>
+            <a href="tel:+34619904442">+34 619 904 442</a>
+          </div>
+          <div class="contact-item">
+            <i class="fa-solid fa-envelope"></i>
+            <a href="mailto:bouaouda@gmail.com">bouaouda@gmail.com</a>
+          </div>
           <div class="contact-item">
             <i class="fa-solid fa-location-dot"></i>
             <span class="lang-es">Málaga (Coín), España</span>
             <span class="lang-en">Malaga (Coin), Spain</span>
             <span class="lang-ar">ملقة (كوين)، إسبانيا</span>
           </div>
-          <div class="contact-item"><i class="fa-brands fa-linkedin"></i> linkedin.com/in/adnan-bouaouda-arafa
+          <div class="contact-item">
+            <i class="fa-brands fa-linkedin"></i>
+            <a href="https://www.linkedin.com/in/adnan-bouaouda-arafa/" target="_blank" rel="noopener noreferrer">linkedin.com/in/adnan-bouaouda-arafa</a>
           </div>
         </div>
 
